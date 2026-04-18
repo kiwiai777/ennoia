@@ -23,11 +23,12 @@ import {
   selectRuntimeContext,
   renderPromptContext,
 } from './core/runtime/context.js';
-import type {
-  Goal,
-  Constraint,
-  Preference,
-} from './core/user-model/types.js';
+import type { Goal } from './core/user-model/types.js';
+import {
+  writeItemsToUserModel,
+  targetFromCategory,
+  type WriteableItem,
+} from './core/user-model/write-items.js';
 
 import { genericAdapter } from './adapters/generic.js';
 import { basicExtract } from './core/extraction/basic-extractor.js';
@@ -135,12 +136,6 @@ async function promptSelection(total: number): Promise<number[]> {
   }
 }
 
-// 归一化 label 用于去重比较（trim + 小写 + 折叠空白）。
-// 仅做精确去重；语义 / 模糊匹配不在本版本范围内。
-function normalizeLabel(s: string): string {
-  return s.replace(/\s+/g, ' ').trim().toLowerCase();
-}
-
 // 写入结果摘要
 interface WriteResult {
   written: CandidateItem[];
@@ -151,6 +146,8 @@ interface WriteResult {
 // - 缺 type → 默认 goals
 // - 每条 source 单独根据 source_path 生成（file-level provenance）
 // - 对既有 model + 本次 batch 做精确归一化去重，重复跳过
+//
+// CT-0005：改用共享写入层 writeItemsToUserModel
 function writeCandidates(
   items: CandidateItem[],
   mode: 'basic' | 'llm'
@@ -159,64 +156,27 @@ function writeCandidates(
   const skipped: CandidateItem[] = [];
   if (items.length === 0) return { written, skipped };
 
-  const now = new Date().toISOString();
-
-  updateUserModel((model) => {
-    // 每个类别一张归一化集合，起始自当前 model；写入后就地更新，
-    // 保证同一次 batch 内的重复也被跳过。
-    const normSets = {
-      goal: new Set(model.goals.map((i) => normalizeLabel(i.label))),
-      constraint: new Set(
-        model.constraints.map((i) => normalizeLabel(i.label))
-      ),
-      preference: new Set(
-        model.preferences.map((i) => normalizeLabel(i.label))
-      ),
+  // 转换为 WriteableItem[]
+  const writeables: WriteableItem[] = items.map((item) => {
+    const type = item.type ?? 'goal';
+    return {
+      target: targetFromCategory(type),
+      label: item.text,
+      source: `cli:import:${mode}:${path.basename(item.source_path)}`,
     };
-
-    const sourcesAdded = new Set<string>();
-
-    for (const item of items) {
-      const type: CandidateType = item.type ?? 'goal';
-      const norm = normalizeLabel(item.text);
-
-      if (normSets[type].has(norm)) {
-        skipped.push(item);
-        continue;
-      }
-      normSets[type].add(norm);
-
-      const source = `cli:import:${mode}:${path.basename(item.source_path)}`;
-      const base = {
-        id: `${type}_${randomUUID()}`,
-        label: item.text,
-        scope: 'global',
-        source,
-        created_at: now,
-        updated_at: now,
-      };
-
-      if (type === 'goal') {
-        model.goals.push(base as Goal);
-      } else if (type === 'constraint') {
-        model.constraints.push(base as Constraint);
-      } else {
-        model.preferences.push(base as Preference);
-      }
-
-      sourcesAdded.add(source);
-      written.push(item);
-    }
-
-    if (written.length > 0) {
-      model.meta.last_updated = now;
-      for (const s of sourcesAdded) {
-        if (!model.meta.sources.includes(s)) {
-          model.meta.sources.push(s);
-        }
-      }
-    }
   });
+
+  const result = writeItemsToUserModel(writeables);
+
+  // 根据共享层返回的索引，重建 written / skipped 列表
+  for (const w of result.writtenItems) {
+    const idx = writeables.indexOf(w);
+    if (idx !== -1) written.push(items[idx]);
+  }
+  for (const s of result.skippedItems) {
+    const idx = writeables.indexOf(s);
+    if (idx !== -1) skipped.push(items[idx]);
+  }
 
   return { written, skipped };
 }
@@ -313,64 +273,31 @@ interface SuggestWriteResult {
 // 把选中的 suggestion 分派进 user model 的对应数组。
 // - 每条 source 直接使用 SuggestionItem.source（cli:suggest:basic / llm）
 // - 对既有 model + 本次 batch 做精确归一化去重（与 CT-0003 写入语义一致）
+//
+// CT-0005：改用共享写入层 writeItemsToUserModel
 function writeSuggestions(items: SuggestionItem[]): SuggestWriteResult {
   const written: SuggestionItem[] = [];
   const skipped: SuggestionItem[] = [];
   if (items.length === 0) return { written, skipped };
 
-  const now = new Date().toISOString();
+  // 转换为 WriteableItem[]
+  const writeables: WriteableItem[] = items.map((item) => ({
+    target: targetFromCategory(item.type),
+    label: item.text,
+    source: item.source,
+  }));
 
-  updateUserModel((model) => {
-    const normSets = {
-      goal: new Set(model.goals.map((i) => normalizeLabel(i.label))),
-      constraint: new Set(
-        model.constraints.map((i) => normalizeLabel(i.label))
-      ),
-      preference: new Set(
-        model.preferences.map((i) => normalizeLabel(i.label))
-      ),
-    };
+  const result = writeItemsToUserModel(writeables);
 
-    const sourcesAdded = new Set<string>();
-
-    for (const item of items) {
-      const norm = normalizeLabel(item.text);
-      if (normSets[item.type].has(norm)) {
-        skipped.push(item);
-        continue;
-      }
-      normSets[item.type].add(norm);
-
-      const base = {
-        id: `${item.type}_${randomUUID()}`,
-        label: item.text,
-        scope: 'global',
-        source: item.source,
-        created_at: now,
-        updated_at: now,
-      };
-
-      if (item.type === 'goal') {
-        model.goals.push(base as Goal);
-      } else if (item.type === 'constraint') {
-        model.constraints.push(base as Constraint);
-      } else {
-        model.preferences.push(base as Preference);
-      }
-
-      sourcesAdded.add(item.source);
-      written.push(item);
-    }
-
-    if (written.length > 0) {
-      model.meta.last_updated = now;
-      for (const s of sourcesAdded) {
-        if (!model.meta.sources.includes(s)) {
-          model.meta.sources.push(s);
-        }
-      }
-    }
-  });
+  // 根据共享层返回的索引，重建 written / skipped 列表
+  for (const w of result.writtenItems) {
+    const idx = writeables.indexOf(w);
+    if (idx !== -1) written.push(items[idx]);
+  }
+  for (const s of result.skippedItems) {
+    const idx = writeables.indexOf(s);
+    if (idx !== -1) skipped.push(items[idx]);
+  }
 
   return { written, skipped };
 }
