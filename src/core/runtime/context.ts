@@ -1,14 +1,106 @@
-// Runtime Context Builder
-// 把 user model 转成一段可直接拼进 prompt 的中文文本。
-// 本阶段不做排序、裁剪、token 预算 —— 先让它能用。
+// Runtime Context
+//
+// 分两层：
+//   1. selectRuntimeContext(model, options) -> RuntimeContext
+//      结构化对象，决定"把 user model 的哪些部分交给 agent"。
+//      当前仅实现 selectionStrategy = "all"。
+//   2. renderPromptContext(ctx) -> string
+//      把 RuntimeContext 转成可直接拼进 prompt 的中文文本。
+//
+// 这样做的原因：
+//   - 选择策略（scope / agent / ranking）与文本格式是两个独立维度，
+//     混在一起会让后续的 per-agent templating / token 预算无从下手。
+//   - 下游可以只消费结构化对象，不必依赖字符串格式。
 
 import type {
   UserModel,
-  BaseItem,
+  Project,
+  Goal,
+  Preference,
+  Constraint,
+  Skill,
+  State,
   DecisionRule,
+  ISO8601,
+  BaseItem,
 } from '../user-model/types.js';
 
-function formatItems(items: BaseItem[]): string {
+export type SelectionStrategy = 'all' | 'manual' | 'scoped' | 'ranked';
+
+export interface RuntimeContextOptions {
+  agent?: string;
+  taskHint?: string;
+  // 选择策略；当前仅支持 "all"，保留字段是为了接口对齐未来方向
+  // （scoped / ranked / manual 等会在后续版本实装）。
+  selectionStrategy?: SelectionStrategy;
+  // 预留：未来可加 scope / itemIds / maxItems 等
+}
+
+export interface UserSnapshot {
+  projects: Project[];
+  goals: Goal[];
+  preferences: Preference[];
+  constraints: Constraint[];
+  skills: Skill[];
+  states: State[];
+  decision_rules: DecisionRule[];
+}
+
+export interface RuntimeContextMeta {
+  source_schema_version: string;
+  selection_strategy: SelectionStrategy;
+  notes?: string;
+}
+
+export interface RuntimeContext {
+  schema_version: '0.1';
+  generated_at: ISO8601;
+  agent?: string;
+  task_hint?: string;
+  user_snapshot: UserSnapshot;
+  meta: RuntimeContextMeta;
+}
+
+// 选择层：当前策略固定为 "all"，直接把 user model 的所有条目原样搬过来。
+// options.selectionStrategy 若显式设为非 "all"，会 fail-fast（避免静默降级）。
+// options 里的 agent / taskHint 目前只作为元数据带下去，不影响选择。
+export function selectRuntimeContext(
+  model: UserModel,
+  options: RuntimeContextOptions = {}
+): RuntimeContext {
+  const strategy: SelectionStrategy = options.selectionStrategy ?? 'all';
+  if (strategy !== 'all') {
+    throw new Error(
+      `暂不支持 selectionStrategy: ${strategy}（当前仅支持 "all"）`
+    );
+  }
+
+  const snapshot: UserSnapshot = {
+    projects: [...model.projects],
+    goals: [...model.goals],
+    preferences: [...model.preferences],
+    constraints: [...model.constraints],
+    skills: [...model.skills],
+    states: [...model.states],
+    decision_rules: [...model.decision_rules],
+  };
+
+  return {
+    schema_version: '0.1',
+    generated_at: new Date().toISOString(),
+    agent: options.agent,
+    task_hint: options.taskHint,
+    user_snapshot: snapshot,
+    meta: {
+      source_schema_version: model.schema_version,
+      selection_strategy: strategy,
+    },
+  };
+}
+
+// --- 渲染层 ---
+
+function formatBaseItems(items: BaseItem[]): string {
   if (items.length === 0) return '  （暂无）';
   return items
     .map((item) => {
@@ -18,38 +110,68 @@ function formatItems(items: BaseItem[]): string {
     .join('\n');
 }
 
-function formatDecisionRules(rules: DecisionRule[]): string {
-  if (rules.length === 0) return '  （暂无）';
-  return rules
-    .map((rule) => {
-      if (rule.when && rule.then) {
-        return `  - ${rule.label}（当 ${rule.when} → ${rule.then}）`;
-      }
-      return `  - ${rule.label}`;
+function formatSkills(skills: Skill[]): string {
+  if (skills.length === 0) return '  （暂无）';
+  return skills
+    .map((s) => {
+      const level = s.level ? `（${s.level}）` : '';
+      return `  - ${s.label}${level}`;
     })
     .join('\n');
 }
 
-// 生成一段中文格式的 user context
-export function buildContext(model: UserModel): string {
-  const sections: string[] = [];
+function formatStates(states: State[]): string {
+  if (states.length === 0) return '  （暂无）';
+  return states
+    .map((s) => {
+      const until = s.valid_until ? `（至 ${s.valid_until}）` : '';
+      return `  - ${s.label}${until}`;
+    })
+    .join('\n');
+}
 
-  sections.push('[User Context]');
-  sections.push('');
-  sections.push('项目：');
-  sections.push(formatItems(model.projects));
-  sections.push('');
-  sections.push('目标：');
-  sections.push(formatItems(model.goals));
-  sections.push('');
-  sections.push('偏好：');
-  sections.push(formatItems(model.preferences));
-  sections.push('');
-  sections.push('约束：');
-  sections.push(formatItems(model.constraints));
-  sections.push('');
-  sections.push('决策规则：');
-  sections.push(formatDecisionRules(model.decision_rules));
+function formatRules(rules: DecisionRule[]): string {
+  if (rules.length === 0) return '  （暂无）';
+  return rules
+    .map((r) => {
+      if (r.when && r.then) {
+        return `  - ${r.label}（当 ${r.when} → ${r.then}）`;
+      }
+      return `  - ${r.label}`;
+    })
+    .join('\n');
+}
 
-  return sections.join('\n');
+// TODO: 支持多语言渲染（zh / en）。当前默认中文；
+// 后续可在 renderPromptContext 增加 locale 参数或拆出 renderEn()。
+// 渲染层：只负责把结构化 RuntimeContext 变成中文 prompt 文本。
+// 不读 UserModel，不做选择逻辑。
+export function renderPromptContext(ctx: RuntimeContext): string {
+  const snap = ctx.user_snapshot;
+  const lines: string[] = [];
+
+  lines.push('[User Context]');
+  lines.push('');
+  lines.push('项目：');
+  lines.push(formatBaseItems(snap.projects));
+  lines.push('');
+  lines.push('目标：');
+  lines.push(formatBaseItems(snap.goals));
+  lines.push('');
+  lines.push('偏好：');
+  lines.push(formatBaseItems(snap.preferences));
+  lines.push('');
+  lines.push('约束：');
+  lines.push(formatBaseItems(snap.constraints));
+  lines.push('');
+  lines.push('技能：');
+  lines.push(formatSkills(snap.skills));
+  lines.push('');
+  lines.push('状态：');
+  lines.push(formatStates(snap.states));
+  lines.push('');
+  lines.push('决策规则：');
+  lines.push(formatRules(snap.decision_rules));
+
+  return lines.join('\n');
 }

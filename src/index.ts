@@ -9,12 +9,17 @@
 //   - 不做自动分类，save 一律写进 goals（CT-0002 限制）
 //   - 文件不存在时自动初始化
 
+import { randomUUID } from 'node:crypto';
+
 import {
   loadUserModel,
-  saveUserModel,
+  updateUserModel,
   getUserModelPath,
 } from './core/user-model/storage.js';
-import { buildContext } from './core/runtime/context.js';
+import {
+  selectRuntimeContext,
+  renderPromptContext,
+} from './core/runtime/context.js';
 import type { Goal } from './core/user-model/types.js';
 
 function usage(): void {
@@ -34,11 +39,9 @@ function cmdSave(text: string): void {
     process.exit(1);
   }
 
-  const model = loadUserModel();
   const now = new Date().toISOString();
-
   const goal: Goal = {
-    id: `goal_${Date.now().toString(36)}`,
+    id: `goal_${randomUUID()}`,
     label: trimmed,
     scope: 'global',
     source: 'cli:save',
@@ -46,13 +49,14 @@ function cmdSave(text: string): void {
     updated_at: now,
   };
 
-  model.goals.push(goal);
-  model.meta.last_updated = now;
-  if (!model.meta.sources.includes('cli:save')) {
-    model.meta.sources.push('cli:save');
-  }
-
-  saveUserModel(model);
+  // 走统一写入口：load → mutate → save 都在 storage 层完成
+  updateUserModel((model) => {
+    model.goals.push(goal);
+    model.meta.last_updated = now;
+    if (!model.meta.sources.includes('cli:save')) {
+      model.meta.sources.push('cli:save');
+    }
+  });
 
   console.log('已保存到 user model（goals）：');
   console.log(`  - ${goal.label}`);
@@ -60,7 +64,8 @@ function cmdSave(text: string): void {
 
 function cmdContext(): void {
   const model = loadUserModel();
-  console.log(buildContext(model));
+  const ctx = selectRuntimeContext(model);
+  console.log(renderPromptContext(ctx));
 }
 
 function main(): void {
@@ -85,4 +90,15 @@ function main(): void {
   }
 }
 
-main();
+// 顶层错误处理：parse / IO 异常直接打印中文消息，不抛堆栈给终端用户。
+// 非预期错误仍带堆栈，方便排查。
+try {
+  main();
+} catch (err) {
+  if (err instanceof Error) {
+    console.error(`错误：${err.message}`);
+  } else {
+    console.error('错误：未知异常', err);
+  }
+  process.exit(1);
+}
