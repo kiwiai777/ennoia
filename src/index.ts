@@ -30,7 +30,8 @@ import {
   type WriteableItem,
 } from './core/user-model/write-items.js';
 
-import { genericAdapter } from './adapters/generic.js';
+import { getAdapterForSource } from './adapters/registry.js';
+import { createDescriptorFromPath } from './core/source/types.js';
 import { basicExtract } from './core/extraction/basic-extractor.js';
 import { llmExtract } from './core/extraction/llm-extractor.js';
 import type {
@@ -190,14 +191,32 @@ async function cmdImport(args: string[]): Promise<void> {
     process.exit(1);
   }
 
-  if (!genericAdapter.canHandle(target)) {
-    console.error(
-      `错误：generic adapter 无法处理该路径：${target}（支持 .txt / .md / .json 与目录）`
-    );
+  // CT-0006：构造 SourceDescriptor，通过 registry 选择 adapter
+  let descriptor;
+  try {
+    descriptor = createDescriptorFromPath(target);
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error(`错误：${err.message}`);
+    } else {
+      console.error('错误：无法识别该路径');
+    }
     process.exit(1);
   }
 
-  const blocks = await genericAdapter.load(target);
+  let adapter;
+  try {
+    adapter = getAdapterForSource(descriptor);
+  } catch (err: unknown) {
+    if (err instanceof Error) {
+      console.error(`错误：${err.message}`);
+    } else {
+      console.error('错误：无 adapter 能处理该来源');
+    }
+    process.exit(1);
+  }
+
+  const blocks = await adapter.load(descriptor);
   console.log(`已读取 ${blocks.length} 个文本块（来自 ${target}）`);
 
   // LLM 模式仅在 flag + key 同时存在时启用，否则退回 basic
