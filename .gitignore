@@ -1,0 +1,11 @@
+node_modules/
+dist/
+*.log
+.env
+.env.*
+.DS_Store
+.vscode/
+.idea/
+
+# Local runtime context — not a formal project record
+CLAUDE.md
