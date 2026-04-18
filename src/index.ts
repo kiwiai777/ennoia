@@ -183,22 +183,48 @@ function writeCandidates(
 }
 
 async function cmdImport(args: string[]): Promise<void> {
-  const useLlmFlag = args.includes('--llm');
-  const target = args.find((a) => !a.startsWith('--'));
+  let useLlmFlag = false;
+  let adapterId: string | undefined = undefined;
+  const targets: string[] = [];
 
-  if (!target) {
+  // 1. 扫描 args
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === '--llm') {
+      useLlmFlag = true;
+    } else if (arg === '--adapter') {
+      if (i + 1 >= args.length || args[i + 1].startsWith('--')) {
+        console.error('错误：--adapter 缺少参数值。示例：--adapter claude-code');
+        process.exit(1);
+      }
+      adapterId = args[i + 1];
+      i++; // 跳过下一个参数
+    } else if (arg.startsWith('--')) {
+      console.error(`错误：未知的参数 ${arg}`);
+      process.exit(1);
+    } else {
+      targets.push(arg);
+    }
+  }
+
+  if (targets.length === 0) {
     console.error('错误：import 需要一个路径。示例：cortex import ./notes.md');
     process.exit(1);
   }
+  
+  if (targets.length > 1) {
+    console.error(`错误：import 只允许一个路径，但收到了多个：${targets.join(', ')}`);
+    process.exit(1);
+  }
 
-  // CT-0006：构造 SourceDescriptor，通过 registry 选择 adapter
+  const target = targets[0];
+
+  // CT-0006/CT-0007：构造 SourceDescriptor，通过 registry 选择 adapter
   let descriptor;
   try {
     descriptor = createDescriptorFromPath(target);
-    // CT-0007: 支持显式指定 adapter
-    const adapterIndex = args.indexOf('--adapter');
-    if (adapterIndex !== -1 && adapterIndex + 1 < args.length) {
-      descriptor.adapter = args[adapterIndex + 1];
+    if (adapterId) {
+      descriptor.adapter = adapterId;
     }
   } catch (err: unknown) {
     if (err instanceof Error) {
