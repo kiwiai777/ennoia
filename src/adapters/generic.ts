@@ -1,10 +1,13 @@
 // Generic Source Adapter
 // 支持 .txt / .md / .json；支持目录递归。
 // 每块输出均带 source_path，保留文件级来源信息。
+//
+// CT-0006：改为基于 SourceDescriptor 工作，而不是直接接 raw path。
 
 import fs from 'node:fs';
 import path from 'node:path';
 import type { SourceAdapter, SourceBlock } from './base.js';
+import type { SourceDescriptor } from '../core/source/types.js';
 
 const SUPPORTED_EXT = new Set(['.txt', '.md', '.json']);
 
@@ -46,7 +49,15 @@ function collectFiles(dir: string): string[] {
 }
 
 export const genericAdapter: SourceAdapter = {
-  canHandle(p: string): boolean {
+  id: 'generic',
+
+  canHandle(descriptor: SourceDescriptor): boolean {
+    // 只处理 file / directory 类型
+    if (descriptor.kind !== 'file' && descriptor.kind !== 'directory') {
+      return false;
+    }
+
+    const p = descriptor.path;
     if (!fs.existsSync(p)) return false;
     const stat = fs.statSync(p);
     if (stat.isDirectory()) return true;
@@ -54,7 +65,9 @@ export const genericAdapter: SourceAdapter = {
     return false;
   },
 
-  async load(p: string): Promise<SourceBlock[]> {
+  async load(descriptor: SourceDescriptor): Promise<SourceBlock[]> {
+    const p = descriptor.path;
+
     if (!fs.existsSync(p)) {
       throw new Error(`路径不存在：${p}`);
     }
