@@ -21,7 +21,7 @@ import {
 } from './core/user-model/storage.js';
 import {
   selectRuntimeContext,
-  renderPromptContext,
+  renderContextForHuman,
 } from './core/runtime/context.js';
 import { createInjectionPackage } from './core/runtime/injection.js';
 import type { Goal } from './core/user-model/types.js';
@@ -89,7 +89,7 @@ function cmdSave(text: string): void {
 function cmdContext(): void {
   const model = loadUserModel();
   const ctx = selectRuntimeContext(model);
-  console.log(renderPromptContext(ctx));
+  console.log(renderContextForHuman(ctx));
 }
 
 function cmdInject(args: string[]): void {
