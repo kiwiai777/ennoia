@@ -37,6 +37,10 @@ import type {
   CandidateType,
 } from './core/extraction/types.js';
 
+import { basicSuggest } from './core/suggestion/basic-suggester.js';
+import { llmSuggest } from './core/suggestion/llm-suggester.js';
+import type { SuggestionItem } from './core/suggestion/types.js';
+
 function usage(): void {
   console.log('Cortex CLI');
   console.log('');
@@ -44,6 +48,7 @@ function usage(): void {
   console.log('  cortex save "<一段文本>"       把文本写入 user model（goals）');
   console.log('  cortex context                 输出当前 user context');
   console.log('  cortex import <path> [--llm]   从文件/目录导入并交互写入');
+  console.log('  cortex suggest "<text>" [--llm] 从单段文本生成建议并交互写入');
   console.log('');
   console.log(`存储位置：${getUserModelPath()}`);
 }
@@ -288,6 +293,149 @@ async function cmdImport(args: string[]): Promise<void> {
   }
 }
 
+// --- suggest ---
+
+function printSuggestions(items: SuggestionItem[]): void {
+  console.log('');
+  console.log('检测到以下建议：');
+  console.log('');
+  items.forEach((item, i) => {
+    console.log(`${i + 1}. [${item.type}] ${item.text}`);
+  });
+  console.log('');
+}
+
+interface SuggestWriteResult {
+  written: SuggestionItem[];
+  skipped: SuggestionItem[];
+}
+
+// 把选中的 suggestion 分派进 user model 的对应数组。
+// - 每条 source 直接使用 SuggestionItem.source（cli:suggest:basic / llm）
+// - 对既有 model + 本次 batch 做精确归一化去重（与 CT-0003 写入语义一致）
+function writeSuggestions(items: SuggestionItem[]): SuggestWriteResult {
+  const written: SuggestionItem[] = [];
+  const skipped: SuggestionItem[] = [];
+  if (items.length === 0) return { written, skipped };
+
+  const now = new Date().toISOString();
+
+  updateUserModel((model) => {
+    const normSets = {
+      goal: new Set(model.goals.map((i) => normalizeLabel(i.label))),
+      constraint: new Set(
+        model.constraints.map((i) => normalizeLabel(i.label))
+      ),
+      preference: new Set(
+        model.preferences.map((i) => normalizeLabel(i.label))
+      ),
+    };
+
+    const sourcesAdded = new Set<string>();
+
+    for (const item of items) {
+      const norm = normalizeLabel(item.text);
+      if (normSets[item.type].has(norm)) {
+        skipped.push(item);
+        continue;
+      }
+      normSets[item.type].add(norm);
+
+      const base = {
+        id: `${item.type}_${randomUUID()}`,
+        label: item.text,
+        scope: 'global',
+        source: item.source,
+        created_at: now,
+        updated_at: now,
+      };
+
+      if (item.type === 'goal') {
+        model.goals.push(base as Goal);
+      } else if (item.type === 'constraint') {
+        model.constraints.push(base as Constraint);
+      } else {
+        model.preferences.push(base as Preference);
+      }
+
+      sourcesAdded.add(item.source);
+      written.push(item);
+    }
+
+    if (written.length > 0) {
+      model.meta.last_updated = now;
+      for (const s of sourcesAdded) {
+        if (!model.meta.sources.includes(s)) {
+          model.meta.sources.push(s);
+        }
+      }
+    }
+  });
+
+  return { written, skipped };
+}
+
+async function cmdSuggest(args: string[]): Promise<void> {
+  const useLlmFlag = args.includes('--llm');
+  const text = args
+    .filter((a) => !a.startsWith('--'))
+    .join(' ')
+    .trim();
+
+  if (!text) {
+    console.error(
+      '错误：suggest 需要一段文本。示例：cortex suggest "我想推进 Cortex，但要避免单点依赖"'
+    );
+    process.exit(1);
+  }
+
+  const llmAvailable = useLlmFlag && Boolean(process.env.OPENAI_API_KEY);
+
+  if (useLlmFlag && !process.env.OPENAI_API_KEY) {
+    console.log('未启用 LLM，使用基础模式（缺少 OPENAI_API_KEY）');
+  }
+
+  let suggestions: SuggestionItem[];
+  if (llmAvailable) {
+    console.log('使用 LLM 提取建议…');
+    suggestions = await llmSuggest(text);
+  } else {
+    if (!useLlmFlag) {
+      console.log('未启用 LLM，使用基础模式');
+    }
+    suggestions = basicSuggest(text);
+  }
+
+  if (suggestions.length === 0) {
+    console.log('未提取到任何建议，已退出。');
+    return;
+  }
+
+  printSuggestions(suggestions);
+  const indices = await promptSelection(suggestions.length);
+
+  if (indices.length === 0) {
+    console.log('未选择任何建议，已退出。');
+    return;
+  }
+
+  const picked = indices.map((i) => suggestions[i]);
+  const { written, skipped } = writeSuggestions(picked);
+
+  console.log('');
+  if (written.length > 0) {
+    console.log(`已写入 ${written.length} 条到 user model：`);
+    for (const item of written) {
+      console.log(`  - [${item.type}] ${item.text}`);
+    }
+  } else {
+    console.log('未写入任何条目。');
+  }
+  if (skipped.length > 0) {
+    console.log(`已跳过 ${skipped.length} 条重复项`);
+  }
+}
+
 // --- main ---
 
 async function main(): Promise<void> {
@@ -302,6 +450,9 @@ async function main(): Promise<void> {
       break;
     case 'import':
       await cmdImport(rest);
+      break;
+    case 'suggest':
+      await cmdSuggest(rest);
       break;
     case undefined:
     case '-h':
