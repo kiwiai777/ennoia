@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+# Cortex CLI 启动脚本（开发期）
+# 通过本地 tsx 直接运行 src/index.ts，无需先编译。
+# 如需全局命令：在 ~/cortex 目录执行 `npm link` 即可。
+
+set -e
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+exec "$DIR/node_modules/.bin/tsx" "$DIR/src/index.ts" "$@"

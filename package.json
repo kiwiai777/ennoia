@@ -4,6 +4,9 @@
   "private": true,
   "description": "User model layer across AI systems.",
   "type": "module",
+  "bin": {
+    "cortex": "./bin/cortex"
+  },
   "scripts": {
     "dev": "tsx src/index.ts",
     "build": "tsc",

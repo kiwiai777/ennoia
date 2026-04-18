@@ -39,11 +39,46 @@ scripts/                one-off operational scripts
 
 ```bash
 npm install
-npm run dev        # run the entry point via tsx
 npm run typecheck  # type-check without emitting
 npm run build      # compile to dist/
-npm start          # run compiled output
 ```
+
+### CLI
+
+The `cortex` CLI is exposed via `bin/cortex`. You can invoke it directly or
+run `npm link` in this directory to put `cortex` on your PATH.
+
+```bash
+./bin/cortex save "我在做 Cortex 项目"
+./bin/cortex save "避免单点依赖"
+./bin/cortex context
+```
+
+Expected output for `cortex context`:
+
+```text
+[User Context]
+
+项目：
+  （暂无）
+
+目标：
+  - 我在做 Cortex 项目
+  - 避免单点依赖
+
+偏好：
+  （暂无）
+
+约束：
+  （暂无）
+
+决策规则：
+  （暂无）
+```
+
+User model data is stored at `~/.cortex/user_model.json`. The file is
+created on first use. Edit it directly if you want to adjust fields
+outside of `save`.
 
 ## Project records
 
