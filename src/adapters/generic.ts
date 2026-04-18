@@ -1,10 +1,10 @@
 // Generic Source Adapter
 // 支持 .txt / .md / .json；支持目录递归。
-// 目标是最小可用：读到文本就返回，不做格式解析，不做 front-matter 处理。
+// 每块输出均带 source_path，保留文件级来源信息。
 
 import fs from 'node:fs';
 import path from 'node:path';
-import type { SourceAdapter } from './base.js';
+import type { SourceAdapter, SourceBlock } from './base.js';
 
 const SUPPORTED_EXT = new Set(['.txt', '.md', '.json']);
 
@@ -54,7 +54,7 @@ export const genericAdapter: SourceAdapter = {
     return false;
   },
 
-  async load(p: string): Promise<string[]> {
+  async load(p: string): Promise<SourceBlock[]> {
     if (!fs.existsSync(p)) {
       throw new Error(`路径不存在：${p}`);
     }
@@ -64,7 +64,7 @@ export const genericAdapter: SourceAdapter = {
       if (!isSupportedFile(p)) {
         throw new Error(`不支持的文件类型：${p}（仅支持 .txt / .md / .json）`);
       }
-      return [readFileAsText(p)];
+      return [{ text: readFileAsText(p), source_path: p }];
     }
 
     if (stat.isDirectory()) {
@@ -72,7 +72,11 @@ export const genericAdapter: SourceAdapter = {
       if (files.length === 0) {
         throw new Error(`目录中未找到 .txt / .md / .json 文件：${p}`);
       }
-      return files.map(readFileAsText);
+      // 每个文件独立一块，保留文件级 source_path。
+      return files.map((f) => ({
+        text: readFileAsText(f),
+        source_path: f,
+      }));
     }
 
     throw new Error(`路径既不是文件也不是目录：${p}`);

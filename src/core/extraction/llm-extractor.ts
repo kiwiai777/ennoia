@@ -7,8 +7,10 @@
 //   - 模型与 baseURL 可通过 OPENAI_MODEL / OPENAI_BASE_URL 覆盖
 //   - 使用内置 fetch，不引入 SDK 依赖
 //
+// 输入是 SourceBlock[]，输出每条候选保留来源 source_path。
 // 返回未写入 user model 的候选；写入由 CLI 交互后完成。
 
+import type { SourceBlock } from '../../adapters/base.js';
 import type { CandidateItem, CandidateType } from './types.js';
 
 const DEFAULT_MODEL = 'gpt-4o-mini';
@@ -30,8 +32,11 @@ function isValidType(t: unknown): t is CandidateType {
   return t === 'goal' || t === 'constraint' || t === 'preference';
 }
 
-// 清洗 LLM 返回：丢掉 type 非法 / text 为空的条目；去重。
-function sanitize(raw: LLMResponseItem[]): CandidateItem[] {
+// 清洗 LLM 返回：丢掉 text 为空的条目；同一块内去重。
+function sanitize(
+  raw: LLMResponseItem[],
+  sourcePath: string
+): CandidateItem[] {
   const seen = new Set<string>();
   const out: CandidateItem[] = [];
   for (const r of raw) {
@@ -42,6 +47,7 @@ function sanitize(raw: LLMResponseItem[]): CandidateItem[] {
     out.push({
       type: isValidType(r.type) ? r.type : undefined,
       text,
+      source_path: sourcePath,
     });
   }
   return out;
@@ -104,9 +110,11 @@ async function callLLM(
   return (parsed as { items: LLMResponseItem[] }).items;
 }
 
-// 主入口：把多个文本块逐个送给 LLM，合并所有候选。
-// 失败方式：任一块调用失败立即抛出，由 CLI 层统一处理。
-export async function llmExtract(blocks: string[]): Promise<CandidateItem[]> {
+// 主入口：把每个文本块独立送给 LLM，提取结果继承该块的 source_path。
+// 跨 block 按 (text + source_path) 再去一次重。
+export async function llmExtract(
+  blocks: SourceBlock[]
+): Promise<CandidateItem[]> {
   const apiKey = process.env.OPENAI_API_KEY;
   if (!apiKey) {
     throw new Error('未检测到 OPENAI_API_KEY 环境变量');
@@ -117,17 +125,17 @@ export async function llmExtract(blocks: string[]): Promise<CandidateItem[]> {
 
   const all: CandidateItem[] = [];
   for (const block of blocks) {
-    const trimmed = block.trim();
+    const trimmed = block.text.trim();
     if (!trimmed) continue;
     const raw = await callLLM(apiKey, baseUrl, model, trimmed);
-    all.push(...sanitize(raw));
+    all.push(...sanitize(raw, block.source_path));
   }
 
-  // 跨 block 再去重一次（按 text）
   const seen = new Set<string>();
   return all.filter((item) => {
-    if (seen.has(item.text)) return false;
-    seen.add(item.text);
+    const key = `${item.text}::${item.source_path}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
     return true;
   });
 }

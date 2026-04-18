@@ -11,6 +11,7 @@
 //   - LLM 默认不启用；--llm 且存在 OPENAI_API_KEY 时才启用
 
 import { randomUUID } from 'node:crypto';
+import path from 'node:path';
 import readline from 'node:readline/promises';
 
 import {
@@ -90,7 +91,8 @@ function printCandidates(items: CandidateItem[]): void {
   console.log('');
   items.forEach((item, i) => {
     const tag = item.type ? `[${item.type}]` : '[未分类]';
-    console.log(`${i + 1}. ${tag} ${item.text}`);
+    const basename = path.basename(item.source_path);
+    console.log(`${i + 1}. ${tag} ${item.text} (${basename})`);
   });
   console.log('');
 }
@@ -128,14 +130,58 @@ async function promptSelection(total: number): Promise<number[]> {
   }
 }
 
-// 把候选按 type 分派进 user model 的对应数组；缺 type 默认落 goals。
-function writeCandidates(items: CandidateItem[], source: string): void {
-  if (items.length === 0) return;
+// 归一化 label 用于去重比较（trim + 小写 + 折叠空白）。
+// 仅做精确去重；语义 / 模糊匹配不在本版本范围内。
+function normalizeLabel(s: string): string {
+  return s.replace(/\s+/g, ' ').trim().toLowerCase();
+}
+
+// 写入结果摘要
+interface WriteResult {
+  written: CandidateItem[];
+  skipped: CandidateItem[];
+}
+
+// 把候选按 type 分派进 user model 的对应数组。
+// - 缺 type → 默认 goals
+// - 每条 source 单独根据 source_path 生成（file-level provenance）
+// - 对既有 model + 本次 batch 做精确归一化去重，重复跳过
+function writeCandidates(
+  items: CandidateItem[],
+  mode: 'basic' | 'llm'
+): WriteResult {
+  const written: CandidateItem[] = [];
+  const skipped: CandidateItem[] = [];
+  if (items.length === 0) return { written, skipped };
+
   const now = new Date().toISOString();
 
   updateUserModel((model) => {
+    // 每个类别一张归一化集合，起始自当前 model；写入后就地更新，
+    // 保证同一次 batch 内的重复也被跳过。
+    const normSets = {
+      goal: new Set(model.goals.map((i) => normalizeLabel(i.label))),
+      constraint: new Set(
+        model.constraints.map((i) => normalizeLabel(i.label))
+      ),
+      preference: new Set(
+        model.preferences.map((i) => normalizeLabel(i.label))
+      ),
+    };
+
+    const sourcesAdded = new Set<string>();
+
     for (const item of items) {
       const type: CandidateType = item.type ?? 'goal';
+      const norm = normalizeLabel(item.text);
+
+      if (normSets[type].has(norm)) {
+        skipped.push(item);
+        continue;
+      }
+      normSets[type].add(norm);
+
+      const source = `cli:import:${mode}:${path.basename(item.source_path)}`;
       const base = {
         id: `${type}_${randomUUID()}`,
         label: item.text,
@@ -144,6 +190,7 @@ function writeCandidates(items: CandidateItem[], source: string): void {
         created_at: now,
         updated_at: now,
       };
+
       if (type === 'goal') {
         model.goals.push(base as Goal);
       } else if (type === 'constraint') {
@@ -151,37 +198,47 @@ function writeCandidates(items: CandidateItem[], source: string): void {
       } else {
         model.preferences.push(base as Preference);
       }
+
+      sourcesAdded.add(source);
+      written.push(item);
     }
-    model.meta.last_updated = now;
-    if (!model.meta.sources.includes(source)) {
-      model.meta.sources.push(source);
+
+    if (written.length > 0) {
+      model.meta.last_updated = now;
+      for (const s of sourcesAdded) {
+        if (!model.meta.sources.includes(s)) {
+          model.meta.sources.push(s);
+        }
+      }
     }
   });
+
+  return { written, skipped };
 }
 
 async function cmdImport(args: string[]): Promise<void> {
   const useLlmFlag = args.includes('--llm');
-  const path = args.find((a) => !a.startsWith('--'));
+  const target = args.find((a) => !a.startsWith('--'));
 
-  if (!path) {
+  if (!target) {
     console.error('错误：import 需要一个路径。示例：cortex import ./notes.md');
     process.exit(1);
   }
 
-  if (!genericAdapter.canHandle(path)) {
+  if (!genericAdapter.canHandle(target)) {
     console.error(
-      `错误：generic adapter 无法处理该路径：${path}（支持 .txt / .md / .json 与目录）`
+      `错误：generic adapter 无法处理该路径：${target}（支持 .txt / .md / .json 与目录）`
     );
     process.exit(1);
   }
 
-  const blocks = await genericAdapter.load(path);
-  console.log(`已读取 ${blocks.length} 个文本块（来自 ${path}）`);
+  const blocks = await genericAdapter.load(target);
+  console.log(`已读取 ${blocks.length} 个文本块（来自 ${target}）`);
 
   // LLM 模式仅在 flag + key 同时存在时启用，否则退回 basic
   const llmAvailable = useLlmFlag && Boolean(process.env.OPENAI_API_KEY);
   let candidates: CandidateItem[];
-  let source: string;
+  let mode: 'basic' | 'llm';
 
   if (useLlmFlag && !process.env.OPENAI_API_KEY) {
     console.log('未启用 LLM，使用基础模式（缺少 OPENAI_API_KEY）');
@@ -190,13 +247,13 @@ async function cmdImport(args: string[]): Promise<void> {
   if (llmAvailable) {
     console.log('使用 LLM 提取候选…');
     candidates = await llmExtract(blocks);
-    source = `cli:import:llm:${path}`;
+    mode = 'llm';
   } else {
     if (!useLlmFlag) {
       console.log('未启用 LLM，使用基础模式');
     }
     candidates = basicExtract(blocks);
-    source = `cli:import:basic:${path}`;
+    mode = 'basic';
   }
 
   if (candidates.length === 0) {
@@ -213,13 +270,21 @@ async function cmdImport(args: string[]): Promise<void> {
   }
 
   const picked = indices.map((i) => candidates[i]);
-  writeCandidates(picked, source);
+  const { written, skipped } = writeCandidates(picked, mode);
 
   console.log('');
-  console.log(`已写入 ${picked.length} 条到 user model：`);
-  for (const item of picked) {
-    const tag = item.type ?? 'goal';
-    console.log(`  - [${tag}] ${item.text}`);
+  if (written.length > 0) {
+    console.log(`已写入 ${written.length} 条到 user model：`);
+    for (const item of written) {
+      const tag = item.type ?? 'goal';
+      const basename = path.basename(item.source_path);
+      console.log(`  - [${tag}] ${item.text} (${basename})`);
+    }
+  } else {
+    console.log('未写入任何条目。');
+  }
+  if (skipped.length > 0) {
+    console.log(`已跳过 ${skipped.length} 条重复项`);
   }
 }
 
