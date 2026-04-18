@@ -5,9 +5,9 @@
 //
 // 当前注册：
 //   - generic adapter（支持 file / directory）
+//   - claude-code adapter（Claude Code workspace，CT-0007）
 //
-// 未来扩展方向（本轮不实现）：
-//   - claude-code adapter（Claude Code workspace / transcript）
+// 未来扩展方向：
 //   - openclaw adapter（OpenClaw workspace）
 //   - hermes adapter（Hermes 事件流）
 //   - chat-export adapter（ChatGPT / Claude 导出文件）
@@ -15,6 +15,7 @@
 import type { SourceAdapter } from './base.js';
 import type { SourceDescriptor } from '../core/source/types.js';
 import { genericAdapter } from './generic.js';
+import { claudeCodeAdapter } from './claude-code/index.js';
 
 // 全局 adapter 注册表
 const registry = new Map<string, SourceAdapter>();
@@ -71,3 +72,4 @@ export function listAvailableAdapters(): string[] {
 
 // 初始化：注册默认 adapter
 registerAdapter(genericAdapter);
+registerAdapter(claudeCodeAdapter);

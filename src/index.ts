@@ -195,6 +195,11 @@ async function cmdImport(args: string[]): Promise<void> {
   let descriptor;
   try {
     descriptor = createDescriptorFromPath(target);
+    // CT-0007: 支持显式指定 adapter
+    const adapterIndex = args.indexOf('--adapter');
+    if (adapterIndex !== -1 && adapterIndex + 1 < args.length) {
+      descriptor.adapter = args[adapterIndex + 1];
+    }
   } catch (err: unknown) {
     if (err instanceof Error) {
       console.error(`错误：${err.message}`);
