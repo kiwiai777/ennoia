@@ -30,6 +30,9 @@ export type SelectionStrategy = 'all' | 'manual' | 'scoped' | 'ranked';
 export interface RuntimeContextOptions {
   agent?: string;
   taskHint?: string;
+  // 选择策略；当前仅支持 "all"，保留字段是为了接口对齐未来方向
+  // （scoped / ranked / manual 等会在后续版本实装）。
+  selectionStrategy?: SelectionStrategy;
   // 预留：未来可加 scope / itemIds / maxItems 等
 }
 
@@ -59,11 +62,19 @@ export interface RuntimeContext {
 }
 
 // 选择层：当前策略固定为 "all"，直接把 user model 的所有条目原样搬过来。
+// options.selectionStrategy 若显式设为非 "all"，会 fail-fast（避免静默降级）。
 // options 里的 agent / taskHint 目前只作为元数据带下去，不影响选择。
 export function selectRuntimeContext(
   model: UserModel,
   options: RuntimeContextOptions = {}
 ): RuntimeContext {
+  const strategy: SelectionStrategy = options.selectionStrategy ?? 'all';
+  if (strategy !== 'all') {
+    throw new Error(
+      `暂不支持 selectionStrategy: ${strategy}（当前仅支持 "all"）`
+    );
+  }
+
   const snapshot: UserSnapshot = {
     projects: [...model.projects],
     goals: [...model.goals],
@@ -82,7 +93,7 @@ export function selectRuntimeContext(
     user_snapshot: snapshot,
     meta: {
       source_schema_version: model.schema_version,
-      selection_strategy: 'all',
+      selection_strategy: strategy,
     },
   };
 }
@@ -131,6 +142,8 @@ function formatRules(rules: DecisionRule[]): string {
     .join('\n');
 }
 
+// TODO: 支持多语言渲染（zh / en）。当前默认中文；
+// 后续可在 renderPromptContext 增加 locale 参数或拆出 renderEn()。
 // 渲染层：只负责把结构化 RuntimeContext 变成中文 prompt 文本。
 // 不读 UserModel，不做选择逻辑。
 export function renderPromptContext(ctx: RuntimeContext): string {

@@ -13,7 +13,7 @@ import { randomUUID } from 'node:crypto';
 
 import {
   loadUserModel,
-  saveUserModel,
+  updateUserModel,
   getUserModelPath,
 } from './core/user-model/storage.js';
 import {
@@ -39,9 +39,7 @@ function cmdSave(text: string): void {
     process.exit(1);
   }
 
-  const model = loadUserModel();
   const now = new Date().toISOString();
-
   const goal: Goal = {
     id: `goal_${randomUUID()}`,
     label: trimmed,
@@ -51,13 +49,14 @@ function cmdSave(text: string): void {
     updated_at: now,
   };
 
-  model.goals.push(goal);
-  model.meta.last_updated = now;
-  if (!model.meta.sources.includes('cli:save')) {
-    model.meta.sources.push('cli:save');
-  }
-
-  saveUserModel(model);
+  // 走统一写入口：load → mutate → save 都在 storage 层完成
+  updateUserModel((model) => {
+    model.goals.push(goal);
+    model.meta.last_updated = now;
+    if (!model.meta.sources.includes('cli:save')) {
+      model.meta.sources.push('cli:save');
+    }
+  });
 
   console.log('已保存到 user model（goals）：');
   console.log(`  - ${goal.label}`);
