@@ -100,7 +100,7 @@ export function selectRuntimeContext(
 
 // --- 渲染层 ---
 
-function formatBaseItems(items: BaseItem[]): string {
+export function formatBaseItems(items: BaseItem[]): string {
   if (items.length === 0) return '  （暂无）';
   return items
     .map((item) => {
@@ -110,7 +110,7 @@ function formatBaseItems(items: BaseItem[]): string {
     .join('\n');
 }
 
-function formatSkills(skills: Skill[]): string {
+export function formatSkills(skills: Skill[]): string {
   if (skills.length === 0) return '  （暂无）';
   return skills
     .map((s) => {
@@ -120,7 +120,7 @@ function formatSkills(skills: Skill[]): string {
     .join('\n');
 }
 
-function formatStates(states: State[]): string {
+export function formatStates(states: State[]): string {
   if (states.length === 0) return '  （暂无）';
   return states
     .map((s) => {
@@ -130,7 +130,7 @@ function formatStates(states: State[]): string {
     .join('\n');
 }
 
-function formatRules(rules: DecisionRule[]): string {
+export function formatRules(rules: DecisionRule[]): string {
   if (rules.length === 0) return '  （暂无）';
   return rules
     .map((r) => {
@@ -143,10 +143,10 @@ function formatRules(rules: DecisionRule[]): string {
 }
 
 // TODO: 支持多语言渲染（zh / en）。当前默认中文；
-// 后续可在 renderPromptContext 增加 locale 参数或拆出 renderEn()。
+// 后续可在 renderContextForHuman 增加 locale 参数或拆出 renderEn()。
 // 渲染层：只负责把结构化 RuntimeContext 变成中文 prompt 文本。
 // 不读 UserModel，不做选择逻辑。
-export function renderPromptContext(ctx: RuntimeContext): string {
+export function renderContextForHuman(ctx: RuntimeContext): string {
   const snap = ctx.user_snapshot;
   const lines: string[] = [];
 
