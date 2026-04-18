@@ -23,6 +23,7 @@ import {
   selectRuntimeContext,
   renderPromptContext,
 } from './core/runtime/context.js';
+import { createInjectionPackage } from './core/runtime/injection.js';
 import type { Goal } from './core/user-model/types.js';
 import {
   writeItemsToUserModel,
@@ -49,6 +50,7 @@ function usage(): void {
   console.log('用法：');
   console.log('  cortex save "<一段文本>"       把文本写入 user model（goals）');
   console.log('  cortex context                 输出当前 user context');
+  console.log('  cortex inject [--agent <id>]   生成面向 agent 的正式注入文本（默认 generic）');
   console.log('  cortex import <path> [--llm]   从文件/目录导入并交互写入');
   console.log('  cortex suggest "<text>" [--llm] 从单段文本生成建议并交互写入');
   console.log('');
@@ -89,6 +91,30 @@ function cmdContext(): void {
   const ctx = selectRuntimeContext(model);
   console.log(renderPromptContext(ctx));
 }
+
+function cmdInject(args: string[]): void {
+  const model = loadUserModel();
+  
+  let agentId = 'generic';
+  
+  for (let i = 0; i < args.length; i++) {
+    if (args[i] === '--agent') {
+      if (i + 1 >= args.length || args[i + 1].startsWith('--')) {
+        console.error('错误：--agent 缺少参数值。示例：--agent claude-code');
+        process.exit(1);
+      }
+      agentId = args[i + 1];
+      i++;
+    } else {
+      console.error(`错误：未知的参数 ${args[i]}`);
+      process.exit(1);
+    }
+  }
+
+  const pkg = createInjectionPackage(model, agentId);
+  console.log(pkg.instruction_text);
+}
+
 
 // --- import ---
 
@@ -398,6 +424,9 @@ async function main(): Promise<void> {
       break;
     case 'context':
       cmdContext();
+      break;
+    case 'inject':
+      cmdInject(rest);
       break;
     case 'import':
       await cmdImport(rest);
