@@ -49,6 +49,11 @@ import type {
 import { basicSuggest } from './core/suggestion/basic-suggester.js';
 import { llmSuggest } from './core/suggestion/llm-suggester.js';
 import type { SuggestionItem } from './core/suggestion/types.js';
+import {
+  appendObservation,
+  loadObservationLog,
+  renderObservation,
+} from './core/runtime/observation.js';
 
 function usage(): void {
   console.log('Cortex CLI');
@@ -67,8 +72,31 @@ function usage(): void {
   console.log('                                 --task-hint 提供当前任务线索（文本匹配）');
   console.log('  cortex import <path> [--llm]   从文件/目录导入并交互写入');
   console.log('  cortex suggest "<text>" [--llm] 从单段文本生成建议并交互写入');
+  console.log('  cortex observe                 查看最近 context / inject 使用记录');
   console.log('');
   console.log(`存储位置：${getUserModelPath()}`);
+}
+
+// CT-0014：最小 observation 查看入口。
+// 显示最近 N 条使用记录（逆序），让用户感知 Cortex 被实际消费的情况。
+export function cmdObserve(): void {
+  const log = loadObservationLog();
+  const all = log.observations;
+  if (all.length === 0) {
+    console.log('（暂无使用记录）');
+    return;
+  }
+  const SHOW = 20;
+  const recent = all.slice(-SHOW).reverse();
+  console.log('[最近使用记录]');
+  console.log('');
+  for (const obs of recent) {
+    console.log('  ' + renderObservation(obs));
+  }
+  if (all.length > SHOW) {
+    console.log('');
+    console.log(`  （共 ${all.length} 条，显示最近 ${SHOW} 条）`);
+  }
 }
 
 function cmdSave(text: string): void {
@@ -129,6 +157,16 @@ export function cmdContext(args: string[] = []): void {
 
   const ctx = selectRuntimeContext(model, { scope, taskHint });
   console.log(renderContextForHuman(ctx));
+
+  // CT-0014：记录使用事件（fail-soft：写入失败不影响主功能）
+  appendObservation({
+    event_type: 'context',
+    scope,
+    task_hint: taskHint,
+    selection_strategy: ctx.meta.selection_strategy,
+    selected_entries: ctx.meta.selected_entries,
+    total_entries: ctx.meta.total_model_entries,
+  });
 }
 
 type InjectFormat = 'text' | 'json';
@@ -183,9 +221,21 @@ export function cmdInject(args: string[]): void {
     }
   }
 
+  // CT-0014：在成功路径执行前先做一次 selection 以获取 meta（纯内存，无 IO）
+  const injectCtx = selectRuntimeContext(model, { agent: agentId, scope, taskHint });
+
   if (format === 'json') {
     const pack = buildInjectionPack(model, { agent: agentId, scope, taskHint });
     console.log(serializeInjectionPack(pack));
+    appendObservation({
+      event_type: 'inject',
+      agent: agentId,
+      scope,
+      task_hint: taskHint,
+      selection_strategy: injectCtx.meta.selection_strategy,
+      selected_entries: injectCtx.meta.selected_entries,
+      total_entries: injectCtx.meta.total_model_entries,
+    });
     return;
   }
 
@@ -194,11 +244,29 @@ export function cmdInject(args: string[]): void {
     const pack = buildInjectionPack(model, { agent: agentId, scope, taskHint });
     const projection = projectPackForClaudeCode(pack);
     console.log(projection.instruction_text);
+    appendObservation({
+      event_type: 'inject',
+      agent: agentId,
+      scope,
+      task_hint: taskHint,
+      selection_strategy: injectCtx.meta.selection_strategy,
+      selected_entries: injectCtx.meta.selected_entries,
+      total_entries: injectCtx.meta.total_model_entries,
+    });
     return;
   }
 
   const pkg = createInjectionPackage(model, agentId, { scope, taskHint });
   console.log(pkg.instruction_text);
+  appendObservation({
+    event_type: 'inject',
+    agent: agentId,
+    scope,
+    task_hint: taskHint,
+    selection_strategy: injectCtx.meta.selection_strategy,
+    selected_entries: injectCtx.meta.selected_entries,
+    total_entries: injectCtx.meta.total_model_entries,
+  });
 }
 
 
@@ -539,6 +607,9 @@ async function main(): Promise<void> {
       break;
     case 'inject':
       cmdInject(rest);
+      break;
+    case 'observe':
+      cmdObserve();
       break;
     case 'import':
       await cmdImport(rest);
