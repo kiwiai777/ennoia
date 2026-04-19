@@ -28,6 +28,7 @@ import {
   buildInjectionPack,
   serializeInjectionPack,
 } from './core/runtime/injection-pack.js';
+import { projectPackForClaudeCode } from './adapters/claude-code/projector.js';
 import type { Goal } from './core/user-model/types.js';
 import {
   writeItemsToUserModel,
@@ -139,7 +140,14 @@ function cmdInject(args: string[]): void {
     return;
   }
 
-  // 默认：保持 CT-0008 行为不变，输出渲染好的 instruction_text。
+  // text 路径：claude-code 走 structured pack → projector；其他 agent 保持 CT-0008 行为。
+  if (agentId === 'claude-code') {
+    const pack = buildInjectionPack(model, { agent: agentId });
+    const projection = projectPackForClaudeCode(pack);
+    console.log(projection.instruction_text);
+    return;
+  }
+
   const pkg = createInjectionPackage(model, agentId);
   console.log(pkg.instruction_text);
 }
