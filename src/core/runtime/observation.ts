@@ -190,6 +190,66 @@ export function renderRecap(recap: ObservationRecap): string {
   return lines.join('\n');
 }
 
+// CT-0016: Usage Health Signals — rule-based、可解释的 human-facing 使用状态提示。
+// 不做 recommendation、scoring、推断或自动行为。不写回 user model。
+
+export type HealthSignalKind =
+  | 'low_sample'
+  | 'mostly_all_mode'
+  | 'scoped_emerging'
+  | 'task_hint_used'
+  | 'single_event_type';
+
+export interface HealthSignal {
+  kind: HealthSignalKind;
+  message: string;
+}
+
+// 阈值导出，供测试显式引用。
+export const HEALTH_LOW_SAMPLE_THRESHOLD = 5;
+export const HEALTH_MOSTLY_ALL_RATIO = 0.8;
+
+export function buildHealthSignals(observations: RuntimeObservation[]): HealthSignal[] {
+  const total = observations.length;
+  if (total === 0) return [];
+
+  // 样本不足时只显示这一条，不作其他判断。
+  if (total < HEALTH_LOW_SAMPLE_THRESHOLD) {
+    return [{ kind: 'low_sample', message: `当前样本较少（共 ${total} 条），暂不足以看出使用模式` }];
+  }
+
+  const recap = buildRecap(observations);
+  const signals: HealthSignal[] = [];
+
+  if (recap.allCount / total >= HEALTH_MOSTLY_ALL_RATIO) {
+    signals.push({ kind: 'mostly_all_mode', message: `最近使用以全量模式为主（全量 ${recap.allCount} / 共 ${total}）` });
+  }
+
+  if (recap.scopedCount > 0) {
+    signals.push({ kind: 'scoped_emerging', message: `已观察到聚焦使用（scoped 出现 ${recap.scopedCount} 次）` });
+  }
+
+  if (recap.hasTaskHint) {
+    signals.push({ kind: 'task_hint_used', message: '已出现 task-hint 使用' });
+  }
+
+  if (recap.contextCount === 0 || recap.injectCount === 0) {
+    const which = recap.contextCount === 0 ? 'inject' : 'context';
+    signals.push({ kind: 'single_event_type', message: `当前使用仅包含单一事件类型（${which}）` });
+  }
+
+  return signals;
+}
+
+export function renderHealthSignals(signals: HealthSignal[]): string {
+  if (signals.length === 0) return '';
+  const lines: string[] = ['[使用健康信号]', ''];
+  for (const s of signals) {
+    lines.push(`  · ${s.message}`);
+  }
+  return lines.join('\n');
+}
+
 // Human-facing 渲染：把单条 observation 格式化为可读行。
 export function renderObservation(obs: RuntimeObservation): string {
   const dt = new Date(obs.timestamp).toLocaleString('zh-CN', {

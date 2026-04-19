@@ -55,6 +55,8 @@ import {
   renderObservation,
   buildRecap,
   renderRecap,
+  buildHealthSignals,
+  renderHealthSignals,
 } from './core/runtime/observation.js';
 
 function usage(): void {
@@ -93,7 +95,14 @@ export function cmdObserve(args: string[] = []): void {
     return;
   }
 
-  // CT-0015: 摘要层（recap），显示于记录列表上方
+  // CT-0016: health signals（最顶层）
+  const signalsText = renderHealthSignals(buildHealthSignals(all));
+  if (signalsText) {
+    console.log(signalsText);
+    console.log('');
+  }
+
+  // CT-0015: 摘要层（recap）
   const recap = buildRecap(all);
   console.log(renderRecap(recap));
   console.log('');
