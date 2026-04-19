@@ -8,6 +8,8 @@ import {
   formatRules,
 } from './context.js';
 import type { UserModel } from '../user-model/types.js';
+import type { ObservationRecap } from './observation.js';
+import { renderAgentFacingObservationRecap } from './observation-inject.js';
 
 export interface InjectionMeta {
   selection_strategy: SelectionStrategy;
@@ -51,7 +53,7 @@ function renderOpenQuestions(questions: string[]): string[] {
 
 // 面向 claude-code 的结构化注入渲染（CT-0012 起支持 selection-aware framing）
 // 语气偏向 coding / planning / execution
-function renderInjectionForClaudeCode(ctx: RuntimeContext): string {
+function renderInjectionForClaudeCode(ctx: RuntimeContext, recap?: ObservationRecap): string {
   const snap = ctx.user_snapshot;
   const lines: string[] = [];
 
@@ -67,6 +69,16 @@ function renderInjectionForClaudeCode(ctx: RuntimeContext): string {
     lines.push('');
     lines.push(framing);
   }
+
+  // CT-0019: observation recap injection
+  if (recap) {
+    const recapLines = renderAgentFacingObservationRecap(recap);
+    if (recapLines) {
+      lines.push('');
+      lines.push(recapLines);
+    }
+  }
+
   lines.push('');
 
   if (snap.projects.length > 0) {
@@ -128,7 +140,7 @@ function renderInjectionForClaudeCode(ctx: RuntimeContext): string {
 
 // 面向 generic 的通用注入渲染（CT-0012 起支持 selection-aware framing）
 // 语气更像 general assistant instruction
-function renderInjectionForGeneric(ctx: RuntimeContext): string {
+function renderInjectionForGeneric(ctx: RuntimeContext, recap?: ObservationRecap): string {
   const snap = ctx.user_snapshot;
   const lines: string[] = [];
 
@@ -139,8 +151,17 @@ function renderInjectionForGeneric(ctx: RuntimeContext): string {
   if (framing) {
     lines.push(framing);
   }
+
+  // CT-0019: observation recap injection
+  if (recap) {
+    const recapLines = renderAgentFacingObservationRecap(recap);
+    if (recapLines) {
+      lines.push(recapLines);
+    }
+  }
+
   lines.push(
-    '以下是该用户的跨环境长期状态与偏好。请在回答问题或提供建议时，综合考虑这些信息，不要违背用户明确的约束。'
+    '以下是该用户的跨环境长期状态与偏好。请在回答问题或提供信息时，综合考虑这些内容，不要违背用户明确的约束。'
   );
   lines.push('');
 
@@ -175,11 +196,11 @@ function renderInjectionForGeneric(ctx: RuntimeContext): string {
 }
 
 // 独立的 injection render 函数
-function renderInjectionInstruction(ctx: RuntimeContext): string {
+function renderInjectionInstruction(ctx: RuntimeContext, recap?: ObservationRecap): string {
   if (ctx.agent === 'claude-code') {
-    return renderInjectionForClaudeCode(ctx);
+    return renderInjectionForClaudeCode(ctx, recap);
   }
-  return renderInjectionForGeneric(ctx);
+  return renderInjectionForGeneric(ctx, recap);
 }
 
 export interface CreateInjectionPackageOptions {
@@ -187,6 +208,8 @@ export interface CreateInjectionPackageOptions {
   // CT-0011：scope / task-hint 透传到 selectRuntimeContext
   scope?: string;
   taskHint?: string;
+  // CT-0019: optional observation recap injection
+  recap?: ObservationRecap;
 }
 
 export function createInjectionPackage(
@@ -207,7 +230,7 @@ export function createInjectionPackage(
   });
 
   // 2. rendering layer (agent-aware)
-  const instruction_text = renderInjectionInstruction(ctx);
+  const instruction_text = renderInjectionInstruction(ctx, options.recap);
 
   return {
     agent: agentId,

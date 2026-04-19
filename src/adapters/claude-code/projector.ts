@@ -19,6 +19,8 @@ import type {
   InjectionEntry,
   InjectionEntryKind,
 } from '../../core/runtime/injection-pack.js';
+import type { ObservationRecap } from '../../core/runtime/observation.js';
+import { renderAgentFacingObservationRecap } from '../../core/runtime/observation-inject.js';
 
 // CT-0012：基于 pack.source 构建 selection framing 行。
 // 与 injection.ts 的 buildSelectionFraming 语义一致，但从 InjectionPackSource 读取。
@@ -103,8 +105,13 @@ function buildSection(
   };
 }
 
+export interface ClaudeCodeProjectionOptions {
+  recap?: ObservationRecap;
+}
+
 export function projectPackForClaudeCode(
-  pack: InjectionPack
+  pack: InjectionPack,
+  options: ClaudeCodeProjectionOptions = {}
 ): ClaudeCodeProjection {
   const buckets: Record<InjectionEntryKind, InjectionEntry[]> = {
     project: pack.projects,
@@ -137,6 +144,16 @@ export function projectPackForClaudeCode(
     lines.push('');
     lines.push(framing);
   }
+
+  // CT-0019: observation recap injection
+  if (options.recap) {
+    const recapLines = renderAgentFacingObservationRecap(options.recap);
+    if (recapLines) {
+      lines.push('');
+      lines.push(recapLines);
+    }
+  }
+
   lines.push('');
 
   for (const section of sections) {

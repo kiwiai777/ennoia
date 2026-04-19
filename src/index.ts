@@ -77,10 +77,12 @@ function usage(): void {
   console.log('                                 --task-hint 按任务线索过滤');
   console.log('  cortex inject [--agent <id>] [--format text|json]');
   console.log('                [--scope <scope>] [--task-hint "<hint>"]');
+  console.log('                [--with-observation]');
   console.log('                                 生成面向 agent 的注入内容');
   console.log('                                 默认 --agent generic --format text');
   console.log('                                 --scope 指定关注范围（项目名/id）');
   console.log('                                 --task-hint 提供当前任务线索（文本匹配）');
+  console.log('                                 --with-observation 附带运行时使用摘要');
   console.log('  cortex import <path> [--llm]   从文件/目录导入并交互写入');
   console.log('  cortex suggest "<text>" [--llm] 从单段文本生成建议并交互写入');
   console.log('  cortex observe                 查看最近 context / inject 使用记录');
@@ -221,6 +223,7 @@ export function cmdInject(args: string[]): void {
   let format: InjectFormat = 'text';
   let scope: string | undefined;
   let taskHint: string | undefined;
+  let withObservation = false;
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
@@ -257,10 +260,19 @@ export function cmdInject(args: string[]): void {
       }
       taskHint = args[i + 1];
       i++;
+    } else if (arg === '--with-observation') {
+      withObservation = true;
     } else {
       console.error(`错误：未知的参数 ${arg}`);
       process.exit(1);
     }
+  }
+
+  // CT-0019: 如果开启，则读取 observation 日志用于构建 recap (对 json format 无效，保留此逻辑避免副作用)
+  let recap;
+  if (withObservation && format === 'text') {
+    const log = loadObservationLog();
+    recap = buildRecap(log.observations);
   }
 
   // CT-0014：在成功路径执行前先做一次 selection 以获取 meta（纯内存，无 IO）
@@ -284,7 +296,7 @@ export function cmdInject(args: string[]): void {
   // text 路径：claude-code 走 structured pack → projector；其他 agent 保持 CT-0008 行为。
   if (agentId === 'claude-code') {
     const pack = buildInjectionPack(model, { agent: agentId, scope, taskHint });
-    const projection = projectPackForClaudeCode(pack);
+    const projection = projectPackForClaudeCode(pack, { recap });
     console.log(projection.instruction_text);
     appendObservation({
       event_type: 'inject',
@@ -298,7 +310,7 @@ export function cmdInject(args: string[]): void {
     return;
   }
 
-  const pkg = createInjectionPackage(model, agentId, { scope, taskHint });
+  const pkg = createInjectionPackage(model, agentId, { scope, taskHint, recap });
   console.log(pkg.instruction_text);
   appendObservation({
     event_type: 'inject',
