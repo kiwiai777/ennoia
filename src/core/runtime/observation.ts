@@ -250,6 +250,67 @@ export function renderHealthSignals(signals: HealthSignal[]): string {
   return lines.join('\n');
 }
 
+// CT-0017: Trigger Hints Foundation — rule-based、human-facing 操作时机提示。
+// 提示"在什么情况下也许值得重新查看 context 或重新生成 inject"。
+// 不自动执行任何动作，不写回 user model，不接 runtime hook。
+
+export type TriggerHintKind =
+  | 'focused_pattern_observed'
+  | 'focused_mode_shifting'
+  | 'inject_pattern_observed';
+
+export interface TriggerHint {
+  kind: TriggerHintKind;
+  message: string;
+}
+
+// 阈值导出，供测试显式引用。
+export const HINT_SCOPED_RATIO_THRESHOLD = 0.3;  // scoped 占比超过此值触发 focused_mode_shifting hint
+export const HINT_INJECT_RATIO_THRESHOLD = 0.5;  // inject 占比超过此值触发 inject_pattern_observed hint
+
+export function buildTriggerHints(observations: RuntimeObservation[]): TriggerHint[] {
+  const total = observations.length;
+  if (total < HEALTH_LOW_SAMPLE_THRESHOLD) return [];
+
+  const recap = buildRecap(observations);
+  const hints: TriggerHint[] = [];
+
+  // scoped / task-hint 使用已出现
+  if (recap.scopedCount >= 1 || recap.hasTaskHint) {
+    hints.push({
+      kind: 'focused_pattern_observed',
+      message: '已观察到 scoped 或 task-hint 使用，聚焦使用模式已出现',
+    });
+  }
+
+  // scoped 占比达到一定比例
+  if (recap.scopedCount / total >= HINT_SCOPED_RATIO_THRESHOLD) {
+    hints.push({
+      kind: 'focused_mode_shifting',
+      message: '已观察到聚焦使用信号，当前记录中聚焦使用占比较高',
+    });
+  }
+
+  // inject 占比较高
+  if (recap.injectCount / total >= HINT_INJECT_RATIO_THRESHOLD) {
+    hints.push({
+      kind: 'inject_pattern_observed',
+      message: '已观察到 inject 使用信号，当前记录中 inject 使用占比较高',
+    });
+  }
+
+  return hints;
+}
+
+export function renderTriggerHints(hints: TriggerHint[]): string {
+  if (hints.length === 0) return '';
+  const lines: string[] = ['[触发提示]', ''];
+  for (const h of hints) {
+    lines.push(`  · ${h.message}`);
+  }
+  return lines.join('\n');
+}
+
 // Human-facing 渲染：把单条 observation 格式化为可读行。
 export function renderObservation(obs: RuntimeObservation): string {
   const dt = new Date(obs.timestamp).toLocaleString('zh-CN', {

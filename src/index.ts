@@ -57,6 +57,8 @@ import {
   renderRecap,
   buildHealthSignals,
   renderHealthSignals,
+  buildTriggerHints,
+  renderTriggerHints,
 } from './core/runtime/observation.js';
 
 function usage(): void {
@@ -95,7 +97,14 @@ export function cmdObserve(args: string[] = []): void {
     return;
   }
 
-  // CT-0016: health signals（最顶层）
+  // CT-0017: trigger hints（最顶层）
+  const hintsText = renderTriggerHints(buildTriggerHints(all));
+  if (hintsText) {
+    console.log(hintsText);
+    console.log('');
+  }
+
+  // CT-0016: health signals
   const signalsText = renderHealthSignals(buildHealthSignals(all));
   if (signalsText) {
     console.log(signalsText);
