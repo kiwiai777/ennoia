@@ -20,6 +20,28 @@ import type {
   InjectionEntryKind,
 } from '../../core/runtime/injection-pack.js';
 
+// CT-0012：基于 pack.source 构建 selection framing 行。
+// 与 injection.ts 的 buildSelectionFraming 语义一致，但从 InjectionPackSource 读取。
+function buildProjectionFraming(pack: InjectionPack): string | null {
+  if (pack.source.selection_strategy !== 'scoped') return null;
+  const parts: string[] = [];
+  if (pack.source.scope) parts.push(`聚焦 → ${pack.source.scope}`);
+  if (pack.source.task_hint) parts.push(`任务线索 → ${pack.source.task_hint}`);
+  if (parts.length === 0) return null;
+  return `[注入范围：${parts.join(' | ')}]`;
+}
+
+// CT-0012：把 open_questions 渲染为 agent-facing 提示行。
+function renderProjectionOpenQuestions(questions: string[]): string[] {
+  if (questions.length === 0) return [];
+  const lines: string[] = [];
+  lines.push('⚠️ 待确认问题（以下情况尚不明确，仅供参考，不阻断执行）：');
+  for (const q of questions) {
+    lines.push(`  - ${q}`);
+  }
+  return lines;
+}
+
 export interface ClaudeCodeSection {
   kind: InjectionEntryKind;
   heading: string;
@@ -108,6 +130,13 @@ export function projectPackForClaudeCode(
   lines.push(
     '你正在服务当前终端的用户。在接下来的规划、代码修改和工具使用中，必须优先参考以下上下文。当遇到信息不足时，请将本列表作为你的核心约束边界，切勿自行臆断。'
   );
+
+  // CT-0012：selection framing（scoped 模式下显示聚焦范围）
+  const framing = buildProjectionFraming(pack);
+  if (framing) {
+    lines.push('');
+    lines.push(framing);
+  }
   lines.push('');
 
   for (const section of sections) {
@@ -115,6 +144,13 @@ export function projectPackForClaudeCode(
     for (const line of section.rendered_lines) {
       lines.push(line);
     }
+    lines.push('');
+  }
+
+  // CT-0012：open_questions（scoped 选择存在歧义时向 agent 提示）
+  const oqLines = renderProjectionOpenQuestions(pack.open_questions);
+  if (oqLines.length > 0) {
+    for (const l of oqLines) lines.push(l);
     lines.push('');
   }
 
