@@ -13,6 +13,7 @@
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
 import readline from 'node:readline/promises';
+import { fileURLToPath } from 'node:url';
 
 import {
   loadUserModel,
@@ -101,7 +102,7 @@ function cmdContext(): void {
 
 type InjectFormat = 'text' | 'json';
 
-function cmdInject(args: string[]): void {
+export function cmdInject(args: string[]): void {
   const model = loadUserModel();
 
   let agentId = 'generic';
@@ -509,13 +510,16 @@ async function main(): Promise<void> {
   }
 }
 
-// 顶层错误处理：parse / IO / 网络 等已知异常只打印中文消息；
-// 非预期错误仍带堆栈，方便排查。
-main().catch((err: unknown) => {
-  if (err instanceof Error) {
-    console.error(`错误：${err.message}`);
-  } else {
-    console.error('错误：未知异常', err);
-  }
-  process.exit(1);
-});
+// 只在直接作为入口运行时启动 main()；作为模块被 import 时跳过，
+// 避免测试加载时意外执行 CLI 逻辑。
+if (process.argv[1] != null &&
+    path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))) {
+  main().catch((err: unknown) => {
+    if (err instanceof Error) {
+      console.error(`错误：${err.message}`);
+    } else {
+      console.error('错误：未知异常', err);
+    }
+    process.exit(1);
+  });
+}

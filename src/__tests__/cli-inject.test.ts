@@ -1,72 +1,90 @@
-// CT-0009-FIX 测试：cortex inject CLI 合约
+// CT-0010-FIX2：cortex inject CLI 合约（in-process 直接调用）
 //
-// 这一层覆盖的是"用户直接敲进终端的那条命令"的真实行为，
-// 而不是 builder 函数。它会真的 spawn `./bin/cortex`，
-// 因此也顺带覆盖了 launcher 本身是否可在当前环境下启动。
+// 测试仍然验证完整的 CLI 合约：
+//   - 参数解析（--agent / --format）
+//   - 路由逻辑（json / text / claude-code projector）
+//   - stdout 输出格式
+//   - 错误处理（非法 --format → 非零退出 + stderr 提示）
+//
+// 与前一版本的区别：
+//   不再 spawn 子进程（subprocess 在部分沙箱审计环境下被 EPERM 拒绝）。
+//   改为直接 import cmdInject，在进程内 mock process.exit / console.log /
+//   console.error，并用临时 HOME 目录隔离 user model 读写。
+//   bash 启动器（bin/cortex）是透传层，不影响 CLI 合约验证。
 //
 // 测试目标：
-//   1. `cortex inject --format json` 成功路径：退出码 0 + 输出合法 JSON +
-//      含 Structured Injection Pack v0.1 的关键字段
-//   2. `cortex inject --agent claude-code --format json` 能把 agent 传进 pack
-//   3. `cortex inject --format yaml` 错误路径：退出码非 0 + stderr 含明确错误
+//   1. `inject --format json` 成功路径：退出 0 + 输出合法 Pack v0.1 JSON
+//   2. `inject --agent claude-code --format json` agent 透传路径
+//   3. `inject --agent claude-code`（默认 text）走 projector，输出 XML 标签
+//   4. `inject --format yaml` 错误路径：退出非 0 + stderr 含明确提示
 //
 // 隔离：
-//   每个用例都用一个干净的临时 HOME 目录运行，避免读/写真实的
-//   `~/.cortex/user_model.json`。测试本身不依赖用户当前的 user model。
+//   每次调用都用临时 HOME 目录运行，避免读写真实 ~/.cortex/user_model.json。
 
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
-import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { fileURLToPath } from 'node:url';
 
-const REPO_ROOT = path.resolve(
-  path.dirname(fileURLToPath(import.meta.url)),
-  '..',
-  '..'
-);
+import { cmdInject } from '../index.js';
 
-// 直接用 node + tsx loader 调起 src/index.ts，与 bin/cortex 脚本行为等价，
-// 但不依赖 bash 可 exec（在部分 Node 沙箱环境 spawnSync 执行 bash 脚本会报 EPERM）。
-const LOADER = path.join(REPO_ROOT, 'node_modules', 'tsx', 'dist', 'loader.mjs');
-const SRC_ENTRY = path.join(REPO_ROOT, 'src', 'index.ts');
+class ProcessExitError extends Error {
+  constructor(public readonly code: number) {
+    super(`process.exit(${code})`);
+  }
+}
 
 interface RunResult {
-  status: number | null;
+  status: number;
   stdout: string;
   stderr: string;
 }
 
-function runCortex(args: string[]): RunResult {
-  // 每次调用都单独开一个 tmp HOME，保证：
-  //   - 不碰用户真实的 ~/.cortex/user_model.json
-  //   - 用例之间互不串数据
-  const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'cortex-clitest-'));
+function runInjectCommand(args: string[]): RunResult {
+  const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'cortex-injecttest-'));
+  const origHome = process.env.HOME;
+
+  let status = 0;
+  let stdout = '';
+  let stderr = '';
+
+  const origExit = process.exit;
+  const origLog = console.log;
+  const origError = console.error;
+
+  process.exit = (code?: number): never => {
+    status = code ?? 0;
+    throw new ProcessExitError(code ?? 0);
+  };
+
+  console.log = (...a: unknown[]) => {
+    stdout += a.map(String).join(' ') + '\n';
+  };
+  console.error = (...a: unknown[]) => {
+    stderr += a.map(String).join(' ') + '\n';
+  };
+
+  process.env.HOME = tmpHome;
+
   try {
-    const result = spawnSync(
-      'node',
-      ['--import', `file://${LOADER}`, SRC_ENTRY, ...args],
-      {
-        cwd: REPO_ROOT,
-        env: { ...process.env, HOME: tmpHome },
-        encoding: 'utf-8',
-      }
-    );
-    return {
-      status: result.status,
-      stdout: result.stdout ?? '',
-      stderr: result.stderr ?? '',
-    };
+    cmdInject(args);
+  } catch (e) {
+    if (!(e instanceof ProcessExitError)) throw e;
   } finally {
+    process.exit = origExit;
+    console.log = origLog;
+    console.error = origError;
+    process.env.HOME = origHome;
     fs.rmSync(tmpHome, { recursive: true, force: true });
   }
+
+  return { status, stdout, stderr };
 }
 
 describe('CLI: cortex inject', () => {
   it('--format json 成功：退出 0，输出合法 Pack v0.1', () => {
-    const r = runCortex(['inject', '--format', 'json']);
+    const r = runInjectCommand(['--format', 'json']);
 
     assert.equal(
       r.status,
@@ -83,7 +101,6 @@ describe('CLI: cortex inject', () => {
       );
     }
 
-    // Structured Injection Pack v0.1 合约上必须出现的字段
     assert.equal(parsed.version, '0.1');
     assert.equal(typeof parsed.generated_at, 'string');
     assert.ok(Array.isArray(parsed.entries));
@@ -92,18 +109,11 @@ describe('CLI: cortex inject', () => {
 
     const source = parsed.source as Record<string, unknown>;
     assert.equal(source.generator, 'cortex');
-    // 未传 --agent 时默认是 generic
     assert.equal(source.agent, 'generic');
   });
 
   it('--agent claude-code --format json 把 agent 反映在 source.agent 里', () => {
-    const r = runCortex([
-      'inject',
-      '--agent',
-      'claude-code',
-      '--format',
-      'json',
-    ]);
+    const r = runInjectCommand(['--agent', 'claude-code', '--format', 'json']);
 
     assert.equal(
       r.status,
@@ -117,7 +127,7 @@ describe('CLI: cortex inject', () => {
   });
 
   it('--agent claude-code（默认 text）：走 projector 路径，输出含 XML 包装标签', () => {
-    const r = runCortex(['inject', '--agent', 'claude-code']);
+    const r = runInjectCommand(['--agent', 'claude-code']);
 
     assert.equal(
       r.status,
@@ -135,16 +145,14 @@ describe('CLI: cortex inject', () => {
   });
 
   it('--format yaml 错误：退出非 0，stderr 提示 --format 非法', () => {
-    const r = runCortex(['inject', '--format', 'yaml']);
+    const r = runInjectCommand(['--format', 'yaml']);
 
     assert.notEqual(
       r.status,
       0,
       `expected non-zero exit, got ${r.status}\nstdout=${r.stdout}`
     );
-    // stdout 不应当被污染为 JSON 之类的成功输出
     assert.equal(r.stdout.trim(), '');
-    // 明确的中文错误提示（来自 src/index.ts cmdInject）
     assert.match(r.stderr, /--format/);
     assert.match(r.stderr, /yaml/);
   });
