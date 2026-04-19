@@ -57,8 +57,11 @@ function usage(): void {
   console.log('  cortex save "<一段文本>"       把文本写入 user model（goals）');
   console.log('  cortex context                 输出当前 user context');
   console.log('  cortex inject [--agent <id>] [--format text|json]');
+  console.log('                [--scope <scope>] [--task-hint "<hint>"]');
   console.log('                                 生成面向 agent 的注入内容');
   console.log('                                 默认 --agent generic --format text');
+  console.log('                                 --scope 指定关注范围（项目名/id）');
+  console.log('                                 --task-hint 提供当前任务线索（文本匹配）');
   console.log('  cortex import <path> [--llm]   从文件/目录导入并交互写入');
   console.log('  cortex suggest "<text>" [--llm] 从单段文本生成建议并交互写入');
   console.log('');
@@ -102,11 +105,14 @@ function cmdContext(): void {
 
 type InjectFormat = 'text' | 'json';
 
+// CT-0011：支持 --scope 和 --task-hint，三条输出路径共享同一 selection 结果。
 export function cmdInject(args: string[]): void {
   const model = loadUserModel();
 
   let agentId = 'generic';
   let format: InjectFormat = 'text';
+  let scope: string | undefined;
+  let taskHint: string | undefined;
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
@@ -129,6 +135,20 @@ export function cmdInject(args: string[]): void {
       }
       format = value;
       i++;
+    } else if (arg === '--scope') {
+      if (i + 1 >= args.length || args[i + 1].startsWith('--')) {
+        console.error('错误：--scope 缺少参数值。示例：--scope Cortex');
+        process.exit(1);
+      }
+      scope = args[i + 1];
+      i++;
+    } else if (arg === '--task-hint') {
+      if (i + 1 >= args.length || args[i + 1].startsWith('--')) {
+        console.error('错误：--task-hint 缺少参数值。示例：--task-hint "planning injection"');
+        process.exit(1);
+      }
+      taskHint = args[i + 1];
+      i++;
     } else {
       console.error(`错误：未知的参数 ${arg}`);
       process.exit(1);
@@ -136,20 +156,20 @@ export function cmdInject(args: string[]): void {
   }
 
   if (format === 'json') {
-    const pack = buildInjectionPack(model, { agent: agentId });
+    const pack = buildInjectionPack(model, { agent: agentId, scope, taskHint });
     console.log(serializeInjectionPack(pack));
     return;
   }
 
   // text 路径：claude-code 走 structured pack → projector；其他 agent 保持 CT-0008 行为。
   if (agentId === 'claude-code') {
-    const pack = buildInjectionPack(model, { agent: agentId });
+    const pack = buildInjectionPack(model, { agent: agentId, scope, taskHint });
     const projection = projectPackForClaudeCode(pack);
     console.log(projection.instruction_text);
     return;
   }
 
-  const pkg = createInjectionPackage(model, agentId);
+  const pkg = createInjectionPackage(model, agentId, { scope, taskHint });
   console.log(pkg.instruction_text);
 }
 

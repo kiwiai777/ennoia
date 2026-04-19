@@ -73,6 +73,9 @@ export interface InjectionPackSource {
   user_model_schema_version: string;
   agent: string;
   selection_strategy: SelectionStrategy;
+  // CT-0011：scoped 模式下体现 scope / task_hint 参与情况
+  scope?: string;
+  task_hint?: string;
 }
 
 export interface InjectionPackInstructions {
@@ -113,7 +116,9 @@ export interface InjectionPack {
 
 export interface BuildInjectionPackOptions {
   agent?: string;
-  // 当前仅支持 'all'，与 selectRuntimeContext 一致。
+  // CT-0011：scope / taskHint 触发 scoped 选择策略（无需显式设置 selectionStrategy）
+  scope?: string;
+  taskHint?: string;
   selectionStrategy?: SelectionStrategy;
 }
 
@@ -223,9 +228,11 @@ export function buildInjectionPack(
   options: BuildInjectionPackOptions = {}
 ): InjectionPack {
   const agent = options.agent ?? 'generic';
+  // CT-0011：scope / taskHint 传入 selectRuntimeContext，共享同一选择层。
   const ctx = selectRuntimeContext(model, {
     agent,
-    selectionStrategy: options.selectionStrategy ?? 'all',
+    scope: options.scope,
+    taskHint: options.taskHint,
   });
 
   const entries = entriesFromSnapshot(ctx.user_snapshot);
@@ -241,16 +248,20 @@ export function buildInjectionPack(
   };
   for (const e of entries) counts[e.kind] += 1;
 
+  const source: InjectionPackSource = {
+    generator: CORTEX_GENERATOR,
+    generator_version: CORTEX_GENERATOR_VERSION,
+    user_model_schema_version: ctx.meta.source_schema_version,
+    agent,
+    selection_strategy: ctx.meta.selection_strategy,
+  };
+  if (ctx.meta.scope) source.scope = ctx.meta.scope;
+  if (ctx.meta.task_hint) source.task_hint = ctx.meta.task_hint;
+
   return {
     version: INJECTION_PACK_VERSION,
     generated_at: new Date().toISOString(),
-    source: {
-      generator: CORTEX_GENERATOR,
-      generator_version: CORTEX_GENERATOR_VERSION,
-      user_model_schema_version: ctx.meta.source_schema_version,
-      agent,
-      selection_strategy: ctx.meta.selection_strategy,
-    },
+    source,
     user_summary: {
       total_entries: entries.length,
       counts,
@@ -263,7 +274,8 @@ export function buildInjectionPack(
     skills: bucketBy(entries, 'skill'),
     states: bucketBy(entries, 'state'),
     decision_rules: bucketBy(entries, 'decision_rule'),
-    open_questions: [],
+    // CT-0011：从 selectRuntimeContext 传递真实 open_questions，不再永远为空。
+    open_questions: ctx.open_questions,
     instructions: defaultInstructions(),
   };
 }

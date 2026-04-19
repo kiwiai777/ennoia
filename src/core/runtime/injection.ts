@@ -125,14 +125,30 @@ function renderInjectionInstruction(ctx: RuntimeContext): string {
   return renderInjectionForGeneric(ctx);
 }
 
+export interface CreateInjectionPackageOptions {
+  locale?: string;
+  // CT-0011：scope / task-hint 透传到 selectRuntimeContext
+  scope?: string;
+  taskHint?: string;
+}
+
 export function createInjectionPackage(
   model: UserModel,
   agentId: string = 'generic',
-  locale: string = 'zh'
+  opts: CreateInjectionPackageOptions | string = {}
 ): InjectionPackage {
-  // 1. selection layer
-  const ctx = selectRuntimeContext(model, { agent: agentId });
-  
+  // 向后兼容：第三参数原来是 locale 字符串
+  const options: CreateInjectionPackageOptions =
+    typeof opts === 'string' ? { locale: opts } : opts;
+  const locale = options.locale ?? 'zh';
+
+  // 1. selection layer — CT-0011 scope/taskHint 参与
+  const ctx = selectRuntimeContext(model, {
+    agent: agentId,
+    scope: options.scope,
+    taskHint: options.taskHint,
+  });
+
   // 2. rendering layer (agent-aware)
   const instruction_text = renderInjectionInstruction(ctx);
 

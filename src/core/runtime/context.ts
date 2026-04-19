@@ -3,7 +3,7 @@
 // 分两层：
 //   1. selectRuntimeContext(model, options) -> RuntimeContext
 //      结构化对象，决定"把 user model 的哪些部分交给 agent"。
-//      当前仅实现 selectionStrategy = "all"。
+//      CT-0011 起支持 scope / task-hint 驱动的 scoped 选择。
 //   2. renderPromptContext(ctx) -> string
 //      把 RuntimeContext 转成可直接拼进 prompt 的中文文本。
 //
@@ -30,10 +30,10 @@ export type SelectionStrategy = 'all' | 'manual' | 'scoped' | 'ranked';
 export interface RuntimeContextOptions {
   agent?: string;
   taskHint?: string;
-  // 选择策略；当前仅支持 "all"，保留字段是为了接口对齐未来方向
-  // （scoped / ranked / manual 等会在后续版本实装）。
+  // CT-0011：显式 scope 字符串，触发 scoped 选择策略。
+  scope?: string;
+  // 选择策略；当前支持 "all"（默认）和 "scoped"（有 scope/taskHint 时自动启用）。
   selectionStrategy?: SelectionStrategy;
-  // 预留：未来可加 scope / itemIds / maxItems 等
 }
 
 export interface UserSnapshot {
@@ -49,6 +49,12 @@ export interface UserSnapshot {
 export interface RuntimeContextMeta {
   source_schema_version: string;
   selection_strategy: SelectionStrategy;
+  // CT-0011 scoped 模式下填充的字段
+  scope?: string;
+  task_hint?: string;
+  matched_project_ids?: string[];
+  total_model_entries: number;
+  selected_entries: number;
   notes?: string;
 }
 
@@ -58,42 +64,209 @@ export interface RuntimeContext {
   agent?: string;
   task_hint?: string;
   user_snapshot: UserSnapshot;
+  // CT-0011：表达选择过程中发现的歧义或不足，不再永远为空。
+  open_questions: string[];
   meta: RuntimeContextMeta;
 }
 
-// 选择层：当前策略固定为 "all"，直接把 user model 的所有条目原样搬过来。
-// options.selectionStrategy 若显式设为非 "all"，会 fail-fast（避免静默降级）。
-// options 里的 agent / taskHint 目前只作为元数据带下去，不影响选择。
+function countModelEntries(model: UserModel): number {
+  return (
+    model.projects.length +
+    model.goals.length +
+    model.preferences.length +
+    model.constraints.length +
+    model.skills.length +
+    model.states.length +
+    model.decision_rules.length
+  );
+}
+
+function countSnapshotEntries(snap: UserSnapshot): number {
+  return (
+    snap.projects.length +
+    snap.goals.length +
+    snap.preferences.length +
+    snap.constraints.length +
+    snap.skills.length +
+    snap.states.length +
+    snap.decision_rules.length
+  );
+}
+
+// CT-0011 scoped selection：
+//   - scope 用于匹配项目（label/id），过滤与之关联的 goals/skills/states。
+//   - taskHint 用于轻量文本匹配，补充 scope 未命中的条目。
+//   - preferences / constraints / decision_rules 永远全量包含（全局上下文）。
+//   - 歧义 / 缺失情况写入 open_questions。
+function buildScopedSnapshot(
+  model: UserModel,
+  scope: string | undefined,
+  taskHint: string | undefined
+): {
+  snapshot: UserSnapshot;
+  open_questions: string[];
+  matched_project_ids: string[];
+} {
+  const open_questions: string[] = [];
+  let matched_project_ids: string[] = [];
+
+  // 1. Project matching by scope
+  let selectedProjects: Project[];
+  if (scope) {
+    const s = scope.toLowerCase();
+    const matched = model.projects.filter(
+      (p) =>
+        p.label.toLowerCase().includes(s) || p.id.toLowerCase().includes(s)
+    );
+    if (matched.length === 0) {
+      open_questions.push(
+        `scope "${scope}" 未匹配到任何已知项目，已返回全部项目供参考`
+      );
+      selectedProjects = [...model.projects];
+    } else {
+      if (matched.length > 1) {
+        open_questions.push(
+          `scope "${scope}" 匹配到多个项目：${matched.map((p) => p.label).join('、')}`
+        );
+      }
+      selectedProjects = matched;
+      matched_project_ids = matched.map((p) => p.id);
+    }
+  } else {
+    selectedProjects = [...model.projects];
+  }
+
+  // 2. Task-hint keywords（跳过单字符 token）
+  const hintKeywords =
+    taskHint
+      ?.toLowerCase()
+      .split(/[\s,，、]+/)
+      .filter((w) => w.length > 1) ?? [];
+
+  function matchesHint(item: BaseItem): boolean {
+    if (hintKeywords.length === 0) return false;
+    const text = `${item.label} ${item.description ?? ''}`.toLowerCase();
+    return hintKeywords.some((k) => text.includes(k));
+  }
+
+  // item 属于已匹配项目，或没有明确 scope（全局），或 scope === 'global'。
+  // 只在 scope 实际命中了项目时才有效；hint-only 模式下不调用。
+  function matchesScope(item: BaseItem): boolean {
+    return (
+      !item.scope ||
+      item.scope === 'global' ||
+      matched_project_ids.includes(item.scope)
+    );
+  }
+
+  // 3. Filter goals / skills / states
+  //
+  // 两种模式：
+  //   - 有 scope 命中（matched_project_ids 非空）：scope OR hint 任一命中即入选。
+  //   - 仅 hint（matched_project_ids 为空）：仅 hint 命中才入选，不全量包含。
+  //     这样 task-hint 单独使用时才能形成真实过滤，而不是名义 scoped。
+  const hasScopeFilter = matched_project_ids.length > 0;
+
+  function selectItem(item: BaseItem): boolean {
+    if (hasScopeFilter) return matchesScope(item) || matchesHint(item);
+    return matchesHint(item);
+  }
+
+  const selectedGoals = model.goals.filter(selectItem);
+  const selectedSkills = model.skills.filter(selectItem);
+  const selectedStates = model.states.filter(selectItem);
+
+  // 4. Open questions for task-hint
+  if (taskHint && hintKeywords.length > 0) {
+    const hintMatchCount = [
+      ...selectedGoals,
+      ...selectedSkills,
+      ...selectedStates,
+    ].filter(matchesHint).length;
+    if (hintMatchCount === 0) {
+      open_questions.push(
+        `task-hint "${taskHint}" 未能匹配到任何具体条目，当前 user model 中可能缺少相关信息`
+      );
+    }
+  }
+
+  // preferences / constraints / decision_rules 全量保留（全局上下文）
+  const snapshot: UserSnapshot = {
+    projects: selectedProjects,
+    goals: selectedGoals,
+    preferences: [...model.preferences],
+    constraints: [...model.constraints],
+    skills: selectedSkills,
+    states: selectedStates,
+    decision_rules: [...model.decision_rules],
+  };
+
+  return { snapshot, open_questions, matched_project_ids };
+}
+
+// 选择层（CT-0011）：
+//   - 无 scope / taskHint → strategy = 'all'，行为与 CT-0009 一致。
+//   - 有 scope 或 taskHint → strategy = 'scoped'，触发可解释规则过滤。
+//   - 三条输出路径（text / json / claude-code projector）共享同一选择结果。
 export function selectRuntimeContext(
   model: UserModel,
   options: RuntimeContextOptions = {}
 ): RuntimeContext {
-  const strategy: SelectionStrategy = options.selectionStrategy ?? 'all';
-  if (strategy !== 'all') {
-    throw new Error(
-      `暂不支持 selectionStrategy: ${strategy}（当前仅支持 "all"）`
-    );
+  const { agent, taskHint, scope } = options;
+  const hasInput = Boolean(scope || taskHint);
+  const strategy: SelectionStrategy = hasInput ? 'scoped' : 'all';
+
+  const total = countModelEntries(model);
+
+  if (!hasInput) {
+    const snapshot: UserSnapshot = {
+      projects: [...model.projects],
+      goals: [...model.goals],
+      preferences: [...model.preferences],
+      constraints: [...model.constraints],
+      skills: [...model.skills],
+      states: [...model.states],
+      decision_rules: [...model.decision_rules],
+    };
+    return {
+      schema_version: '0.1',
+      generated_at: new Date().toISOString(),
+      agent,
+      task_hint: taskHint,
+      user_snapshot: snapshot,
+      open_questions: [],
+      meta: {
+        source_schema_version: model.schema_version,
+        selection_strategy: 'all',
+        total_model_entries: total,
+        selected_entries: total,
+      },
+    };
   }
 
-  const snapshot: UserSnapshot = {
-    projects: [...model.projects],
-    goals: [...model.goals],
-    preferences: [...model.preferences],
-    constraints: [...model.constraints],
-    skills: [...model.skills],
-    states: [...model.states],
-    decision_rules: [...model.decision_rules],
-  };
+  const { snapshot, open_questions, matched_project_ids } = buildScopedSnapshot(
+    model,
+    scope,
+    taskHint
+  );
+  const selected = countSnapshotEntries(snapshot);
 
   return {
     schema_version: '0.1',
     generated_at: new Date().toISOString(),
-    agent: options.agent,
-    task_hint: options.taskHint,
+    agent,
+    task_hint: taskHint,
     user_snapshot: snapshot,
+    open_questions,
     meta: {
       source_schema_version: model.schema_version,
       selection_strategy: strategy,
+      scope,
+      task_hint: taskHint,
+      matched_project_ids:
+        matched_project_ids.length > 0 ? matched_project_ids : undefined,
+      total_model_entries: total,
+      selected_entries: selected,
     },
   };
 }
