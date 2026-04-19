@@ -79,7 +79,11 @@ function usage(): void {
 
 // CT-0014：最小 observation 查看入口。
 // 显示最近 N 条使用记录（逆序），让用户感知 Cortex 被实际消费的情况。
-export function cmdObserve(): void {
+export function cmdObserve(args: string[] = []): void {
+  if (args.length > 0) {
+    console.error(`错误：observe 不支持参数 ${args[0]}`);
+    process.exit(1);
+  }
   const log = loadObservationLog();
   const all = log.observations;
   if (all.length === 0) {
@@ -609,7 +613,7 @@ async function main(): Promise<void> {
       cmdInject(rest);
       break;
     case 'observe':
-      cmdObserve();
+      cmdObserve(rest);
       break;
     case 'import':
       await cmdImport(rest);

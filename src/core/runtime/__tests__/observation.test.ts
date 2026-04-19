@@ -319,4 +319,20 @@ describe('CT-0014: cmdObserve', () => {
       assert.ok(!r.stdout.includes('--- Cortex'), `observe 不应含注入正文: stdout=${r.stdout}`);
     });
   });
+
+  it('无参数成功路径：退出 0', () => {
+    withTmpHome(() => {
+      const r = runCmd(() => cmdObserve([]));
+      assert.equal(r.status, 0, `expected exit 0, got ${r.status}\nstderr=${r.stderr}`);
+    });
+  });
+
+  it('多余参数 → 非零退出，stderr 含错误提示', () => {
+    withTmpHome(() => {
+      const r = runCmd(() => cmdObserve(['unexpected']));
+      assert.notEqual(r.status, 0, `expected non-zero exit, got ${r.status}`);
+      assert.equal(r.stdout.trim(), '', `stdout should be empty, got: ${r.stdout}`);
+      assert.match(r.stderr, /unexpected/);
+    });
+  });
 });
