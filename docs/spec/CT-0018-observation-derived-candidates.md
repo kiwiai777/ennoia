@@ -23,7 +23,7 @@
 
 | kind | 触发条件 | 示例 message |
 | --- | --- | --- |
-| `scope_preference_candidate` | total ≥ 5 且 recap.topScope 存在且出现 > 1 次 | 已观察到 scope 'X' 重复出现，可作为后续核查候选 |
+| `repeated_scope_candidate` | total ≥ 5 且 recap.topScope 存在且出现 > 1 次 | 已观察到 scope 'X' 重复出现，可作为后续核查候选 |
 | `focused_usage_candidate` | total ≥ 5 且 scoped/total ≥ 0.4 | 已观察到聚焦使用 (scoped) 占比较高，可作为后续核查候选 |
 | `inject_primary_usage_candidate` | total ≥ 5 且 inject/total ≥ 0.6 | 已观察到以 inject 为主的使用模式，可作为后续核查候选 |
 

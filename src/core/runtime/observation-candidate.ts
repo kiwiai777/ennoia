@@ -5,7 +5,7 @@ import { ObservationRecap, RuntimeObservation, HEALTH_LOW_SAMPLE_THRESHOLD } fro
 // 不自动写回 user model，不作为 action recommendation。
 
 export type CandidateKind =
-  | 'scope_preference_candidate'
+  | 'repeated_scope_candidate'
   | 'focused_usage_candidate'
   | 'inject_primary_usage_candidate';
 
