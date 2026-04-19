@@ -61,11 +61,6 @@ import {
   renderTriggerHints,
 } from './core/runtime/observation.js';
 
-import {
-  buildCandidates,
-  renderCandidates
-} from './core/runtime/observation-candidate.js';
-
 function usage(): void {
   console.log('Cortex CLI');
   console.log('');
@@ -90,8 +85,9 @@ function usage(): void {
   console.log(`存储位置：${getUserModelPath()}`);
 }
 
-// CT-0014：最小 observation 查看入口。
-// 显示最近 N 条使用记录（逆序），让用户感知 Cortex 被实际消费的情况。
+// CT-0014/CT-0020：最小 observation 查看入口。
+// 收敛重构：只保留 trigger hints, health signals, recap, records 四层。
+// 移除 candidates 层以消除重复语义。
 export function cmdObserve(args: string[] = []): void {
   if (args.length > 0) {
     console.error(`错误：observe 不支持参数 ${args[0]}`);
@@ -104,14 +100,7 @@ export function cmdObserve(args: string[] = []): void {
     return;
   }
 
-  // CT-0018: candidates（最高层级，只做展示不出动作）
-  const candidatesText = renderCandidates(buildCandidates(all, buildRecap(all)));
-  if (candidatesText) {
-    console.log(candidatesText);
-    console.log('');
-  }
-
-  // CT-0017: trigger hints
+  // CT-0017/CT-0020: trigger hints (最顶层，已收敛重复的 candidate 逻辑)
   const hintsText = renderTriggerHints(buildTriggerHints(all));
   if (hintsText) {
     console.log(hintsText);
