@@ -1,8 +1,24 @@
 #!/usr/bin/env bash
 # Cortex CLI 启动脚本（开发期）
-# 通过本地 tsx 直接运行 src/index.ts，无需先编译。
-# 如需全局命令：在 ~/cortex 目录执行 `npm link` 即可。
+#
+# 通过 Node 自带的 --import 预加载 tsx 的 ESM loader 来直接执行 src/index.ts，
+# 无需先编译，也不使用 tsx 的 CLI 包装器。
+#
+# 为什么不是 `tsx src/index.ts`：
+#   tsx 的 CLI 会 fork 一个子进程并通过 /tmp/tsx-$UID/*.pipe 与其通信。
+#   在部分沙箱 / 受限环境里绑定该 unix pipe 会报 EPERM，导致整个启动失败。
+#   换成 `node --import <loader.mjs>` 后是单进程，不再需要该 IPC 管道，
+#   既消除了上述环境问题，也更接近“发布后直接跑编译产物”的形态。
+#
+# 如需全局命令：在仓库根目录执行 `npm link` 即可。
 
 set -e
 DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
-exec "$DIR/node_modules/.bin/tsx" "$DIR/src/index.ts" "$@"
+LOADER="$DIR/node_modules/tsx/dist/loader.mjs"
+
+if [[ ! -f "$LOADER" ]]; then
+  echo "错误：找不到 tsx loader（$LOADER）。请先执行 npm install。" >&2
+  exit 1
+fi
+
+exec node --import "file://$LOADER" "$DIR/src/index.ts" "$@"

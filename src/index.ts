@@ -24,6 +24,10 @@ import {
   renderContextForHuman,
 } from './core/runtime/context.js';
 import { createInjectionPackage } from './core/runtime/injection.js';
+import {
+  buildInjectionPack,
+  serializeInjectionPack,
+} from './core/runtime/injection-pack.js';
 import type { Goal } from './core/user-model/types.js';
 import {
   writeItemsToUserModel,
@@ -50,7 +54,9 @@ function usage(): void {
   console.log('用法：');
   console.log('  cortex save "<一段文本>"       把文本写入 user model（goals）');
   console.log('  cortex context                 输出当前 user context');
-  console.log('  cortex inject [--agent <id>]   生成面向 agent 的正式注入文本（默认 generic）');
+  console.log('  cortex inject [--agent <id>] [--format text|json]');
+  console.log('                                 生成面向 agent 的注入内容');
+  console.log('                                 默认 --agent generic --format text');
   console.log('  cortex import <path> [--llm]   从文件/目录导入并交互写入');
   console.log('  cortex suggest "<text>" [--llm] 从单段文本生成建议并交互写入');
   console.log('');
@@ -92,25 +98,48 @@ function cmdContext(): void {
   console.log(renderContextForHuman(ctx));
 }
 
+type InjectFormat = 'text' | 'json';
+
 function cmdInject(args: string[]): void {
   const model = loadUserModel();
-  
+
   let agentId = 'generic';
-  
+  let format: InjectFormat = 'text';
+
   for (let i = 0; i < args.length; i++) {
-    if (args[i] === '--agent') {
+    const arg = args[i];
+    if (arg === '--agent') {
       if (i + 1 >= args.length || args[i + 1].startsWith('--')) {
         console.error('错误：--agent 缺少参数值。示例：--agent claude-code');
         process.exit(1);
       }
       agentId = args[i + 1];
       i++;
+    } else if (arg === '--format') {
+      if (i + 1 >= args.length || args[i + 1].startsWith('--')) {
+        console.error('错误：--format 缺少参数值。可选值：text | json');
+        process.exit(1);
+      }
+      const value = args[i + 1];
+      if (value !== 'text' && value !== 'json') {
+        console.error(`错误：--format 取值非法（${value}）。可选值：text | json`);
+        process.exit(1);
+      }
+      format = value;
+      i++;
     } else {
-      console.error(`错误：未知的参数 ${args[i]}`);
+      console.error(`错误：未知的参数 ${arg}`);
       process.exit(1);
     }
   }
 
+  if (format === 'json') {
+    const pack = buildInjectionPack(model, { agent: agentId });
+    console.log(serializeInjectionPack(pack));
+    return;
+  }
+
+  // 默认：保持 CT-0008 行为不变，输出渲染好的 instruction_text。
   const pkg = createInjectionPackage(model, agentId);
   console.log(pkg.instruction_text);
 }
