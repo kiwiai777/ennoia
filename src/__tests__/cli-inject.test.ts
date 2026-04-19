@@ -27,7 +27,11 @@ const REPO_ROOT = path.resolve(
   '..',
   '..'
 );
-const CORTEX_BIN = path.join(REPO_ROOT, 'bin', 'cortex');
+
+// 直接用 node + tsx loader 调起 src/index.ts，与 bin/cortex 脚本行为等价，
+// 但不依赖 bash 可 exec（在部分 Node 沙箱环境 spawnSync 执行 bash 脚本会报 EPERM）。
+const LOADER = path.join(REPO_ROOT, 'node_modules', 'tsx', 'dist', 'loader.mjs');
+const SRC_ENTRY = path.join(REPO_ROOT, 'src', 'index.ts');
 
 interface RunResult {
   status: number | null;
@@ -41,11 +45,15 @@ function runCortex(args: string[]): RunResult {
   //   - 用例之间互不串数据
   const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'cortex-clitest-'));
   try {
-    const result = spawnSync(CORTEX_BIN, args, {
-      cwd: REPO_ROOT,
-      env: { ...process.env, HOME: tmpHome },
-      encoding: 'utf-8',
-    });
+    const result = spawnSync(
+      'node',
+      ['--import', `file://${LOADER}`, SRC_ENTRY, ...args],
+      {
+        cwd: REPO_ROOT,
+        env: { ...process.env, HOME: tmpHome },
+        encoding: 'utf-8',
+      }
+    );
     return {
       status: result.status,
       stdout: result.stdout ?? '',
@@ -106,6 +114,24 @@ describe('CLI: cortex inject', () => {
     const parsed = JSON.parse(r.stdout) as Record<string, unknown>;
     const source = parsed.source as Record<string, unknown>;
     assert.equal(source.agent, 'claude-code');
+  });
+
+  it('--agent claude-code（默认 text）：走 projector 路径，输出含 XML 包装标签', () => {
+    const r = runCortex(['inject', '--agent', 'claude-code']);
+
+    assert.equal(
+      r.status,
+      0,
+      `expected exit 0, got ${r.status}\nstderr=${r.stderr}`
+    );
+    assert.ok(
+      r.stdout.includes('<cortex-user-model-injection>'),
+      `expected XML wrapper in output\nstdout=${r.stdout}`
+    );
+    assert.ok(
+      r.stdout.includes('</cortex-user-model-injection>'),
+      `expected closing XML tag\nstdout=${r.stdout}`
+    );
   });
 
   it('--format yaml 错误：退出非 0，stderr 提示 --format 非法', () => {

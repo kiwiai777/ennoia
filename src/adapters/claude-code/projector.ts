@@ -63,7 +63,7 @@ function renderEntry(entry: InjectionEntry): string {
     const when = typeof d.when === 'string' ? d.when : null;
     const then = typeof d.then === 'string' ? d.then : null;
     if (when && then) {
-      return `  - 当：${when} → 则：${then}`;
+      return `  - ${entry.content}（当：${when} → 则：${then}）`;
     }
   }
   return `  - ${entry.content}`;

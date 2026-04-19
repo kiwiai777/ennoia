@@ -152,16 +152,22 @@ describe('projectPackForClaudeCode', () => {
     assert.ok(proj.instruction_text.includes('<cortex-user-model-injection>'));
   });
 
-  it('decision_rule 有 when/then details → 使用结构化渲染', () => {
+  it('decision_rule 有 when/then details → content 保留且附加结构化注解', () => {
     const proj = buildProjection(makeFullModel());
 
     const drSection = proj.sections.find((s) => s.kind === 'decision_rule');
     assert.ok(drSection, 'decision_rule section should exist');
 
     const line = drSection.rendered_lines[0];
+    // content（label）必须出现，语义不能丢
+    assert.ok(
+      line.includes('遇到架构分歧'),
+      `expected content/label in output, got: ${line}`
+    );
+    // when/then 注解附在后面
     assert.ok(
       line.includes('当：') && line.includes('→ 则：'),
-      `expected structured format, got: ${line}`
+      `expected structured annotation, got: ${line}`
     );
   });
 
