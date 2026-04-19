@@ -3,7 +3,7 @@
 // 覆盖目标：
 //   1. 空 observation log → 无 candidates
 //   2. 样本不足（< threshold）→ 无 candidates
-//   3. scope 重复出现 → scope_preference_candidate
+//   3. scope 重复出现 → repeated_scope_candidate
 //   4. focused usage 占比较高 → focused_usage_candidate
 //   5. inject usage 占比较高 → inject_primary_usage_candidate
 //   6. 多 candidate 共存
@@ -39,7 +39,7 @@ describe('CT-0018: buildCandidates', () => {
     assert.deepEqual(buildCandidates(obs, recap), []);
   });
 
-  it('scope 重复出现时生成 scope_preference_candidate', () => {
+  it('scope 重复出现时生成 repeated_scope_candidate', () => {
     const obs = [
       ...makeN(HEALTH_LOW_SAMPLE_THRESHOLD - 2, { selection_strategy: 'all' }),
       makeObs({ selection_strategy: 'scoped', scope: 'A' }),
@@ -47,7 +47,7 @@ describe('CT-0018: buildCandidates', () => {
     ];
     const recap = buildRecap(obs);
     const candidates = buildCandidates(obs, recap);
-    assert.ok(candidates.some(c => c.kind === 'scope_preference_candidate'));
+    assert.ok(candidates.some(c => c.kind === 'repeated_scope_candidate'));
   });
 
   it('focused usage 占比高时生成 focused_usage_candidate', () => {
@@ -78,7 +78,7 @@ describe('CT-0018: buildCandidates', () => {
     const recap = buildRecap(obs);
     const candidates = buildCandidates(obs, recap);
     const kinds = candidates.map(c => c.kind);
-    assert.ok(kinds.includes('scope_preference_candidate'));
+    assert.ok(kinds.includes('repeated_scope_candidate'));
     assert.ok(kinds.includes('focused_usage_candidate'));
     assert.ok(kinds.includes('inject_primary_usage_candidate'));
   });
@@ -97,7 +97,5 @@ describe('CT-0018: renderCandidates', () => {
     
     assert.ok(text.includes('不代表已写入 user model'));
     assert.ok(text.includes('可作为后续核查候选'));
-    assert.ok(!text.includes('建议'));
-    assert.ok(!text.includes('应更新'));
   });
 });

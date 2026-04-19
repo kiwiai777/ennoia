@@ -26,7 +26,7 @@ export function buildCandidates(observations: RuntimeObservation[], recap: Obser
   // 如果某个 scope 反复出现
   if (recap.topScope && recap.scopedCount > 1) {
     candidates.push({
-      kind: 'scope_preference_candidate',
+      kind: 'repeated_scope_candidate',
       message: `已观察到 scope '${recap.topScope}' 重复出现，可作为后续核查候选`,
     });
   }
