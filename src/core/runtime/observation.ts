@@ -133,6 +133,63 @@ export function appendObservation(opts: AppendObservationOptions): void {
   }
 }
 
+// CT-0015: Observation recap — 基于已有记录的轻量摘要，不引入推断或写回。
+export interface ObservationRecap {
+  total: number;
+  contextCount: number;
+  injectCount: number;
+  allCount: number;
+  scopedCount: number;
+  topScope: string | undefined;  // 最高频 scope（scoped 记录中）
+  hasTaskHint: boolean;
+}
+
+export function buildRecap(observations: RuntimeObservation[]): ObservationRecap {
+  let contextCount = 0;
+  let injectCount = 0;
+  let allCount = 0;
+  let scopedCount = 0;
+  let hasTaskHint = false;
+  const scopeFreq: Record<string, number> = {};
+
+  for (const obs of observations) {
+    if (obs.event_type === 'context') contextCount++; else injectCount++;
+    if (obs.selection_strategy === 'all') allCount++; else scopedCount++;
+    if (obs.task_hint) hasTaskHint = true;
+    if (obs.scope) scopeFreq[obs.scope] = (scopeFreq[obs.scope] ?? 0) + 1;
+  }
+
+  let topScope: string | undefined;
+  const scopeEntries = Object.entries(scopeFreq);
+  if (scopeEntries.length > 0) {
+    topScope = scopeEntries.sort((a, b) => b[1] - a[1])[0][0];
+  }
+
+  return { total: observations.length, contextCount, injectCount, allCount, scopedCount, topScope, hasTaskHint };
+}
+
+export function renderRecap(recap: ObservationRecap): string {
+  if (recap.total === 0) return '';
+
+  const lines: string[] = ['[使用摘要]', ''];
+  lines.push(`  共 ${recap.total} 条记录`);
+
+  const typeParts: string[] = [];
+  if (recap.contextCount > 0) typeParts.push(`context ${recap.contextCount} 次`);
+  if (recap.injectCount > 0) typeParts.push(`inject ${recap.injectCount} 次`);
+  lines.push(`  事件类型：${typeParts.join(' / ')}`);
+
+  const modeParts: string[] = [];
+  if (recap.allCount > 0) modeParts.push(`全量 ${recap.allCount} 次`);
+  if (recap.scopedCount > 0) modeParts.push(`聚焦 ${recap.scopedCount} 次`);
+  lines.push(`  使用模式：${modeParts.join(' / ')}`);
+
+  if (recap.topScope !== undefined) lines.push(`  最常用 scope：${recap.topScope}`);
+  if (recap.hasTaskHint) lines.push('  曾使用 task-hint');
+
+  return lines.join('\n');
+}
+
 // Human-facing 渲染：把单条 observation 格式化为可读行。
 export function renderObservation(obs: RuntimeObservation): string {
   const dt = new Date(obs.timestamp).toLocaleString('zh-CN', {

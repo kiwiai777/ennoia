@@ -53,6 +53,8 @@ import {
   appendObservation,
   loadObservationLog,
   renderObservation,
+  buildRecap,
+  renderRecap,
 } from './core/runtime/observation.js';
 
 function usage(): void {
@@ -90,6 +92,12 @@ export function cmdObserve(args: string[] = []): void {
     console.log('（暂无使用记录）');
     return;
   }
+
+  // CT-0015: 摘要层（recap），显示于记录列表上方
+  const recap = buildRecap(all);
+  console.log(renderRecap(recap));
+  console.log('');
+
   const SHOW = 20;
   const recent = all.slice(-SHOW).reverse();
   console.log('[最近使用记录]');
