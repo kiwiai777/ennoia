@@ -61,6 +61,11 @@ import {
   renderTriggerHints,
 } from './core/runtime/observation.js';
 
+import {
+  buildCandidates,
+  renderCandidates
+} from './core/runtime/observation-candidate.js';
+
 function usage(): void {
   console.log('Cortex CLI');
   console.log('');
@@ -97,7 +102,14 @@ export function cmdObserve(args: string[] = []): void {
     return;
   }
 
-  // CT-0017: trigger hints（最顶层）
+  // CT-0018: candidates（最高层级，只做展示不出动作）
+  const candidatesText = renderCandidates(buildCandidates(all, buildRecap(all)));
+  if (candidatesText) {
+    console.log(candidatesText);
+    console.log('');
+  }
+
+  // CT-0017: trigger hints
   const hintsText = renderTriggerHints(buildTriggerHints(all));
   if (hintsText) {
     console.log(hintsText);
