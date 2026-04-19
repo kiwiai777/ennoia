@@ -55,7 +55,10 @@ function usage(): void {
   console.log('');
   console.log('用法：');
   console.log('  cortex save "<一段文本>"       把文本写入 user model（goals）');
-  console.log('  cortex context                 输出当前 user context');
+  console.log('  cortex context [--scope <scope>] [--task-hint "<hint>"]');
+  console.log('                                 输出当前 user context');
+  console.log('                                 --scope 聚焦到特定项目（名/id）');
+  console.log('                                 --task-hint 按任务线索过滤');
   console.log('  cortex inject [--agent <id>] [--format text|json]');
   console.log('                [--scope <scope>] [--task-hint "<hint>"]');
   console.log('                                 生成面向 agent 的注入内容');
@@ -97,9 +100,34 @@ function cmdSave(text: string): void {
   console.log(`  - ${goal.label}`);
 }
 
-function cmdContext(): void {
+// CT-0013：支持 --scope / --task-hint，与 inject 共享同一 selection 结果。
+export function cmdContext(args: string[] = []): void {
   const model = loadUserModel();
-  const ctx = selectRuntimeContext(model);
+
+  let scope: string | undefined;
+  let taskHint: string | undefined;
+
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    if (arg === '--scope') {
+      if (i + 1 >= args.length || args[i + 1].startsWith('--')) {
+        console.error('错误：--scope 缺少参数值。示例：--scope Cortex');
+        process.exit(1);
+      }
+      scope = args[++i];
+    } else if (arg === '--task-hint') {
+      if (i + 1 >= args.length || args[i + 1].startsWith('--')) {
+        console.error('错误：--task-hint 缺少参数值。示例：--task-hint "planning injection"');
+        process.exit(1);
+      }
+      taskHint = args[++i];
+    } else {
+      console.error(`错误：context 不支持参数 ${arg}`);
+      process.exit(1);
+    }
+  }
+
+  const ctx = selectRuntimeContext(model, { scope, taskHint });
   console.log(renderContextForHuman(ctx));
 }
 
@@ -507,7 +535,7 @@ async function main(): Promise<void> {
       cmdSave(rest.join(' '));
       break;
     case 'context':
-      cmdContext();
+      cmdContext(rest);
       break;
     case 'inject':
       cmdInject(rest);

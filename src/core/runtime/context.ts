@@ -319,9 +319,44 @@ export function formatRules(rules: DecisionRule[]): string {
 // 后续可在 renderContextForHuman 增加 locale 参数或拆出 renderEn()。
 // 渲染层：只负责把结构化 RuntimeContext 变成中文 prompt 文本。
 // 不读 UserModel，不做选择逻辑。
+
+// CT-0013：human-facing selection summary。
+// scoped 模式下显示当前聚焦范围与条目计数，帮助 owner 核查"为什么不是全量"。
+// all 模式返回 null，不输出任何多余行。
+function buildHumanSelectionSummary(ctx: RuntimeContext): string | null {
+  if (ctx.meta.selection_strategy !== 'scoped') return null;
+  const lines: string[] = [];
+  lines.push('[当前上下文范围]');
+  lines.push('  模式：聚焦（非全量）');
+  if (ctx.meta.scope) lines.push(`  聚焦项目：${ctx.meta.scope}`);
+  if (ctx.meta.task_hint) lines.push(`  任务线索：${ctx.meta.task_hint}`);
+  lines.push(`  已选条目：${ctx.meta.selected_entries} / ${ctx.meta.total_model_entries}`);
+  return lines.join('\n');
+}
+
+// CT-0013：open_questions 的 human-facing 呈现。
+// 表达"当前理解可能仍需补充确认"，不制造系统报错感。
+function renderHumanOpenQuestions(questions: string[]): string | null {
+  if (questions.length === 0) return null;
+  const lines: string[] = [];
+  lines.push('[待确认信息]');
+  lines.push('  以下情况当前尚不明确，供参考，不影响执行：');
+  for (const q of questions) {
+    lines.push(`  - ${q}`);
+  }
+  return lines.join('\n');
+}
+
 export function renderContextForHuman(ctx: RuntimeContext): string {
   const snap = ctx.user_snapshot;
   const lines: string[] = [];
+
+  // CT-0013：scoped 模式下先输出 selection summary
+  const selectionSummary = buildHumanSelectionSummary(ctx);
+  if (selectionSummary) {
+    lines.push(selectionSummary);
+    lines.push('');
+  }
 
   lines.push('[User Context]');
   lines.push('');
@@ -345,6 +380,13 @@ export function renderContextForHuman(ctx: RuntimeContext): string {
   lines.push('');
   lines.push('决策规则：');
   lines.push(formatRules(snap.decision_rules));
+
+  // CT-0013：open_questions 在内容之后输出
+  const oqBlock = renderHumanOpenQuestions(ctx.open_questions);
+  if (oqBlock) {
+    lines.push('');
+    lines.push(oqBlock);
+  }
 
   return lines.join('\n');
 }
