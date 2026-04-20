@@ -24,6 +24,12 @@ const PATTERNS: Array<{ type: CandidateType; triggers: string[] }> = [
 // Sentences containing these words are skipped to avoid false positives.
 const HEDGE_WORDS = ['也许', '可能', '是不是', '假设', '有人说', '比如说', '如果', '或许'];
 
+// Chinese/ASCII quote chars — presence indicates quoted speech.
+const QUOTE_CHARS = ['\u201c', '\u201d', '\u2018', '\u2019'];
+
+// Reporting verb + colon patterns indicating third-party attribution.
+const REPORT_PREFIXES = ['说：', '提到：', '表示：', '认为：', '告诉我：', '说道：'];
+
 interface Sentence {
   text: string;
   isQuestion: boolean;
@@ -31,8 +37,8 @@ interface Sentence {
 
 function splitSentences(input: string): Sentence[] {
   const result: Sentence[] = [];
-  // Split on sentence-ending punctuation, capturing the delimiter to detect questions.
-  const parts = input.split(/([。！？；\n])/);
+  // Capture delimiter (including ASCII ?) to detect question sentences.
+  const parts = input.split(/([。！？；\n?])/);
   for (let i = 0; i < parts.length; i += 2) {
     const text = parts[i].trim();
     const delimiter = parts[i + 1] ?? '';
@@ -45,7 +51,10 @@ function splitSentences(input: string): Sentence[] {
 
 function shouldSkip({ text, isQuestion }: Sentence): boolean {
   if (isQuestion) return true;
-  return HEDGE_WORDS.some(w => text.includes(w));
+  if (HEDGE_WORDS.some(w => text.includes(w))) return true;
+  if (QUOTE_CHARS.some(q => text.includes(q))) return true;
+  if (REPORT_PREFIXES.some(p => text.includes(p))) return true;
+  return false;
 }
 
 function matchSentence(sentence: Sentence): SuggestCandidate | null {

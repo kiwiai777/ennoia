@@ -63,6 +63,19 @@ describe('matchRecentActivity', () => {
     assert.deepEqual(matchRecentActivity('是不是我不想用这个？'), []);
   });
 
+  it('does not match question sentences ending with ASCII ?', () => {
+    assert.deepEqual(matchRecentActivity('我喜欢这个功能吗?'), []);
+    assert.deepEqual(matchRecentActivity('我不想这样做吗?'), []);
+  });
+
+  it('does not match quoted speech', () => {
+    assert.deepEqual(matchRecentActivity('他说\u201c我喜欢深色模式\u201d'), []);
+  });
+
+  it('does not match reported speech with reporting verb prefix', () => {
+    assert.deepEqual(matchRecentActivity('她提到：我的目标是本周上线'), []);
+  });
+
   it('does not match hedged sentences', () => {
     assert.deepEqual(matchRecentActivity('也许我喜欢更简洁的方式'), []);
     assert.deepEqual(matchRecentActivity('或许我的目标是完成这件事'), []);
