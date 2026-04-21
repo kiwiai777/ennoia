@@ -8,6 +8,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
+import { spawnSync } from 'node:child_process';
 
 import { cmdReflect } from '../index.js';
 import { loadStore, getStorePath } from '../core/suggest-loop/store.js';
@@ -280,38 +281,25 @@ describe('CLI: cortex reflect', () => {
   });
 
   it('[real-path] 非 TTY + --stdin + --accept-all + 有候选 → exit 0，store 写入', async () => {
-    const origIsTTY = (process.stdin as unknown as Record<string, unknown>).isTTY;
-    (process.stdin as unknown as Record<string, unknown>).isTTY = false;
+    const proc = spawnSync('node', ['--import', 'tsx', 'bin/cortex', 'reflect', '--stdin', '--accept-all'], {
+      input: '我喜欢简洁代码\n我想用 TypeScript\n',
+      encoding: 'utf-8',
+      env: {
+        ...process.env,
+        HOME: tmpHome,
+      },
+      stdio: ['pipe', 'pipe', 'pipe']
+    });
 
-    let status = 0;
-    let stdout = '';
-    let stderr = '';
-    const origExit = process.exit;
-    const origLog = console.log;
-    const origError = console.error;
-    process.exit = (code?: number): never => { status = code ?? 0; throw new ProcessExitError(code ?? 0); };
-    console.log = (...a: unknown[]) => { stdout += a.map(String).join(' ') + '\n'; };
-    console.error = (...a: unknown[]) => { stderr += a.map(String).join(' ') + '\n'; };
-
-    try {
-      // Inject readStdinFn only to provide test data; promptFn NOT injected (acceptAll skips it).
-      await cmdReflect(['--stdin', '--accept-all'], {
-        readStdinFn: async () => ['我喜欢简洁代码'],
-      });
-    } catch (e) {
-      if (!(e instanceof ProcessExitError)) throw e;
-    } finally {
-      process.exit = origExit;
-      console.log = origLog;
-      console.error = origError;
-      (process.stdin as unknown as Record<string, unknown>).isTTY = origIsTTY;
-    }
+    const status = proc.status;
+    const stdout = proc.stdout;
+    const stderr = proc.stderr;
 
     assert.equal(status, 0, `expected exit 0, stderr=${stderr}`);
     assert.ok(stdout.includes('已确认写入'), `stdout=${stdout}`);
 
     const store = loadStore();
-    assert.ok(store.entries.length > 0, 'store must have entries after --accept-all');
+    assert.equal(store.entries.length, 2, 'store must have 2 entries after --accept-all');
   });
 
   it('[real-path] --accept-all + 位置参数 → fail-fast exit 1（无需 stdin/prompt 注入）', async () => {
