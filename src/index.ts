@@ -61,6 +61,10 @@ import {
   renderTriggerHints,
 } from './core/runtime/observation.js';
 
+import { generateCandidatesFromRecent } from './core/suggest-loop/generateCandidatesFromRecent.js';
+import { buildSuggestions } from './core/suggest-loop/buildSuggestions.js';
+import { loadStore, appendEntry } from './core/suggest-loop/store.js';
+
 function usage(): void {
   console.log('Cortex CLI');
   console.log('');
@@ -81,6 +85,9 @@ function usage(): void {
   console.log('  cortex import <path> [--llm]   从文件/目录导入并交互写入');
   console.log('  cortex suggest "<text>" [--llm] 从单段文本生成建议并交互写入');
   console.log('  cortex observe                 查看最近 context / inject 使用记录');
+  console.log('  cortex reflect "<文本>"        从近期 activity 提取建议并交互写入');
+  console.log('  cortex reflect --stdin         从 stdin 按行读取多条输入');
+  console.log('  cortex reflect --list          查看最近 20 条已确认的 suggest-loop 记录');
   console.log('');
   console.log(`存储位置：${getUserModelPath()}`);
 }
@@ -636,6 +643,119 @@ async function cmdSuggest(args: string[]): Promise<void> {
   }
 }
 
+// --- reflect ---
+
+export interface ReflectOptions {
+  // Injection points for testing
+  promptFn?: (total: number) => Promise<number[]>;
+  readStdinFn?: () => Promise<string[]>;
+}
+
+async function defaultReadStdinLines(): Promise<string[]> {
+  return new Promise((resolve) => {
+    const lines: string[] = [];
+    const rl = readline.createInterface({ input: process.stdin });
+    rl.on('line', (line) => lines.push(line));
+    rl.on('close', () => resolve(lines));
+  });
+}
+
+export async function cmdReflect(args: string[], opts: ReflectOptions = {}): Promise<void> {
+  const _promptFn = opts.promptFn ?? promptSelection;
+  const _readStdinFn = opts.readStdinFn ?? defaultReadStdinLines;
+
+  let useStdin = false;
+  let listMode = false;
+  const positional: string[] = [];
+
+  for (const arg of args) {
+    if (arg === '--stdin') {
+      useStdin = true;
+    } else if (arg === '--list') {
+      listMode = true;
+    } else if (arg.startsWith('--')) {
+      console.error(`错误：reflect 不支持参数 ${arg}`);
+      process.exit(1);
+    } else {
+      positional.push(arg);
+    }
+  }
+
+  // --list mode
+  if (listMode) {
+    const store = loadStore();
+    if (store.entries.length === 0) {
+      console.log('暂无已确认的 suggest-loop 记录');
+      return;
+    }
+    const recent = store.entries.slice(-20).reverse();
+    console.log('[最近 suggest-loop 记录]');
+    console.log('');
+    for (const entry of recent) {
+      console.log(`  [${entry.type}] ${entry.content} (来源: ${entry.source})`);
+    }
+    return;
+  }
+
+  // Mutual exclusion
+  if (useStdin && positional.length > 0) {
+    console.error('错误：--stdin 与位置参数互斥');
+    process.exit(1);
+  }
+
+  let inputs: string[];
+  if (useStdin) {
+    const lines = await _readStdinFn();
+    inputs = lines.map((l) => l.trim()).filter((l) => l !== '');
+    if (inputs.length === 0) {
+      console.error('错误：stdin 为空，无候选输入');
+      process.exit(1);
+    }
+  } else {
+    const text = positional.join(' ').trim();
+    if (!text) {
+      console.error('错误：reflect 需要一段文本。示例：cortex reflect "..."');
+      process.exit(1);
+    }
+    inputs = [text];
+  }
+
+  const candidates = generateCandidatesFromRecent(inputs);
+  const suggestions = buildSuggestions(candidates);
+
+  if (suggestions.length === 0) {
+    console.log('未发现任何候选，已退出。');
+    return;
+  }
+
+  console.log('');
+  console.log('检测到以下候选：');
+  console.log('');
+  suggestions.forEach((item, i) => {
+    console.log(`${i + 1}. ${item.displayText}`);
+  });
+  console.log('');
+
+  const indices = await _promptFn(suggestions.length);
+
+  if (indices.length === 0) {
+    console.log('未选择任何候选，已退出。');
+    return;
+  }
+
+  const selected = new Set(indices);
+  for (let i = 0; i < suggestions.length; i++) {
+    if (selected.has(i)) {
+      appendEntry({ type: suggestions[i].type, content: suggestions[i].content, source: 'suggest_loop' });
+    }
+  }
+
+  const confirmed = indices.length;
+  const skipped = suggestions.length - confirmed;
+  console.log('');
+  console.log(`${confirmed} 条已确认写入 / ${skipped} 条已跳过`);
+}
+
 // --- main ---
 
 async function main(): Promise<void> {
@@ -659,6 +779,9 @@ async function main(): Promise<void> {
       break;
     case 'suggest':
       await cmdSuggest(rest);
+      break;
+    case 'reflect':
+      await cmdReflect(rest);
       break;
     case undefined:
     case '-h':
