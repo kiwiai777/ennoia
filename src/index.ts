@@ -64,6 +64,7 @@ import {
 import { generateCandidatesFromRecent } from './core/suggest-loop/generateCandidatesFromRecent.js';
 import { buildSuggestions } from './core/suggest-loop/buildSuggestions.js';
 import { loadStore, appendEntry } from './core/suggest-loop/store.js';
+import { confirmSuggestion, emptyStore } from './core/suggest-loop/confirmSuggestion.js';
 
 function usage(): void {
   console.log('Cortex CLI');
@@ -86,7 +87,10 @@ function usage(): void {
   console.log('  cortex suggest "<text>" [--llm] 从单段文本生成建议并交互写入');
   console.log('  cortex observe                 查看最近 context / inject 使用记录');
   console.log('  cortex reflect "<文本>"        从近期 activity 提取建议并交互写入');
-  console.log('  cortex reflect --stdin         从 stdin 按行读取多条输入');
+  console.log('  cortex reflect --stdin [--accept-all]');
+  console.log('                                 从 stdin 按行读取多条输入；');
+  console.log('                                 --accept-all 跳过交互，全部候选自动确认');
+  console.log('                                 （管道 / 非 TTY 场景必须加 --accept-all）');
   console.log('  cortex reflect --list          查看最近 20 条已确认的 suggest-loop 记录');
   console.log('');
   console.log(`存储位置：${getUserModelPath()}`);
@@ -665,12 +669,15 @@ export async function cmdReflect(args: string[], opts: ReflectOptions = {}): Pro
   const _readStdinFn = opts.readStdinFn ?? defaultReadStdinLines;
 
   let useStdin = false;
+  let acceptAll = false;
   let listMode = false;
   const positional: string[] = [];
 
   for (const arg of args) {
     if (arg === '--stdin') {
       useStdin = true;
+    } else if (arg === '--accept-all') {
+      acceptAll = true;
     } else if (arg === '--list') {
       listMode = true;
     } else if (arg.startsWith('--')) {
@@ -697,9 +704,24 @@ export async function cmdReflect(args: string[], opts: ReflectOptions = {}): Pro
     return;
   }
 
-  // Mutual exclusion
+  // --accept-all is only meaningful with --stdin; combining with positional args is ambiguous.
+  if (acceptAll && positional.length > 0) {
+    console.error('错误：--accept-all 不可与位置参数组合使用，请改用 --stdin --accept-all');
+    process.exit(1);
+  }
+
+  // Mutual exclusion: --stdin and positional args.
   if (useStdin && positional.length > 0) {
     console.error('错误：--stdin 与位置参数互斥');
+    process.exit(1);
+  }
+
+  // Preflight: non-TTY stdin without --accept-all would silently fail at interactive selection.
+  if (useStdin && !acceptAll && process.stdin.isTTY !== true) {
+    console.error(
+      '错误：检测到非交互输入（stdin 非 TTY），无法进入交互选择。\n' +
+      '请添加 --accept-all 自动确认全部候选，或改用位置参数：cortex reflect "文本"',
+    );
     process.exit(1);
   }
 
@@ -736,21 +758,25 @@ export async function cmdReflect(args: string[], opts: ReflectOptions = {}): Pro
   });
   console.log('');
 
-  const indices = await _promptFn(suggestions.length);
+  const confirmedIndices = acceptAll
+    ? suggestions.map((_, i) => i)
+    : await _promptFn(suggestions.length);
 
-  if (indices.length === 0) {
+  if (confirmedIndices.length === 0) {
     console.log('未选择任何候选，已退出。');
     return;
   }
 
-  const selected = new Set(indices);
+  // Route through confirmSuggestion — single canonical mapping point (Fix 3).
+  const selected = new Set(confirmedIndices);
   for (let i = 0; i < suggestions.length; i++) {
     if (selected.has(i)) {
-      appendEntry({ type: suggestions[i].type, content: suggestions[i].content, source: 'suggest_loop' });
+      const entry = confirmSuggestion(emptyStore(), suggestions[i], 'confirm').entries[0];
+      appendEntry(entry);
     }
   }
 
-  const confirmed = indices.length;
+  const confirmed = confirmedIndices.length;
   const skipped = suggestions.length - confirmed;
   console.log('');
   console.log(`${confirmed} 条已确认写入 / ${skipped} 条已跳过`);

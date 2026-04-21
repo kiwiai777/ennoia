@@ -90,14 +90,27 @@ describe('suggest-loop store: persistence', () => {
     assert.deepEqual(store.entries, []);
   });
 
-  it('schema 不匹配时 fail-soft：返回空 store', () => {
+  it('版本不匹配时 fail-soft：返回空 store 并输出 stderr warning', () => {
     const dir = path.join(tmpHome, '.cortex');
     fs.mkdirSync(dir, { recursive: true });
-    // Wrong version
     fs.writeFileSync(getStorePath(), JSON.stringify({ version: '0.2', entries: [] }), 'utf-8');
 
-    const store = loadStore();
+    const stderrChunks: string[] = [];
+    const origWrite = process.stderr.write.bind(process.stderr);
+    process.stderr.write = (chunk: unknown) => {
+      stderrChunks.push(String(chunk));
+      return true;
+    };
+
+    let store;
+    try {
+      store = loadStore();
+    } finally {
+      process.stderr.write = origWrite;
+    }
+
     assert.equal(store.version, '0.1');
     assert.deepEqual(store.entries, []);
+    assert.ok(stderrChunks.some((c) => c.includes('版本不匹配')), `expected version-mismatch warning, got: ${stderrChunks.join('')}`);
   });
 });

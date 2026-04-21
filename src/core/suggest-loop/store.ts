@@ -48,6 +48,14 @@ export function loadStore(): PersistedStore {
     ) {
       return parsed as PersistedStore;
     }
+    // Valid JSON but version mismatch — warn explicitly rather than silently discard.
+    if (typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+      const ver = (parsed as Record<string, unknown>).version;
+      process.stderr.write(
+        `[suggest-loop] 警告：store 文件版本不匹配（期望 0.1，实际 ${String(ver)}），` +
+        '保守起见视作空 store，建议备份原文件\n',
+      );
+    }
   } catch {
     process.stderr.write('[suggest-loop] 警告：store 文件损坏，将初始化为空 store\n');
   }

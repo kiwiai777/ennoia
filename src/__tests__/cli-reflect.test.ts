@@ -38,6 +38,7 @@ function teardown(): void {
   fs.rmSync(tmpHome, { recursive: true, force: true });
 }
 
+// Injection-based test runner: simulates TTY interactive mode (isTTY=true).
 async function runReflect(
   args: string[],
   promptAnswerIndices: number[] = [],
@@ -50,6 +51,10 @@ async function runReflect(
   const origExit = process.exit;
   const origLog = console.log;
   const origError = console.error;
+  // Simulate interactive TTY so the preflight passes in injection-based tests.
+  const stdinRef = process.stdin as unknown as Record<string, unknown>;
+  const origIsTTY = stdinRef.isTTY;
+  stdinRef.isTTY = true;
 
   process.exit = (code?: number): never => {
     status = code ?? 0;
@@ -73,6 +78,7 @@ async function runReflect(
     process.exit = origExit;
     console.log = origLog;
     console.error = origError;
+    stdinRef.isTTY = origIsTTY;
   }
 
   return { status, stdout, stderr };
@@ -218,6 +224,116 @@ describe('CLI: cortex reflect', () => {
     // Should show "条目 25" (most recent) and not show "条目 1" (oldest, beyond 20)
     assert.ok(r.stdout.includes('条目 25'), `stdout=${r.stdout}`);
     assert.ok(!r.stdout.includes('条目 5\n') || r.stdout.includes('条目 25'), `stdout shows top 20`);
+  });
+
+  // ── --accept-all 路径 ───────────────────────────────────────────────────────
+
+  it('--stdin + --accept-all + 有候选 → 跳过交互，全部写入，exit 0', async () => {
+    const lines = ['我喜欢简洁代码', '我的目标是在十天内上线'];
+    const r = await runReflect(['--stdin', '--accept-all'], [], lines);
+
+    assert.equal(r.status, 0, `stderr=${r.stderr}`);
+    assert.ok(r.stdout.includes('已确认写入'), `stdout=${r.stdout}`);
+
+    const store = loadStore();
+    assert.ok(store.entries.length >= 1);
+  });
+
+  it('--accept-all + 位置参数 → 互斥，fail-fast exit 1', async () => {
+    const r = await runReflect(['我喜欢简洁代码', '--accept-all']);
+
+    assert.equal(r.status, 1);
+    assert.ok(r.stderr.includes('--accept-all'), `stderr=${r.stderr}`);
+  });
+
+  // ── 真实路径测试（不注入 promptFn）————回归守护 TTY preflight ──────────────
+
+  it('[real-path] 非 TTY + --stdin + 无 --accept-all → preflight exit 1，store 无写入', async () => {
+    // Temporarily force non-TTY on process.stdin
+    const origIsTTY = (process.stdin as unknown as Record<string, unknown>).isTTY;
+    (process.stdin as unknown as Record<string, unknown>).isTTY = false;
+
+    let status = 0;
+    let stderr = '';
+    const origExit = process.exit;
+    const origError = console.error;
+    process.exit = (code?: number): never => { status = code ?? 0; throw new ProcessExitError(code ?? 0); };
+    console.error = (...a: unknown[]) => { stderr += a.map(String).join(' ') + '\n'; };
+
+    try {
+      // Do NOT inject readStdinFn or promptFn — tests real preflight path
+      await cmdReflect(['--stdin']);
+    } catch (e) {
+      if (!(e instanceof ProcessExitError)) throw e;
+    } finally {
+      process.exit = origExit;
+      console.error = origError;
+      (process.stdin as unknown as Record<string, unknown>).isTTY = origIsTTY;
+    }
+
+    assert.equal(status, 1, 'expected exit 1');
+    assert.ok(stderr.includes('--accept-all'), `expected --accept-all guidance in stderr, got: ${stderr}`);
+    assert.ok(stderr.includes('非交互'), `expected non-interactive mention in stderr, got: ${stderr}`);
+
+    const store = loadStore();
+    assert.equal(store.entries.length, 0, 'store must remain empty after preflight fail');
+  });
+
+  it('[real-path] 非 TTY + --stdin + --accept-all + 有候选 → exit 0，store 写入', async () => {
+    const origIsTTY = (process.stdin as unknown as Record<string, unknown>).isTTY;
+    (process.stdin as unknown as Record<string, unknown>).isTTY = false;
+
+    let status = 0;
+    let stdout = '';
+    let stderr = '';
+    const origExit = process.exit;
+    const origLog = console.log;
+    const origError = console.error;
+    process.exit = (code?: number): never => { status = code ?? 0; throw new ProcessExitError(code ?? 0); };
+    console.log = (...a: unknown[]) => { stdout += a.map(String).join(' ') + '\n'; };
+    console.error = (...a: unknown[]) => { stderr += a.map(String).join(' ') + '\n'; };
+
+    try {
+      // Inject readStdinFn only to provide test data; promptFn NOT injected (acceptAll skips it).
+      await cmdReflect(['--stdin', '--accept-all'], {
+        readStdinFn: async () => ['我喜欢简洁代码'],
+      });
+    } catch (e) {
+      if (!(e instanceof ProcessExitError)) throw e;
+    } finally {
+      process.exit = origExit;
+      console.log = origLog;
+      console.error = origError;
+      (process.stdin as unknown as Record<string, unknown>).isTTY = origIsTTY;
+    }
+
+    assert.equal(status, 0, `expected exit 0, stderr=${stderr}`);
+    assert.ok(stdout.includes('已确认写入'), `stdout=${stdout}`);
+
+    const store = loadStore();
+    assert.ok(store.entries.length > 0, 'store must have entries after --accept-all');
+  });
+
+  it('[real-path] --accept-all + 位置参数 → fail-fast exit 1（无需 stdin/prompt 注入）', async () => {
+    let status = 0;
+    let stderr = '';
+    const origExit = process.exit;
+    const origError = console.error;
+    process.exit = (code?: number): never => { status = code ?? 0; throw new ProcessExitError(code ?? 0); };
+    console.error = (...a: unknown[]) => { stderr += a.map(String).join(' ') + '\n'; };
+
+    try {
+      // No injection at all — tests pure argument parsing path
+      await cmdReflect(['我喜欢简洁代码', '--accept-all']);
+    } catch (e) {
+      if (!(e instanceof ProcessExitError)) throw e;
+    } finally {
+      process.exit = origExit;
+      console.error = origError;
+    }
+
+    assert.equal(status, 1);
+    assert.ok(stderr.includes('--accept-all'), `expected --accept-all in stderr, got: ${stderr}`);
   });
 
   // ── 选择场景 ─────────────────────────────────────────────────────────────────
