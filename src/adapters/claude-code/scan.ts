@@ -7,6 +7,25 @@ const MAX_FILE_SIZE = 100 * 1024; // 100KB per file
 const TOTAL_BUDGET = 500 * 1024;  // 500KB total budget
 const MAX_CLAUDE_SUBDIR_FILES = 20;
 
+const PACKAGE_JSON_WHITELIST = new Set(['name', 'description', 'dependencies', 'devDependencies', 'engines', 'scripts']);
+
+function filterPackageJson(raw: string, filePath: string): string | null {
+  let parsed: Record<string, unknown>;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    console.warn(`[scanWorkspace] 跳过文件：package.json 解析失败 - ${filePath}`);
+    return null;
+  }
+  const filtered: Record<string, unknown> = {};
+  for (const key of PACKAGE_JSON_WHITELIST) {
+    if (Object.prototype.hasOwnProperty.call(parsed, key)) {
+      filtered[key] = parsed[key];
+    }
+  }
+  return JSON.stringify(filtered);
+}
+
 function isUtf8(buffer: Buffer): boolean {
   // Simple heuristic for checking if buffer is likely UTF-8
   for (let i = 0; i < buffer.length; i++) {
@@ -43,18 +62,25 @@ function tryReadFile(filePath: string): string | null {
 export function scanWorkspace(rootPath: string): ContentBlock[] {
   const blocks: ContentBlock[] = [];
   let currentTotalSize = 0;
+  let budgetExhausted = false;
 
   function addBlock(filePath: string, kind: ContentBlock['kind'], hint?: ExtractionHint) {
-    if (currentTotalSize >= TOTAL_BUDGET) {
+    if (budgetExhausted || currentTotalSize >= TOTAL_BUDGET) {
       return;
     }
 
-    const content = tryReadFile(filePath);
+    let content = tryReadFile(filePath);
     if (!content) return;
 
+    if (hint === 'package-manifest') {
+      const filtered = filterPackageJson(content, filePath);
+      if (filtered === null) return;
+      content = filtered;
+    }
+
     if (currentTotalSize + content.length > TOTAL_BUDGET) {
-      console.warn(`[scanWorkspace] 总容量超出限制 (500KB) 停止抓取：跳过 ${filePath}`);
-      // Skip this file rather than truncating its content, avoiding broken JSON/Markdown
+      console.warn(`[scanWorkspace] 总预算超出限制 (${TOTAL_BUDGET} bytes / 500KB)，停止扫描。已扫描：${currentTotalSize} bytes，当前文件：${filePath}`);
+      budgetExhausted = true;
       return;
     }
 
@@ -96,6 +122,7 @@ export function scanWorkspace(rootPath: string): ContentBlock[] {
       const files = fs.readdirSync(agentsDir, { withFileTypes: true });
       let agentCount = 0;
       for (const file of files) {
+        if (budgetExhausted) break;
         if (!file.isFile() || !file.name.toLowerCase().endsWith('.md')) continue;
 
         if (agentCount >= MAX_CLAUDE_SUBDIR_FILES) {
@@ -118,6 +145,7 @@ export function scanWorkspace(rootPath: string): ContentBlock[] {
       const files = fs.readdirSync(skillsDir, { withFileTypes: true });
       let skillCount = 0;
       for (const file of files) {
+        if (budgetExhausted) break;
         if (!file.isFile() || !file.name.toLowerCase().endsWith('.md')) continue;
 
         if (skillCount >= MAX_CLAUDE_SUBDIR_FILES) {

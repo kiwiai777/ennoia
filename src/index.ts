@@ -35,6 +35,7 @@ import {
   writeItemsToUserModel,
   targetFromCategory,
   type WriteableItem,
+  type WriteCategory,
 } from './core/user-model/write-items.js';
 
 import { getAdapterForSource } from './adapters/registry.js';
@@ -393,9 +394,11 @@ function writeCandidates(
 
   // 转换为 WriteableItem[]
   const writeables: WriteableItem[] = items.map((item) => {
-    const type = item.type ?? 'goal';
+    const rawType = item.type ?? 'goal';
+    const validCategories = new Set<string>(['goal', 'constraint', 'preference']);
+    const type: WriteCategory = validCategories.has(rawType) ? rawType as WriteCategory : 'goal';
     return {
-      target: targetFromCategory(type as any),
+      target: targetFromCategory(type),
       label: item.text,
       source: `cli:import:${mode}:${path.basename(item.source_path)}`,
     };

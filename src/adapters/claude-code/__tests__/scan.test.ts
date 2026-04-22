@@ -109,4 +109,76 @@ describe('scanWorkspace', () => {
     const blocks = scanWorkspace(tmpDir);
     assert.equal(blocks.length, 0);
   });
+
+  it('3a: package.json extra fields are stripped before ContentBlock', () => {
+    const pkgContent = JSON.stringify({
+      name: 'my-pkg',
+      description: 'test pkg',
+      private: true,
+      config: { apiKey: 'secret123' },
+      publishConfig: { registry: 'https://private.registry.example' },
+      dependencies: { react: '^18.0.0' },
+    });
+    fs.writeFileSync(path.join(tmpDir, 'package.json'), pkgContent);
+
+    const blocks = scanWorkspace(tmpDir);
+    const pkg = blocks.find(b => b.path === 'package.json');
+    assert.ok(pkg, 'package.json block must exist');
+
+    // Whitelist fields must be present
+    assert.ok(pkg.content.includes('"name"'), 'name must be present');
+    assert.ok(pkg.content.includes('"description"'), 'description must be present');
+    assert.ok(pkg.content.includes('"dependencies"'), 'dependencies must be present');
+
+    // Non-whitelist fields must not appear
+    assert.ok(!pkg.content.includes('private'), 'private must be stripped');
+    assert.ok(!pkg.content.includes('apiKey'), 'config.apiKey must be stripped');
+    assert.ok(!pkg.content.includes('publishConfig'), 'publishConfig must be stripped');
+    assert.ok(!pkg.content.includes('secret123'), 'secret value must not appear');
+  });
+
+  it('3b: total budget exceeded stops scanning (not just skips current file)', () => {
+    const agentsDir = path.join(tmpDir, '.claude', 'agents');
+    fs.mkdirSync(agentsDir, { recursive: true });
+
+    // Each agent file is ~50KB; 12 of them = ~600KB, exceeds 500KB budget
+    const chunk = Buffer.alloc(50 * 1024, 'x').toString();
+    for (let i = 0; i < 12; i++) {
+      fs.writeFileSync(path.join(agentsDir, `agent-${String(i).padStart(2, '0')}.md`), chunk);
+    }
+
+    const blocks = scanWorkspace(tmpDir);
+
+    // Total bytes in blocks must not exceed budget
+    const totalBytes = blocks.reduce((s, b) => s + b.content.length, 0);
+    assert.ok(totalBytes <= 500 * 1024, `total bytes ${totalBytes} must be <= 500KB`);
+
+    // Not all 12 agent files were scanned — some must be absent
+    const agentBlocks = blocks.filter(b => b.path.startsWith('.claude/agents/'));
+    assert.ok(agentBlocks.length < 12, `only ${agentBlocks.length} of 12 agent files scanned — budget stopped scan`);
+  });
+
+  it('3c: deny-listed files are not read when allowed files coexist', () => {
+    fs.writeFileSync(path.join(tmpDir, 'README.md'), '# README');
+
+    const agentsDir = path.join(tmpDir, '.claude', 'agents');
+    fs.mkdirSync(agentsDir, { recursive: true });
+    fs.writeFileSync(path.join(agentsDir, 'agent.md'), '# Agent');
+
+    // Deny-listed files
+    fs.mkdirSync(path.join(tmpDir, 'src'), { recursive: true });
+    fs.writeFileSync(path.join(tmpDir, 'src', 'index.ts'), 'code');
+    fs.writeFileSync(path.join(tmpDir, '.env'), 'SECRET=abc');
+    fs.writeFileSync(path.join(tmpDir, 'package-lock.json'), '{}');
+
+    const blocks = scanWorkspace(tmpDir);
+    const paths = blocks.map(b => b.path);
+
+    assert.ok(paths.includes('README.md'), 'README.md must be scanned');
+    assert.ok(paths.some(p => p.includes('agent.md')), 'agent.md must be scanned');
+
+    assert.ok(!paths.some(p => p.includes('index.ts')), 'src/index.ts must not be scanned');
+    assert.ok(!paths.includes('.env'), '.env must not be scanned');
+    assert.ok(!paths.includes('package-lock.json'), 'package-lock.json must not be scanned');
+  });
 });
