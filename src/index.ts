@@ -395,7 +395,7 @@ function writeCandidates(
   const writeables: WriteableItem[] = items.map((item) => {
     const type = item.type ?? 'goal';
     return {
-      target: targetFromCategory(type),
+      target: targetFromCategory(type as any),
       label: item.text,
       source: `cli:import:${mode}:${path.basename(item.source_path)}`,
     };

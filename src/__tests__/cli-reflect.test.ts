@@ -281,7 +281,7 @@ describe('CLI: cortex reflect', () => {
   });
 
   it('[real-path] 非 TTY + --stdin + --accept-all + 有候选 → exit 0，store 写入', async () => {
-    const proc = spawnSync('node', ['--import', 'tsx', 'bin/cortex', 'reflect', '--stdin', '--accept-all'], {
+    const proc = spawnSync('node', ['dist/index.js', 'reflect', '--stdin', '--accept-all'], {
       input: '我喜欢简洁代码\n我想用 TypeScript\n',
       encoding: 'utf-8',
       env: {
