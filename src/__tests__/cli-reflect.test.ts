@@ -10,10 +10,11 @@ import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
+import { createRequire } from 'node:module';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-const TSX_LOADER = path.resolve(__dirname, '../../node_modules/tsx/dist/esm/index.cjs');
+const TSX_LOADER = createRequire(import.meta.url).resolve('tsx/esm');
 
 import { cmdReflect } from '../index.js';
 import { loadStore, getStorePath } from '../core/suggest-loop/store.js';
