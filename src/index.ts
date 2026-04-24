@@ -45,7 +45,9 @@ import { llmExtract } from './core/extraction/llm-extractor.js';
 import type {
   CandidateItem,
   CandidateType,
+  ExtractionCandidate,
 } from './core/extraction/types.js';
+import { extractFromClaudeCodeWorkspace } from './adapters/claude-code/index.js';
 
 import { basicSuggest } from './core/suggestion/basic-suggester.js';
 import { llmSuggest } from './core/suggestion/llm-suggester.js';
@@ -93,6 +95,8 @@ function usage(): void {
   console.log('                                 --accept-all 跳过交互，全部候选自动确认');
   console.log('                                 （管道 / 非 TTY 场景必须加 --accept-all）');
   console.log('  cortex reflect --list          查看最近 20 条已确认的 suggest-loop 记录');
+  console.log('  cortex sync --from claude-code [--accept-all] [--dry-run]');
+  console.log('                                 从 Claude Code workspace 扫描候选并写入 user model');
   console.log('');
   console.log(`存储位置：${getUserModelPath()}`);
 }
@@ -650,6 +654,163 @@ async function cmdSuggest(args: string[]): Promise<void> {
   }
 }
 
+// --- sync ---
+
+function printExtractionCandidates(items: ExtractionCandidate[]): void {
+  items.forEach((item, i) => {
+    console.log(`\n[${i + 1}] ${item.kind}: ${item.content}`);
+    console.log(`    (from: ${item.provenance.path})`);
+  });
+}
+
+export interface SyncOptions {
+  // Injection points for testing
+  promptFn?: (total: number) => Promise<number[]>;
+  extractFn?: (rootPath: string) => Promise<ExtractionCandidate[]>;
+}
+
+export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<void> {
+  const _promptFn = opts.promptFn ?? promptSelection;
+  const _extractFn = opts.extractFn ?? extractFromClaudeCodeWorkspace;
+
+  // 参数解析
+  const fromIdx = args.indexOf('--from');
+  const acceptAll = args.includes('--accept-all');
+  const dryRun = args.includes('--dry-run');
+
+  // --accept-all 与 --dry-run 互斥
+  if (acceptAll && dryRun) {
+    console.error('错误：--accept-all 与 --dry-run 互斥');
+    process.exit(1);
+  }
+
+  // --from 必需
+  if (fromIdx === -1 || !args[fromIdx + 1]) {
+    console.error('用法：cortex sync --from <adapter-id> [--accept-all] [--dry-run]');
+    console.error('当前支持的 adapter：claude-code');
+    process.exit(1);
+  }
+
+  const adapterId = args[fromIdx + 1];
+  if (adapterId !== 'claude-code') {
+    console.error(`adapter 不支持：${adapterId}`);
+    console.error('当前支持的 adapter：claude-code');
+    process.exit(1);
+  }
+
+  // 检查未知参数
+  const knownArgs = new Set(['--from', adapterId, '--accept-all', '--dry-run']);
+  const unknown = args.filter(a => a.startsWith('-') && !knownArgs.has(a));
+  if (unknown.length > 0) {
+    console.error(`未知参数：${unknown.join(', ')}`);
+    process.exit(1);
+  }
+
+  const workspaceRoot = process.cwd();
+
+  // 扫描
+  console.log('Cortex 正在从你的 workspace 理解你（不是记录你）...');
+  console.log(`扫描路径：${workspaceRoot}`);
+
+  const allCandidates = await _extractFn(workspaceRoot);
+
+  if (allCandidates.length === 0) {
+    console.log('未从 workspace 中提取到候选事实。');
+    console.log('请确认 workspace 中存在 CLAUDE.md / README.md / package.json / .claude/ 目录。');
+    return;
+  }
+
+  console.log(`\n扫描到 ${allCandidates.length} 个候选事实。`);
+
+  // kind 过滤：写入层只支持 goal | constraint | preference
+  const SUPPORTED_KINDS = new Set<string>(['goal', 'constraint', 'preference']);
+  const supportedCandidates = allCandidates.filter(c => SUPPORTED_KINDS.has(c.kind));
+  const unsupportedCandidates = allCandidates.filter(c => !SUPPORTED_KINDS.has(c.kind));
+
+  if (unsupportedCandidates.length > 0) {
+    const byKind: Record<string, number> = {};
+    for (const c of unsupportedCandidates) {
+      byKind[c.kind] = (byKind[c.kind] ?? 0) + 1;
+    }
+    for (const [kind, count] of Object.entries(byKind)) {
+      console.warn(`⚠ ${count} 条候选因 kind '${kind}' 暂不受写入层支持已跳过`);
+      console.warn(`  (未来卡片将扩展写入层支持所有 kind)`);
+    }
+  }
+
+  if (supportedCandidates.length === 0) {
+    console.log('过滤后无可写入的候选。');
+    return;
+  }
+
+  // 展示候选
+  printExtractionCandidates(supportedCandidates);
+  console.log('');
+
+  // dry-run：只展示不写入
+  if (dryRun) {
+    console.log('[dry-run] 以上候选未写入。使用 --accept-all 或交互模式写入。');
+    return;
+  }
+
+  // 确定要写入的候选
+  let selectedIndices: number[];
+
+  if (acceptAll) {
+    selectedIndices = supportedCandidates.map((_, i) => i);
+  } else {
+    // 交互确认
+    if (!process.stdin.isTTY) {
+      console.error('错误：交互模式需要 TTY。使用 --accept-all 跳过交互，或通过 --stdin 管道输入。');
+      process.exit(1);
+    }
+    console.log('选择要写入 user model 的候选（输入编号，逗号分隔，或 "a" 全选）：');
+    selectedIndices = await _promptFn(supportedCandidates.length);
+  }
+
+  if (selectedIndices.length === 0) {
+    console.log('未选择任何候选，退出。');
+    return;
+  }
+
+  const selectedCandidates = selectedIndices.map(i => supportedCandidates[i]);
+
+  // 构建 WriteableItem[]
+  const writeables: WriteableItem[] = selectedCandidates.map(c => ({
+    target: targetFromCategory(c.kind as WriteCategory),
+    label: c.content,
+    source: `cli:sync:claude-code:${c.provenance.path}`,
+  }));
+
+  const result = writeItemsToUserModel(writeables);
+
+  // 成功输出
+  const writtenCount = result.writtenItems.length;
+  const skippedCount = result.skippedItems.length;
+
+  console.log(`\n✓ 写入 ${writtenCount} 条事实到你的 user model`);
+
+  if (writtenCount > 0) {
+    const byKind: Record<string, number> = {};
+    for (let i = 0; i < selectedCandidates.length; i++) {
+      if (result.writtenItems.includes(writeables[i])) {
+        const k = selectedCandidates[i].kind;
+        byKind[k] = (byKind[k] ?? 0) + 1;
+      }
+    }
+    const summary = Object.entries(byKind).map(([k, v]) => `${k}s: ${v}`).join(', ');
+    if (summary) console.log(`  ( ${summary} )`);
+  }
+
+  if (skippedCount > 0) {
+    console.log(`  (${skippedCount} 条因重复已跳过)`);
+  }
+
+  console.log(`\nYour user model is now ${writtenCount} facts richer.`);
+  console.log('运行 `cortex context` 查看完整 user model。');
+  console.log('运行 `cortex inject --format text` 获取可贴给其他 AI 的 context。');
+}
+
 // --- reflect ---
 
 export interface ReflectOptions {
@@ -811,6 +972,9 @@ async function main(): Promise<void> {
       break;
     case 'reflect':
       await cmdReflect(rest);
+      break;
+    case 'sync':
+      await cmdSync(rest);
       break;
     case undefined:
     case '-h':

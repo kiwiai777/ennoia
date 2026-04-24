@@ -43,6 +43,31 @@ npm run typecheck  # type-check without emitting
 npm run build      # compile to dist/
 ```
 
+## 30-second Demo
+
+Install cortex, then run in any Claude Code project:
+
+```bash
+cortex sync --from claude-code
+```
+
+You'll see candidates extracted from your workspace — README, CLAUDE.md,
+.claude/agents/, package.json. Confirm the ones that are actually about you.
+
+Then:
+
+```bash
+cortex inject --format text
+```
+
+Copy the output. Paste it into ChatGPT or Claude web. Ask them anything.
+
+You'll notice: they'll act like they know you — your projects, your
+preferences, your constraints. Not because they remember you, but because
+Cortex gave them a model of who you are.
+
+This is not memory. This is you, becoming a first-class entity across AI systems.
+
 ### CLI
 
 The `cortex` CLI is exposed via `bin/cortex`. You can invoke it directly or
