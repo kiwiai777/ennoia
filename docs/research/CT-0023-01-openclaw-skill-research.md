@@ -110,3 +110,38 @@ I'll give you a straight recommendation based on that.
    - 推荐 A：`cortex inject --target openclaw`。因为 Cortex 可以通过读取 `~/.openclaw/openclaw.json` 中的 `agents.defaults.workspace` 字段自动发现 workspace 路径。
 5. **Refresh 策略**
    - 采用全量覆盖（Overwrite）。由于 Cortex 是 Source of Truth，每次注入重新生成完整的 SKILL.md 可以保持数据一致。
+
+## FU: Dev Sync
+- 使用 `~/openclaw-research-snapshot`（fresh clone）而非 `~/openclaw-dev`。
+- Snapshot commit hash：`59523e66 refactor: remove old provider error utility path`
+- 原因：`~/openclaw-dev` 有 6812 commits ahead 的历史状态和未提交改动，Owner 决定保留不动。
+- 相关变更（prompt / user / agents / soul）：N/A，使用了基于远程仓库的 fresh clone，直接针对最新稳定主分支进行静态分析。
+
+## FU: Native User Injection Points
+
+### 1.1 源码侧搜索与定位
+通过全文搜索 `USER.md` 和 user profile 相关关键字，发现在 OpenClaw 的原生 Workspace Bootstrap 阶段（由 `buildBootstrapContextFiles` 处理，定义在 `src/agents/workspace.ts`），存在一个专用的、always-on 的用户注入点：**`USER.md`**。
+- `DEFAULT_USER_FILENAME = "USER.md"` (在 `src/agents/workspace.ts:34`)
+- OpenClaw 默认支持并会在每个 session 将 `AGENTS.md`, `SOUL.md`, `TOOLS.md`, `IDENTITY.md`, **`USER.md`**, `HEARTBEAT.md`, 等基础 bootstrap 文件作为系统 prompt 的一部分注入进去。
+
+### 1.2 SOUL / AGENTS / USER 分工
+- **AGENTS.md** 主要是站内 agent/delegate 行为规约与环境指令。
+- **SOUL.md** 主要是 agent 人格、价值观。
+- **USER.md** 是专属于 "User Profile / Preferences" 的注入点（"Who the user is and how to address them"），设计用于存放关于"Human"的所有内容，且与 AGENTS.md / SOUL.md 同等地位地在每一次 session 启动时被 `always-on` 注入。
+
+### 1.4 结论
+- **有没有找到专用的 user injection 路径？**
+  - **有**。OpenClaw 原生支持 `USER.md`，这比污染 `AGENTS.md` 更干净，更符合产品的本意设计。
+  - 由于已经存在专为 User Profile 设计且同为 always-on 的 `USER.md`，使用 `USER.md` 是最理想的原生 user injection path。
+
+## FU: Recommendation v2
+
+- **最终推荐 Path**: 采用 原生 user injection 点：`USER.md`（而非 `AGENTS.md` + Section Marker 或者 Skill 机制）。
+- **理由**: 
+  - OpenClaw 默认内置且原生地在每一轮 session 中拉取并注入 `USER.md` 到系统 context 中。
+  - `USER.md` 本身的领域模型设计就是用来存放 User Profile 和 Preferences，这完全吻合 Cortex 作为 User Model Layer 的定位。
+  - 操作独立文件（直接替换、按 Section 增量覆写）远比去拦截并修改承载用户全局设定与环境信息的 `AGENTS.md` 或者模拟 `lazy load` 的 Skill 要安全、干净且更具有幂等性。
+
+### 细节落地建议
+- **文件位置**: `<workspace>/USER.md`
+- **Install/Refresh**: 使用 Section Marker （例如 `<!-- CORTEX_USER_MODEL_BEGIN -->` 和 `<!-- CORTEX_USER_MODEL_END -->`） 在 `USER.md` 中进行块状覆写（Refresh 幂等性有保障，也可以避免覆盖用户手动写入在该文件其他位置的笔记）。如果 `USER.md` 不存在，可以初始化创建。
