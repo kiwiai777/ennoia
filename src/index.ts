@@ -728,14 +728,14 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
   const unsupportedCandidates = allCandidates.filter(c => !SUPPORTED_KINDS.has(c.kind));
 
   if (unsupportedCandidates.length > 0) {
-    const byKind: Record<string, number> = {};
+    const unsupportedKinds = [...new Set(unsupportedCandidates.map(c => c.kind))];
+    const kindList = unsupportedKinds.map(k => `'${k}'`).join(' / ');
+    console.warn(`⚠ ${unsupportedCandidates.length} 条候选因 kind ${kindList} 暂不受写入层支持已跳过：`);
     for (const c of unsupportedCandidates) {
-      byKind[c.kind] = (byKind[c.kind] ?? 0) + 1;
+      const snippet = c.content.length > 60 ? c.content.slice(0, 60) + '...' : c.content;
+      console.warn(`  - ${c.kind}: ${snippet}  (from: ${c.provenance.path})`);
     }
-    for (const [kind, count] of Object.entries(byKind)) {
-      console.warn(`⚠ ${count} 条候选因 kind '${kind}' 暂不受写入层支持已跳过`);
-      console.warn(`  (未来卡片将扩展写入层支持所有 kind)`);
-    }
+    console.warn(`（未来卡片将扩展写入层支持所有 kind）`);
   }
 
   if (supportedCandidates.length === 0) {

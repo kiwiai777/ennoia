@@ -9,6 +9,11 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { spawnSync } from 'node:child_process';
+import { fileURLToPath } from 'node:url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+const TSX_LOADER = path.resolve(__dirname, '../../node_modules/tsx/dist/esm/index.cjs');
 
 import { cmdReflect } from '../index.js';
 import { loadStore, getStorePath } from '../core/suggest-loop/store.js';
@@ -281,7 +286,8 @@ describe('CLI: cortex reflect', () => {
   });
 
   it('[real-path] 非 TTY + --stdin + --accept-all + 有候选 → exit 0，store 写入', async () => {
-    const proc = spawnSync('node', ['--import', 'tsx', 'src/index.ts', 'reflect', '--stdin', '--accept-all'], {
+    const indexPath = path.resolve(__dirname, '../index.ts');
+    const proc = spawnSync('node', ['--import', TSX_LOADER, indexPath, 'reflect', '--stdin', '--accept-all'], {
       input: '我喜欢简洁代码\n我计划用 TypeScript\n',
       encoding: 'utf-8',
       env: {
