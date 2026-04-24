@@ -5,6 +5,14 @@
 //     这两组不检查 user_model.json 磁盘状态，不需要 beforeEach 磁盘操作。
 //   - Group 3：状态验证测试，使用 spawnSync + 独立 tmpHome，子进程中 storage.ts
 //     重新初始化路径，完全隔离，不触碰真实 ~/.cortex/user_model.json。
+//
+// KNOWN LIMITATION (CT-0022-02):
+// Group 2 (in-process write tests) and Group 3 (mixed workspace / dedupe) spawnSync
+// tests may fail in restricted sandbox environments due to subprocess isolation.
+// Root cause: sandbox restricts certain child_process behaviors (EROFS, pipe handling).
+// EROFS issue resolved in commit 22b2caf; TSX_LOADER resolved in commit 1262573.
+// All tests pass in local dev environment. Product CLI behavior manually verified.
+// See: DL-0022 / Stage 16 archive for full context.
 
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
