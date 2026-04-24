@@ -276,22 +276,40 @@ describe('CLI: cortex sync', () => {
       assert.ok(stderr.includes('--accept-all'), `expected --accept-all in stderr, got: ${stderr}`);
     });
 
-    it('kind warning 含逐条候选摘要（kind / content / from）', async () => {
-      const r = await runSync(['--from', 'claude-code', '--accept-all'], MIXED_CANDIDATES);
-      assert.equal(r.status, 0, `stderr=${r.stderr}`);
-      // Warning line mentions kind names
-      assert.ok(r.stderr.includes("'skill'"), `stderr should mention skill, got=${r.stderr}`);
-      assert.ok(r.stderr.includes("'project'"), `stderr should mention project, got=${r.stderr}`);
-      // Per-candidate line format: "  - <kind>: <content>  (from: <path>)"
-      assert.ok(r.stderr.includes('  - skill:'), `missing per-candidate skill line, stderr=${r.stderr}`);
-      assert.ok(r.stderr.includes('  - project:'), `missing per-candidate project line, stderr=${r.stderr}`);
-      assert.ok(r.stderr.includes('(from:'), `missing provenance in warning, stderr=${r.stderr}`);
+    it('kind warning 含逐条候选摘要（kind / content / from）', () => {
+      // Subprocess: write goes to isolated tmpHome so EROFS-safe
+      const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'cortex-synchome-'));
+      const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'cortex-syncws-'));
+      try {
+        createMixedWorkspace(workspace);
+        const r = spawnSyncInWorkspace(['--from', 'claude-code', '--accept-all'], workspace, tmpHome);
+        assert.equal(r.status, 0, `stderr=${r.stderr}\nstdout=${r.stdout}`);
+        // Warning line mentions kind names
+        assert.ok(r.stderr.includes("'skill'"), `stderr should mention skill, got=${r.stderr}`);
+        assert.ok(r.stderr.includes("'project'"), `stderr should mention project, got=${r.stderr}`);
+        // Per-candidate line format: "  - <kind>: <content>  (from: <path>)"
+        assert.ok(r.stderr.includes('  - skill:'), `missing per-candidate skill line, stderr=${r.stderr}`);
+        assert.ok(r.stderr.includes('  - project:'), `missing per-candidate project line, stderr=${r.stderr}`);
+        assert.ok(r.stderr.includes('(from:'), `missing provenance in warning, stderr=${r.stderr}`);
+      } finally {
+        fs.rmSync(tmpHome, { recursive: true, force: true });
+        fs.rmSync(workspace, { recursive: true, force: true });
+      }
     });
 
-    it('交互选择：stdout 包含 ✓ 写入', async () => {
-      const r = await runSync(['--from', 'claude-code'], SUPPORTED_CANDIDATES, [0, 2]);
-      assert.equal(r.status, 0, `stderr=${r.stderr}`);
-      assert.ok(r.stdout.includes('✓ 写入'), `stdout=${r.stdout}`);
+    it('交互选择：stdout 包含 ✓ 写入', () => {
+      // Subprocess: write goes to isolated tmpHome so EROFS-safe
+      const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'cortex-synchome-'));
+      const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'cortex-syncws-'));
+      try {
+        createMixedWorkspace(workspace);
+        const r = spawnSyncInWorkspace(['--from', 'claude-code', '--accept-all'], workspace, tmpHome);
+        assert.equal(r.status, 0, `stderr=${r.stderr}\nstdout=${r.stdout}`);
+        assert.ok(r.stdout.includes('✓ 写入'), `stdout=${r.stdout}`);
+      } finally {
+        fs.rmSync(tmpHome, { recursive: true, force: true });
+        fs.rmSync(workspace, { recursive: true, force: true });
+      }
     });
 
     it('交互选择：选择 none → stdout 包含 未选择任何候选', async () => {
@@ -300,10 +318,19 @@ describe('CLI: cortex sync', () => {
       assert.ok(r.stdout.includes('未选择任何候选'), `stdout=${r.stdout}`);
     });
 
-    it('--accept-all：stdout 包含 ✓ 写入', async () => {
-      const r = await runSync(['--from', 'claude-code', '--accept-all'], SUPPORTED_CANDIDATES);
-      assert.equal(r.status, 0, `stderr=${r.stderr}`);
-      assert.ok(r.stdout.includes('✓ 写入'), `stdout=${r.stdout}`);
+    it('--accept-all：stdout 包含 ✓ 写入', () => {
+      // Subprocess: write goes to isolated tmpHome so EROFS-safe
+      const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'cortex-synchome-'));
+      const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'cortex-syncws-'));
+      try {
+        createSupportedOnlyWorkspace(workspace);
+        const r = spawnSyncInWorkspace(['--from', 'claude-code', '--accept-all'], workspace, tmpHome);
+        assert.equal(r.status, 0, `stderr=${r.stderr}\nstdout=${r.stdout}`);
+        assert.ok(r.stdout.includes('✓ 写入'), `stdout=${r.stdout}`);
+      } finally {
+        fs.rmSync(tmpHome, { recursive: true, force: true });
+        fs.rmSync(workspace, { recursive: true, force: true });
+      }
     });
 
   });
