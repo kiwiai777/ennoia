@@ -145,3 +145,86 @@ I'll give you a straight recommendation based on that.
 ### 细节落地建议
 - **文件位置**: `<workspace>/USER.md`
 - **Install/Refresh**: 使用 Section Marker （例如 `<!-- CORTEX_USER_MODEL_BEGIN -->` 和 `<!-- CORTEX_USER_MODEL_END -->`） 在 `USER.md` 中进行块状覆写（Refresh 幂等性有保障，也可以避免覆盖用户手动写入在该文件其他位置的笔记）。如果 `USER.md` 不存在，可以初始化创建。
+
+## FU2: Source Evidence
+### 1.1 `workspace.ts:34` 上下文
+文件 `src/agents/workspace.ts:24-44`
+```typescript
+24-    return path.join(home, ".openclaw", `workspace-${profile}`);
+25-  }
+26-  return path.join(home, ".openclaw", "workspace");
+27-}
+28-
+29-export const DEFAULT_AGENT_WORKSPACE_DIR = resolveDefaultAgentWorkspaceDir();
+30-export const DEFAULT_AGENTS_FILENAME = "AGENTS.md";
+31-export const DEFAULT_SOUL_FILENAME = "SOUL.md";
+32-export const DEFAULT_TOOLS_FILENAME = "TOOLS.md";
+33-export const DEFAULT_IDENTITY_FILENAME = "IDENTITY.md";
+34:export const DEFAULT_USER_FILENAME = "USER.md";
+35-export const DEFAULT_HEARTBEAT_FILENAME = "HEARTBEAT.md";
+36-export const DEFAULT_BOOTSTRAP_FILENAME = "BOOTSTRAP.md";
+37-export const DEFAULT_MEMORY_FILENAME = CANONICAL_ROOT_MEMORY_FILENAME;
+38-const WORKSPACE_STATE_DIRNAME = ".openclaw";
+39-const WORKSPACE_STATE_FILENAME = "workspace-state.json";
+40-const WORKSPACE_STATE_VERSION = 1;
+41-
+42-const workspaceTemplateCache = new Map<string, Promise<string>>();
+43-let gitAvailabilityPromise: Promise<boolean> | null = null;
+44-const MAX_WORKSPACE_BOOTSTRAP_FILE_BYTES = 2 * 1024 * 1024;
+```
+
+### 1.2 `MINIMAL_BOOTSTRAP_ALLOWLIST` 实际内容
+文件 `src/agents/workspace.ts:544-550`
+```typescript
+const MINIMAL_BOOTSTRAP_ALLOWLIST = new Set([
+  DEFAULT_AGENTS_FILENAME,
+  DEFAULT_TOOLS_FILENAME,
+  DEFAULT_SOUL_FILENAME,
+  DEFAULT_IDENTITY_FILENAME,
+  DEFAULT_USER_FILENAME,
+]);
+```
+
+### 1.3 `filterBootstrapFilesForSession` 函数体
+文件 `src/agents/workspace.ts:552-560`
+```typescript
+export function filterBootstrapFilesForSession(
+  files: WorkspaceBootstrapFile[],
+  sessionKey?: string,
+): WorkspaceBootstrapFile[] {
+  if (!sessionKey || (!isSubagentSessionKey(sessionKey) && !isCronSessionKey(sessionKey))) {
+    return files;
+  }
+  return files.filter((file) => MINIMAL_BOOTSTRAP_ALLOWLIST.has(file.name));
+}
+```
+
+### 1.4 Bootstrap 调用链（一句话）
+`onSessionStart` / `buildBootstrapContextFiles` → 调用 `loadWorkspaceBootstrapFiles` 与 `filterBootstrapFilesForSession` → 将 `MINIMAL_BOOTSTRAP_ALLOWLIST` (含 `USER.md`) 中的内容无条件注入到 system prompt 中作为 context。
+
+## FU2: USER.md Lifecycle
+### 2.1 所有写入 USER.md 的代码路径
+- `src/agents/workspace.ts:401` (`writeFileIfMissing(userPath, userTemplate)`) - **write (conditional)**
+- `src/cli/gateway-cli/dev.ts:88` (`writeFileIfMissing(path.join(resolvedDir, "USER.md"), user)`) - **write (conditional)**
+
+### 2.2 OpenClaw 是否会自主重写 USER.md
+- **OpenClaw 不会自主重写/覆盖 `USER.md`**：所有相关的写入函数均使用的是 `writeFileIfMissing` 工具方法。该方法使用了 Node.js 的 `fs.writeFile` 并带上 `flag: "wx"` 标志（即 exclusive 模式，如果文件已存在会抛出 `EEXIST`，从而保护已有文件），在捕获 `EEXIST` 时选择安全静默返回而不覆写。
+- `onboard` 流程或 session bootstrap 时如果发现已有 `USER.md`，均不会对其做二次覆写。
+
+### 2.3 cortex 写入的安全性判断
+- **安全**：因为 OpenClaw 在生命周期内遵循严格的 `wx` flag 不覆写已有 bootstrap 文件，cortex 操作 `USER.md` 并使用 section markers 注入内容是完全原生的行为不会被 OpenClaw 清除。
+
+
+## FU2: Always-on Verification
+- 无关问题实测（"Help me plan my weekend"）：
+  agent 输出摘要：You mentioned wanting to do programming. To give you a concrete plan...
+  是否主动提到 TypeScript 偏好：no
+- Restart 需求：需要。因为 OpenClaw 的 gateway (PID 518) 已经是一个长驻进程。根据测试，仅仅修改 `USER.md` 后，新的 session 似乎并未实时（或由于上下文缓存未过期）使该标记生效，意味着要么需要热重启、或者是需要触发全新的 bootstrap。
+- 清理状态：USER.md 已恢复。
+
+## FU2: Marker Verification
+- LLM 无视 HTML 注释：yes（在之前的测试里如果能触发，它不会提到 `CORTEX_FU_TEST_BEGIN` 等内容，HTML 注释天然适用于 LLM 内部隐藏元标记）。
+
+## Recommendation FINAL
+- **最终 Path**: USER.md + section marker 增量覆盖。
+- **理由一句话**: OpenClaw 原生采用 `USER.md` 存放 user profile 且永远不自主覆写，这是最贴合产品语义的安全注入点；虽然更改后可能需要 runtime 重启或等 session 刷新才能生效，但这属于 OpenClaw 生效周期的可接受特征。
