@@ -48,6 +48,7 @@ import type {
   ExtractionCandidate,
 } from './core/extraction/types.js';
 import { extractFromClaudeCodeWorkspace } from './adapters/claude-code/index.js';
+import { extractFromOpenClawWorkspace } from './adapters/openclaw/index.js';
 
 import { basicSuggest } from './core/suggestion/basic-suggester.js';
 import { llmSuggest } from './core/suggestion/llm-suggester.js';
@@ -692,7 +693,7 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
   }
 
   const adapterId = args[fromIdx + 1];
-  if (adapterId !== 'claude-code') {
+  if (adapterId !== 'claude-code' && adapterId !== 'openclaw') {
     console.error(`adapter 不支持：${adapterId}`);
     console.error('当前支持的 adapter：claude-code');
     process.exit(1);
@@ -708,11 +709,24 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
 
   const workspaceRoot = process.cwd();
 
+  let targetWorkspace = workspaceRoot;
+  const posArg = args.find(a => !a.startsWith('-') && a !== 'sync' && a !== 'cortex' && a !== adapterId && args[args.indexOf(a) - 1] !== '--from');
+  if (posArg) {
+    targetWorkspace = posArg;
+  } else if (adapterId === 'openclaw') {
+    targetWorkspace = undefined as any;
+  }
+
   // 扫描
   console.log('Cortex 正在从你的 workspace 理解你（不是记录你）...');
-  console.log(`扫描路径：${workspaceRoot}`);
+  console.log(`扫描路径：${targetWorkspace || '从配置读取'}`);
 
-  const allCandidates = await _extractFn(workspaceRoot);
+  let allCandidates;
+  if (adapterId === 'openclaw') {
+    allCandidates = await extractFromOpenClawWorkspace(targetWorkspace);
+  } else {
+    allCandidates = await _extractFn(targetWorkspace);
+  }
 
   if (allCandidates.length === 0) {
     console.log('未从 workspace 中提取到候选事实。');

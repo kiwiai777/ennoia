@@ -1,4 +1,5 @@
 import type { ContentBlock, ExtractionCandidate, ExtractionInput } from './types.js';
+import { matchSentences } from './matcher/pattern-matcher.js';
 
 function extractCodeBlockLanguages(content: string): string[] {
   const languages = new Set<string>();
@@ -12,6 +13,23 @@ function extractCodeBlockLanguages(content: string): string[] {
   return Array.from(languages);
 }
 
+export function extractUserProfile(block: ContentBlock, provenance: { source: string; path: string }): ExtractionCandidate[] {
+  const candidates: ExtractionCandidate[] = [];
+  
+  const matches = matchSentences(block.content);
+  for (const match of matches) {
+    if (match.type === 'goal' || match.type === 'preference' || match.type === 'constraint') {
+      candidates.push({
+        kind: match.type,
+        content: match.text,
+        provenance
+      });
+    }
+  }
+  
+  return candidates;
+}
+
 export function extractFromMarkdown(
   block: ContentBlock,
   sourceId: string
@@ -20,6 +38,10 @@ export function extractFromMarkdown(
   const provenance = { source: sourceId, path: block.path };
 
   if (!block.content) return candidates;
+
+  if (block.hint === 'user-profile') {
+    return extractUserProfile(block, provenance);
+  }
 
   const lines = block.content.split('\n');
 

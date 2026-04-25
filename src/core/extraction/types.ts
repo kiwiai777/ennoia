@@ -23,7 +23,7 @@ export interface CandidateItem {
 }
 
 // CT-0022-01: 通用 Extraction 层核心类型
-export type ExtractionHint = 'agent-def' | 'skill-def' | 'readme' | 'package-manifest' | 'plain';
+export type ExtractionHint = 'agent-def' | 'skill-def' | 'readme' | 'package-manifest' | 'plain' | 'user-profile';
 
 export interface ContentBlock {
   path: string;              // 相对路径或标识，用于 provenance

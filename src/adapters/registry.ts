@@ -16,6 +16,20 @@ import type { SourceAdapter } from './base.js';
 import type { SourceDescriptor } from '../core/source/types.js';
 import { genericAdapter } from './generic.js';
 import { claudeCodeAdapter } from './claude-code/index.js';
+import { extractFromOpenClawWorkspace } from './openclaw/index.js';
+
+// OpenClaw Adapter definition
+export const openclawAdapter: SourceAdapter = {
+  id: 'openclaw',
+  canHandle: (descriptor: SourceDescriptor) => {
+    return descriptor.adapter === 'openclaw';
+  },
+  load: async (descriptor: SourceDescriptor) => {
+    // OpenClaw doesn't use generic load, we dispatch to extract directly from CLI right now
+    // Or we could implement load if we want to support openclaw via import.
+    throw new Error('Not implemented: load for openclawAdapter');
+  }
+};
 
 // 全局 adapter 注册表
 const registry = new Map<string, SourceAdapter>();
@@ -73,3 +87,4 @@ export function listAvailableAdapters(): string[] {
 // 初始化：注册默认 adapter
 registerAdapter(genericAdapter);
 registerAdapter(claudeCodeAdapter);
+registerAdapter(openclawAdapter);
