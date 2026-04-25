@@ -16,6 +16,7 @@ export function extract(input: ExtractionInput): ExtractionCandidate[] {
       case 'agent-def':
       case 'skill-def':
       case 'readme':
+      case 'user-profile':
         blockCandidates = extractFromMarkdown(block, input.sourceId);
         break;
       case 'plain':

@@ -42,6 +42,12 @@ test('OpenClaw Adapter - resolveWorkspacePath', async (t) => {
       assert.throws(() => resolveWorkspacePath(), /not configured/);
     });
 
+    await t.test('Throws when path is not a directory', () => {
+      const tmpFile = path.join(tmpDir, 'not-a-dir.txt');
+      fs.writeFileSync(tmpFile, '');
+      assert.throws(() => resolveWorkspacePath(tmpFile), /not a directory/i);
+    });
+
   } finally {
     os.homedir = realHomedir;
     fs.rmSync(tmpDir, { recursive: true, force: true });

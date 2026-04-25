@@ -96,7 +96,7 @@ function usage(): void {
   console.log('                                 --accept-all 跳过交互，全部候选自动确认');
   console.log('                                 （管道 / 非 TTY 场景必须加 --accept-all）');
   console.log('  cortex reflect --list          查看最近 20 条已确认的 suggest-loop 记录');
-  console.log('  cortex sync --from claude-code [--accept-all] [--dry-run]');
+  console.log('  cortex sync --from claude-code|openclaw [--accept-all] [--dry-run]');
   console.log('                                 从 Claude Code workspace 扫描候选并写入 user model');
   console.log('');
   console.log(`存储位置：${getUserModelPath()}`);
@@ -688,14 +688,14 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
   // --from 必需
   if (fromIdx === -1 || !args[fromIdx + 1]) {
     console.error('用法：cortex sync --from <adapter-id> [--accept-all] [--dry-run]');
-    console.error('当前支持的 adapter：claude-code');
+    console.error('当前支持的 adapter：claude-code, openclaw');
     process.exit(1);
   }
 
   const adapterId = args[fromIdx + 1];
   if (adapterId !== 'claude-code' && adapterId !== 'openclaw') {
     console.error(`adapter 不支持：${adapterId}`);
-    console.error('当前支持的 adapter：claude-code');
+    console.error('当前支持的 adapter：claude-code, openclaw');
     process.exit(1);
   }
 
