@@ -49,6 +49,7 @@ import type {
 } from './core/extraction/types.js';
 import { extractFromClaudeCodeWorkspace } from './adapters/claude-code/index.js';
 import { extractFromOpenClawWorkspace } from './adapters/openclaw/index.js';
+import { resolveWorkspacePath } from './adapters/openclaw/workspace.js';
 
 import { basicSuggest } from './core/suggestion/basic-suggester.js';
 import { llmSuggest } from './core/suggestion/llm-suggester.js';
@@ -717,9 +718,18 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
     targetWorkspace = undefined as any;
   }
 
+  let displayWorkspace = targetWorkspace;
+  if (adapterId === 'openclaw') {
+    try {
+      displayWorkspace = resolveWorkspacePath(targetWorkspace);
+    } catch (e) {
+      displayWorkspace = 'OpenClaw Workspace';
+    }
+  }
+
   // 扫描
   console.log('Cortex 正在从你的 workspace 理解你（不是记录你）...');
-  console.log(`扫描路径：${targetWorkspace || '从配置读取'}`);
+  console.log(`扫描路径：${displayWorkspace}`);
 
   let allCandidates;
   if (adapterId === 'openclaw') {
@@ -793,7 +803,7 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
   const writeables: WriteableItem[] = selectedCandidates.map(c => ({
     target: targetFromCategory(c.kind as WriteCategory),
     label: c.content,
-    source: `cli:sync:claude-code:${c.provenance.path}`,
+    source: `cli:sync:${adapterId}:${c.provenance.path}`,
   }));
 
   const result = writeItemsToUserModel(writeables);
