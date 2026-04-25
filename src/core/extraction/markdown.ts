@@ -15,7 +15,7 @@ function extractCodeBlockLanguages(content: string): string[] {
 
 export function extractUserProfile(block: ContentBlock, provenance: { source: string; path: string }): ExtractionCandidate[] {
   const candidates: ExtractionCandidate[] = [];
-  
+
   const matches = matchSentences(block.content);
   for (const match of matches) {
     if (match.type === 'goal' || match.type === 'preference' || match.type === 'constraint') {
@@ -26,7 +26,34 @@ export function extractUserProfile(block: ContentBlock, provenance: { source: st
       });
     }
   }
-  
+
+  // A basic fallback if sentences don't match the standard patterns
+  // We can treat bullet points in preferences/goals as facts
+  // We just collect all bullet items that aren't obvious metadata
+  if (candidates.length === 0) {
+    const lines = block.content.split('\n');
+    let inSection = false;
+    for (const line of lines) {
+      const trimmed = line.trim();
+      if (trimmed.startsWith('##')) {
+        inSection = true;
+      }
+      if (inSection && trimmed.startsWith('- ') && !trimmed.includes('**')) {
+        candidates.push({
+          kind: 'preference',
+          content: trimmed.replace(/^- /, '').trim(),
+          provenance
+        });
+      } else if (inSection && trimmed && !trimmed.startsWith('#') && !trimmed.startsWith('-') && !trimmed.startsWith('_') && !trimmed.startsWith('<') && !trimmed.startsWith('**') && !trimmed.startsWith('<!--') && !trimmed.includes('---') && !trimmed.includes('===')) {
+         candidates.push({
+            kind: 'preference',
+            content: trimmed,
+            provenance
+         });
+      }
+    }
+  }
+
   return candidates;
 }
 
