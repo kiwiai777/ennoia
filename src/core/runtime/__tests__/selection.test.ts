@@ -128,7 +128,7 @@ function makeScopedModel(): UserModel {
 // --- selectRuntimeContext ---
 
 describe('CT-0011: selectRuntimeContext — 无 scope/taskHint 保持 all', () => {
-  it('strategy 为 all，entry 数与原模型一致', () => {
+  it('strategy 为 all，entry 数与原模型一致', async () => {
     const model = makeScopedModel();
     const ctx = selectRuntimeContext(model);
     assert.equal(ctx.meta.selection_strategy, 'all');
@@ -137,7 +137,7 @@ describe('CT-0011: selectRuntimeContext — 无 scope/taskHint 保持 all', () =
     assert.deepEqual(ctx.open_questions, []);
   });
 
-  it('空模型时 all 策略稳定，open_questions 为空', () => {
+  it('空模型时 all 策略稳定，open_questions 为空', async () => {
     const model = emptyUserModel();
     const ctx = selectRuntimeContext(model);
     assert.equal(ctx.meta.selection_strategy, 'all');
@@ -148,7 +148,7 @@ describe('CT-0011: selectRuntimeContext — 无 scope/taskHint 保持 all', () =
 });
 
 describe('CT-0011: selectRuntimeContext — scope 过滤', () => {
-  it('scope 命中单个项目时，只选该项目及其关联条目', () => {
+  it('scope 命中单个项目时，只选该项目及其关联条目', async () => {
     const model = makeScopedModel();
     const ctx = selectRuntimeContext(model, { scope: 'Cortex' });
     assert.equal(ctx.meta.selection_strategy, 'scoped');
@@ -161,7 +161,7 @@ describe('CT-0011: selectRuntimeContext — scope 过滤', () => {
     assert.ok(!goalIds.includes('g-infra'), 'should NOT include infra goal');
   });
 
-  it('preferences / constraints / decision_rules 全量保留（全局上下文）', () => {
+  it('preferences / constraints / decision_rules 全量保留（全局上下文）', async () => {
     const model = makeScopedModel();
     const ctx = selectRuntimeContext(model, { scope: 'Cortex' });
     assert.equal(ctx.user_snapshot.preferences.length, 1);
@@ -169,14 +169,14 @@ describe('CT-0011: selectRuntimeContext — scope 过滤', () => {
     assert.equal(ctx.user_snapshot.decision_rules.length, 1);
   });
 
-  it('scope 匹配大小写不敏感', () => {
+  it('scope 匹配大小写不敏感', async () => {
     const model = makeScopedModel();
     const ctx = selectRuntimeContext(model, { scope: 'cortex' });
     assert.equal(ctx.user_snapshot.projects.length, 1);
     assert.equal(ctx.user_snapshot.projects[0].id, 'proj-cortex');
   });
 
-  it('scope 未命中任何项目 → open_questions 非空，返回全量项目', () => {
+  it('scope 未命中任何项目 → open_questions 非空，返回全量项目', async () => {
     const model = makeScopedModel();
     const ctx = selectRuntimeContext(model, { scope: 'nonexistent-xyz' });
     assert.equal(ctx.meta.selection_strategy, 'scoped');
@@ -189,7 +189,7 @@ describe('CT-0011: selectRuntimeContext — scope 过滤', () => {
     assert.equal(ctx.user_snapshot.projects.length, 2);
   });
 
-  it('scope 匹配多个项目 → open_questions 含多候选提示', () => {
+  it('scope 匹配多个项目 → open_questions 含多候选提示', async () => {
     const t = nowIso();
     const model = emptyUserModel();
     model.projects.push(
@@ -200,7 +200,7 @@ describe('CT-0011: selectRuntimeContext — scope 过滤', () => {
     assert.ok(ctx.open_questions.some((q) => q.includes('多个项目')));
   });
 
-  it('meta 体现 scope / matched_project_ids', () => {
+  it('meta 体现 scope / matched_project_ids', async () => {
     const model = makeScopedModel();
     const ctx = selectRuntimeContext(model, { scope: 'Cortex' });
     assert.equal(ctx.meta.scope, 'Cortex');
@@ -208,7 +208,7 @@ describe('CT-0011: selectRuntimeContext — scope 过滤', () => {
     assert.ok(ctx.meta.matched_project_ids!.includes('proj-cortex'));
   });
 
-  it('meta.total_model_entries 与 selected_entries 不同（scoped < all）', () => {
+  it('meta.total_model_entries 与 selected_entries 不同（scoped < all）', async () => {
     const model = makeScopedModel();
     const ctx = selectRuntimeContext(model, { scope: 'Cortex' });
     assert.ok(ctx.meta.selected_entries < ctx.meta.total_model_entries);
@@ -216,7 +216,7 @@ describe('CT-0011: selectRuntimeContext — scope 过滤', () => {
 });
 
 describe('CT-0011: selectRuntimeContext — task-hint 过滤', () => {
-  it('task-hint 命中 goal label 时该条目被选入，未命中条目被排除', () => {
+  it('task-hint 命中 goal label 时该条目被选入，未命中条目被排除', async () => {
     const model = makeScopedModel();
     // 'injection' matches '推进 Cortex injection'（g-cortex）
     // 不匹配 '完成 infra 迁移'（g-infra）或 '学习 TypeScript 高级特性'（g-global）
@@ -228,7 +228,7 @@ describe('CT-0011: selectRuntimeContext — task-hint 过滤', () => {
     assert.ok(!goalIds.includes('g-global'), 'non-matched global goal should be EXCLUDED');
   });
 
-  it('task-hint 单独使用时 selected_entries < total_model_entries（真实缩小）', () => {
+  it('task-hint 单独使用时 selected_entries < total_model_entries（真实缩小）', async () => {
     const model = makeScopedModel();
     const ctx = selectRuntimeContext(model, { taskHint: 'injection' });
     assert.ok(
@@ -237,7 +237,7 @@ describe('CT-0011: selectRuntimeContext — task-hint 过滤', () => {
     );
   });
 
-  it('task-hint 无匹配时 open_questions 包含未命中提示', () => {
+  it('task-hint 无匹配时 open_questions 包含未命中提示', async () => {
     const model = makeScopedModel();
     const ctx = selectRuntimeContext(model, { taskHint: 'zzznomatch999' });
     assert.ok(
@@ -246,7 +246,7 @@ describe('CT-0011: selectRuntimeContext — task-hint 过滤', () => {
     );
   });
 
-  it('scope + task-hint 叠加：两者条件都参与选择', () => {
+  it('scope + task-hint 叠加：两者条件都参与选择', async () => {
     const model = makeScopedModel();
     const ctx = selectRuntimeContext(model, { scope: 'Infra', taskHint: 'TypeScript' });
     assert.equal(ctx.meta.selection_strategy, 'scoped');
@@ -257,7 +257,7 @@ describe('CT-0011: selectRuntimeContext — task-hint 过滤', () => {
     assert.ok(goalIds.includes('g-global'));
   });
 
-  it('meta.task_hint 体现传入值', () => {
+  it('meta.task_hint 体现传入值', async () => {
     const model = makeScopedModel();
     const ctx = selectRuntimeContext(model, { taskHint: 'injection' });
     assert.equal(ctx.meta.task_hint, 'injection');
@@ -267,39 +267,39 @@ describe('CT-0011: selectRuntimeContext — task-hint 过滤', () => {
 // --- buildInjectionPack with scope/taskHint ---
 
 describe('CT-0011: buildInjectionPack — scope/taskHint 透传', () => {
-  it('有 scope 时 pack.source.selection_strategy 为 scoped', () => {
+  it('有 scope 时 pack.source.selection_strategy 为 scoped', async () => {
     const model = makeScopedModel();
     const pack = buildInjectionPack(model, { scope: 'Cortex' });
     assert.equal(pack.source.selection_strategy, 'scoped');
     assert.equal(pack.source.scope, 'Cortex');
   });
 
-  it('有 scope 时 entries 只含命中项目相关条目（比 all 少）', () => {
+  it('有 scope 时 entries 只含命中项目相关条目（比 all 少）', async () => {
     const model = makeScopedModel();
     const allPack = buildInjectionPack(model);
     const scopedPack = buildInjectionPack(model, { scope: 'Cortex' });
     assert.ok(scopedPack.entries.length < allPack.entries.length);
   });
 
-  it('无 scope/taskHint 时 open_questions 仍为空', () => {
+  it('无 scope/taskHint 时 open_questions 仍为空', async () => {
     const model = makeScopedModel();
     const pack = buildInjectionPack(model);
     assert.deepEqual(pack.open_questions, []);
   });
 
-  it('scope 未命中时 open_questions 非空', () => {
+  it('scope 未命中时 open_questions 非空', async () => {
     const model = makeScopedModel();
     const pack = buildInjectionPack(model, { scope: 'nonexistent' });
     assert.ok(pack.open_questions.length > 0);
   });
 
-  it('pack.source.task_hint 体现传入值', () => {
+  it('pack.source.task_hint 体现传入值', async () => {
     const model = makeScopedModel();
     const pack = buildInjectionPack(model, { taskHint: 'injection' });
     assert.equal(pack.source.task_hint, 'injection');
   });
 
-  it('空模型 + scope 不崩溃，open_questions 含未命中提示', () => {
+  it('空模型 + scope 不崩溃，open_questions 含未命中提示', async () => {
     const model = emptyUserModel();
     const pack = buildInjectionPack(model, { scope: 'anything' });
     assert.ok(pack.open_questions.length > 0);
@@ -310,7 +310,7 @@ describe('CT-0011: buildInjectionPack — scope/taskHint 透传', () => {
 // --- 三条路径共享同一 selection 结果 ---
 
 describe('CT-0011: 三条输出路径共享 selection 结果', () => {
-  it('json path 与 projector path entry_count 一致（同一 scope）', () => {
+  it('json path 与 projector path entry_count 一致（同一 scope）', async () => {
     const model = makeScopedModel();
     const scope = 'Cortex';
 
@@ -324,7 +324,7 @@ describe('CT-0011: 三条输出路径共享 selection 结果', () => {
     );
   });
 
-  it('json path 与 text path（generic）选择结果 snapshot 条目数一致', () => {
+  it('json path 与 text path（generic）选择结果 snapshot 条目数一致', async () => {
     const model = makeScopedModel();
     const scope = 'Cortex';
 
@@ -337,14 +337,14 @@ describe('CT-0011: 三条输出路径共享 selection 结果', () => {
     assert.equal(jsonGoals, textGoals, 'json and text paths should select same goals');
   });
 
-  it('scoped json pack 的 projects bucket 只含匹配项目', () => {
+  it('scoped json pack 的 projects bucket 只含匹配项目', async () => {
     const model = makeScopedModel();
     const pack = buildInjectionPack(model, { scope: 'Cortex' });
     assert.equal(pack.projects.length, 1);
     assert.equal(pack.projects[0].id, 'proj-cortex');
   });
 
-  it('all 三条路径在无 scope 时行为与之前一致（regression）', () => {
+  it('all 三条路径在无 scope 时行为与之前一致（regression）', async () => {
     const model = makeScopedModel();
 
     const jsonPack = buildInjectionPack(model);
@@ -374,7 +374,7 @@ interface RunResult {
   stderr: string;
 }
 
-function runInjectCommand(args: string[]): RunResult {
+async function runInjectCommand(args: string[]): RunResult {
   const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'cortex-ct0011-'));
   const origHome = process.env.HOME;
 
@@ -399,7 +399,7 @@ function runInjectCommand(args: string[]): RunResult {
   process.env.HOME = tmpHome;
 
   try {
-    cmdInject(args);
+    await cmdInject(args);
   } catch (e) {
     if (!(e instanceof ProcessExitError)) throw e;
   } finally {
@@ -414,8 +414,8 @@ function runInjectCommand(args: string[]): RunResult {
 }
 
 describe('CT-0011: CLI --scope / --task-hint 参数', () => {
-  it('--scope 参数解析正常，退出 0，json 输出含 scoped strategy', () => {
-    const r = runInjectCommand(['--format', 'json', '--scope', 'Cortex']);
+  it('--scope 参数解析正常，退出 0，json 输出含 scoped strategy', async () => {
+    const r = await runInjectCommand(['--format', 'json', '--scope', 'Cortex']);
     assert.equal(r.status, 0, `stderr=${r.stderr}`);
     const parsed = JSON.parse(r.stdout) as Record<string, unknown>;
     const source = parsed.source as Record<string, unknown>;
@@ -424,28 +424,28 @@ describe('CT-0011: CLI --scope / --task-hint 参数', () => {
     assert.equal(source.scope, 'Cortex');
   });
 
-  it('--task-hint 参数解析正常，退出 0，json 输出含 task_hint', () => {
-    const r = runInjectCommand(['--format', 'json', '--task-hint', 'injection planning']);
+  it('--task-hint 参数解析正常，退出 0，json 输出含 task_hint', async () => {
+    const r = await runInjectCommand(['--format', 'json', '--task-hint', 'injection planning']);
     assert.equal(r.status, 0, `stderr=${r.stderr}`);
     const parsed = JSON.parse(r.stdout) as Record<string, unknown>;
     const source = parsed.source as Record<string, unknown>;
     assert.equal(source.task_hint, 'injection planning');
   });
 
-  it('--scope 缺少参数值 → 退出非 0，stderr 含提示', () => {
-    const r = runInjectCommand(['--scope']);
+  it('--scope 缺少参数值 → 退出非 0，stderr 含提示', async () => {
+    const r = await runInjectCommand(['--scope']);
     assert.notEqual(r.status, 0);
     assert.match(r.stderr, /--scope/);
   });
 
-  it('--task-hint 缺少参数值 → 退出非 0，stderr 含提示', () => {
-    const r = runInjectCommand(['--task-hint']);
+  it('--task-hint 缺少参数值 → 退出非 0，stderr 含提示', async () => {
+    const r = await runInjectCommand(['--task-hint']);
     assert.notEqual(r.status, 0);
     assert.match(r.stderr, /--task-hint/);
   });
 
-  it('--scope 与 --format json 组合：json 输出中 open_questions 是数组', () => {
-    const r = runInjectCommand(['--format', 'json', '--scope', 'NoMatch']);
+  it('--scope 与 --format json 组合：json 输出中 open_questions 是数组', async () => {
+    const r = await runInjectCommand(['--format', 'json', '--scope', 'NoMatch']);
     assert.equal(r.status, 0);
     const parsed = JSON.parse(r.stdout) as Record<string, unknown>;
     assert.ok(Array.isArray(parsed.open_questions));
@@ -453,8 +453,8 @@ describe('CT-0011: CLI --scope / --task-hint 参数', () => {
     assert.ok((parsed.open_questions as string[]).length > 0);
   });
 
-  it('--agent claude-code --scope 组合：text 路径仍含 XML 标签', () => {
-    const r = runInjectCommand(['--agent', 'claude-code', '--scope', 'Cortex']);
+  it('--agent claude-code --scope 组合：text 路径仍含 XML 标签', async () => {
+    const r = await runInjectCommand(['--agent', 'claude-code', '--scope', 'Cortex']);
     assert.equal(r.status, 0, `stderr=${r.stderr}`);
     assert.ok(r.stdout.includes('<cortex-user-model-injection>'));
   });

@@ -40,19 +40,19 @@ interface RunResult {
   stderr: string;
 }
 
-function withTmpHome<T>(fn: (tmpHome: string) => T): T {
+async function withTmpHome<T>(fn: (tmpHome: string) => Promise<T>): Promise<T> {
   const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'cortex-obstest-'));
   const origHome = process.env.HOME;
   process.env.HOME = tmpHome;
   try {
-    return fn(tmpHome);
+    return await fn(tmpHome);
   } finally {
     process.env.HOME = origHome;
     fs.rmSync(tmpHome, { recursive: true, force: true });
   }
 }
 
-function runCmd(fn: () => void): RunResult {
+async function runCmd(fn: () => void | Promise<void>): Promise<RunResult> {
   let status = 0;
   let stdout = '';
   let stderr = '';
@@ -69,7 +69,7 @@ function runCmd(fn: () => void): RunResult {
   console.error = (...a: unknown[]) => { stderr += a.map(String).join(' ') + '\n'; };
 
   try {
-    fn();
+    await fn();
   } catch (e) {
     if (!(e instanceof ProcessExitError)) throw e;
   } finally {
@@ -84,16 +84,16 @@ function runCmd(fn: () => void): RunResult {
 // ── observation 模块单元测试 ──────────────────────────────────────────────────
 
 describe('CT-0014: appendObservation / loadObservationLog', () => {
-  it('空环境下 loadObservationLog 返回空日志', () => {
-    withTmpHome(() => {
+  it('空环境下 loadObservationLog 返回空日志', async () => {
+    await withTmpHome(async () => {
       const log = loadObservationLog();
       assert.equal(log.version, '0.1');
       assert.deepEqual(log.observations, []);
     });
   });
 
-  it('appendObservation 写入后可被 loadObservationLog 读回', () => {
-    withTmpHome(() => {
+  it('appendObservation 写入后可被 loadObservationLog 读回', async () => {
+    await withTmpHome(async () => {
       appendObservation({
         event_type: 'context',
         selection_strategy: 'all',
@@ -112,8 +112,8 @@ describe('CT-0014: appendObservation / loadObservationLog', () => {
     });
   });
 
-  it('inject 类型 observation 包含 agent 字段', () => {
-    withTmpHome(() => {
+  it('inject 类型 observation 包含 agent 字段', async () => {
+    await withTmpHome(async () => {
       appendObservation({
         event_type: 'inject',
         agent: 'claude-code',
@@ -133,8 +133,8 @@ describe('CT-0014: appendObservation / loadObservationLog', () => {
     });
   });
 
-  it('observation 不含具体内容字段（无 entries 文本、无注入正文）', () => {
-    withTmpHome(() => {
+  it('observation 不含具体内容字段（无 entries 文本、无注入正文）', async () => {
+    await withTmpHome(async () => {
       appendObservation({
         event_type: 'inject',
         agent: 'generic',
@@ -152,8 +152,8 @@ describe('CT-0014: appendObservation / loadObservationLog', () => {
     });
   });
 
-  it('多次 append 后所有记录都保留', () => {
-    withTmpHome(() => {
+  it('多次 append 后所有记录都保留', async () => {
+    await withTmpHome(async () => {
       appendObservation({ event_type: 'context', selection_strategy: 'all', selected_entries: 1, total_entries: 1 });
       appendObservation({ event_type: 'inject', agent: 'generic', selection_strategy: 'all', selected_entries: 2, total_entries: 2 });
       const log = loadObservationLog();
@@ -163,13 +163,13 @@ describe('CT-0014: appendObservation / loadObservationLog', () => {
     });
   });
 
-  it('observation 存储路径与 user model 路径不同', () => {
+  it('observation 存储路径与 user model 路径不同', async () => {
     const obsPath = getObservationsPath();
     assert.ok(obsPath.includes('observations.json'), 'observation 路径应含 observations.json');
     assert.ok(!obsPath.includes('user_model.json'), 'observation 路径不应是 user_model.json');
   });
 
-  it('损坏的 observations.json 返回空日志（不抛出）', () => {
+  it('损坏的 observations.json 返回空日志（不抛出）', async () => {
     withTmpHome((tmpHome) => {
       const cortexDir = path.join(tmpHome, '.cortex');
       fs.mkdirSync(cortexDir, { recursive: true });
@@ -181,7 +181,7 @@ describe('CT-0014: appendObservation / loadObservationLog', () => {
 });
 
 describe('CT-0014: renderObservation', () => {
-  it('all 模式包含 全量 标签', () => {
+  it('all 模式包含 全量 标签', async () => {
     const obs: RuntimeObservation = {
       id: 'test-id',
       timestamp: '2026-04-19T10:00:00.000Z',
@@ -196,7 +196,7 @@ describe('CT-0014: renderObservation', () => {
     assert.ok(line.includes('5/5'), `line=${line}`);
   });
 
-  it('scoped 模式包含 聚焦 标签和 scope / task-hint', () => {
+  it('scoped 模式包含 聚焦 标签和 scope / task-hint', async () => {
     const obs: RuntimeObservation = {
       id: 'test-id',
       timestamp: '2026-04-19T10:00:00.000Z',
@@ -220,9 +220,9 @@ describe('CT-0014: renderObservation', () => {
 // ── CLI 集成测试（in-process）─────────────────────────────────────────────────
 
 describe('CT-0014: cmdInject 写入 observation', () => {
-  it('inject 成功后产生 observation', () => {
-    withTmpHome(() => {
-      const r = runCmd(() => cmdInject(['--format', 'json']));
+  it('inject 成功后产生 observation', async () => {
+    await withTmpHome(async () => {
+      const r = await runCmd(async () => cmdInject(['--format', 'json']));
       assert.equal(r.status, 0, `stderr=${r.stderr}`);
       const log = loadObservationLog();
       assert.equal(log.observations.length, 1);
@@ -230,18 +230,18 @@ describe('CT-0014: cmdInject 写入 observation', () => {
     });
   });
 
-  it('inject --agent claude-code 产生 agent=claude-code 的 observation', () => {
-    withTmpHome(() => {
-      runCmd(() => cmdInject(['--agent', 'claude-code']));
+  it('inject --agent claude-code 产生 agent=claude-code 的 observation', async () => {
+    await withTmpHome(async () => {
+      await runCmd(async () => cmdInject(['--agent', 'claude-code']));
       const log = loadObservationLog();
       assert.equal(log.observations.length, 1);
       assert.equal(log.observations[0].agent, 'claude-code');
     });
   });
 
-  it('inject --scope 产生 scoped observation', () => {
-    withTmpHome(() => {
-      runCmd(() => cmdInject(['--scope', 'Cortex']));
+  it('inject --scope 产生 scoped observation', async () => {
+    await withTmpHome(async () => {
+      await runCmd(async () => cmdInject(['--scope', 'Cortex']));
       const log = loadObservationLog();
       assert.equal(log.observations.length, 1);
       assert.equal(log.observations[0].selection_strategy, 'scoped');
@@ -249,9 +249,9 @@ describe('CT-0014: cmdInject 写入 observation', () => {
     });
   });
 
-  it('inject 失败路径（--format yaml）不写 observation', () => {
-    withTmpHome(() => {
-      const r = runCmd(() => cmdInject(['--format', 'yaml']));
+  it('inject 失败路径（--format yaml）不写 observation', async () => {
+    await withTmpHome(async () => {
+      const r = await runCmd(async () => cmdInject(['--format', 'yaml']));
       assert.notEqual(r.status, 0);
       const log = loadObservationLog();
       assert.equal(log.observations.length, 0, '失败路径不应写 observation');
@@ -260,9 +260,9 @@ describe('CT-0014: cmdInject 写入 observation', () => {
 });
 
 describe('CT-0014: cmdContext 写入 observation', () => {
-  it('context 成功后产生 observation', () => {
-    withTmpHome(() => {
-      const r = runCmd(() => cmdContext([]));
+  it('context 成功后产生 observation', async () => {
+    await withTmpHome(async () => {
+      const r = await runCmd(async () => cmdContext([]));
       assert.equal(r.status, 0, `stderr=${r.stderr}`);
       const log = loadObservationLog();
       assert.equal(log.observations.length, 1);
@@ -270,9 +270,9 @@ describe('CT-0014: cmdContext 写入 observation', () => {
     });
   });
 
-  it('context --scope 产生 scoped observation', () => {
-    withTmpHome(() => {
-      runCmd(() => cmdContext(['--scope', 'Cortex']));
+  it('context --scope 产生 scoped observation', async () => {
+    await withTmpHome(async () => {
+      await runCmd(async () => cmdContext(['--scope', 'Cortex']));
       const log = loadObservationLog();
       assert.equal(log.observations.length, 1);
       assert.equal(log.observations[0].selection_strategy, 'scoped');
@@ -280,9 +280,9 @@ describe('CT-0014: cmdContext 写入 observation', () => {
     });
   });
 
-  it('context 失败路径（缺参）不写 observation', () => {
-    withTmpHome(() => {
-      const r = runCmd(() => cmdContext(['--scope']));
+  it('context 失败路径（缺参）不写 observation', async () => {
+    await withTmpHome(async () => {
+      const r = await runCmd(async () => cmdContext(['--scope']));
       assert.notEqual(r.status, 0);
       const log = loadObservationLog();
       assert.equal(log.observations.length, 0, '失败路径不应写 observation');
@@ -291,45 +291,45 @@ describe('CT-0014: cmdContext 写入 observation', () => {
 });
 
 describe('CT-0014: cmdObserve', () => {
-  it('无记录时输出稳定（不崩溃）', () => {
-    withTmpHome(() => {
-      const r = runCmd(() => cmdObserve());
+  it('无记录时输出稳定（不崩溃）', async () => {
+    await withTmpHome(async () => {
+      const r = await runCmd(async () => cmdObserve());
       assert.equal(r.status, 0, `stderr=${r.stderr}`);
       assert.ok(r.stdout.includes('暂无使用记录'), `stdout=${r.stdout}`);
     });
   });
 
-  it('有记录时显示 [最近使用记录] 和条目', () => {
-    withTmpHome(() => {
-      runCmd(() => cmdInject([]));
-      runCmd(() => cmdContext([]));
-      const r = runCmd(() => cmdObserve());
+  it('有记录时显示 [最近使用记录] 和条目', async () => {
+    await withTmpHome(async () => {
+      await runCmd(async () => cmdInject([]));
+      await runCmd(async () => cmdContext([]));
+      const r = await runCmd(async () => cmdObserve());
       assert.equal(r.status, 0, `stderr=${r.stderr}`);
       assert.ok(r.stdout.includes('[最近使用记录]'), `stdout=${r.stdout}`);
       assert.ok(r.stdout.includes('inject') || r.stdout.includes('context'), `stdout=${r.stdout}`);
     });
   });
 
-  it('observe 输出不含具体 user model 内容', () => {
-    withTmpHome(() => {
+  it('observe 输出不含具体 user model 内容', async () => {
+    await withTmpHome(async () => {
       // inject 会把 instruction_text 输出到 stdout；observe 不应重复它
-      runCmd(() => cmdInject([]));
-      const r = runCmd(() => cmdObserve());
+      await runCmd(async () => cmdInject([]));
+      const r = await runCmd(async () => cmdObserve());
       // observe 的 stdout 是纯元信息行，不含"--- Cortex 长期用户模型 ---"这类注入正文
       assert.ok(!r.stdout.includes('--- Cortex'), `observe 不应含注入正文: stdout=${r.stdout}`);
     });
   });
 
-  it('无参数成功路径：退出 0', () => {
-    withTmpHome(() => {
-      const r = runCmd(() => cmdObserve([]));
+  it('无参数成功路径：退出 0', async () => {
+    await withTmpHome(async () => {
+      const r = await runCmd(async () => cmdObserve([]));
       assert.equal(r.status, 0, `expected exit 0, got ${r.status}\nstderr=${r.stderr}`);
     });
   });
 
-  it('多余参数 → 非零退出，stderr 含错误提示', () => {
-    withTmpHome(() => {
-      const r = runCmd(() => cmdObserve(['unexpected']));
+  it('多余参数 → 非零退出，stderr 含错误提示', async () => {
+    await withTmpHome(async () => {
+      const r = await runCmd(async () => cmdObserve(['unexpected']));
       assert.notEqual(r.status, 0, `expected non-zero exit, got ${r.status}`);
       assert.equal(r.stdout.trim(), '', `stdout should be empty, got: ${r.stdout}`);
       assert.match(r.stderr, /unexpected/);

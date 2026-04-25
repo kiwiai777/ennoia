@@ -41,7 +41,7 @@ interface RunResult {
   stderr: string;
 }
 
-function runInjectCommand(args: string[]): RunResult {
+async function runInjectCommand(args: string[]): Promise<RunResult> {
   const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'cortex-injecttest-'));
   const origHome = process.env.HOME;
 
@@ -68,7 +68,7 @@ function runInjectCommand(args: string[]): RunResult {
   process.env.HOME = tmpHome;
 
   try {
-    cmdInject(args);
+    await cmdInject(args);
   } catch (e) {
     if (!(e instanceof ProcessExitError)) throw e;
   } finally {
@@ -83,8 +83,8 @@ function runInjectCommand(args: string[]): RunResult {
 }
 
 describe('CLI: cortex inject', () => {
-  it('--format json 成功：退出 0，输出合法 Pack v0.1', () => {
-    const r = runInjectCommand(['--format', 'json']);
+  it('--format json 成功：退出 0，输出合法 Pack v0.1', async () => {
+    const r = await runInjectCommand(['--format', 'json']);
 
     assert.equal(
       r.status,
@@ -112,8 +112,8 @@ describe('CLI: cortex inject', () => {
     assert.equal(source.agent, 'generic');
   });
 
-  it('--agent claude-code --format json 把 agent 反映在 source.agent 里', () => {
-    const r = runInjectCommand(['--agent', 'claude-code', '--format', 'json']);
+  it('--agent claude-code --format json 把 agent 反映在 source.agent 里', async () => {
+    const r = await runInjectCommand(['--agent', 'claude-code', '--format', 'json']);
 
     assert.equal(
       r.status,
@@ -126,8 +126,8 @@ describe('CLI: cortex inject', () => {
     assert.equal(source.agent, 'claude-code');
   });
 
-  it('--agent claude-code（默认 text）：走 projector 路径，输出含 XML 包装标签', () => {
-    const r = runInjectCommand(['--agent', 'claude-code']);
+  it('--agent claude-code（默认 text）：走 projector 路径，输出含 XML 包装标签', async () => {
+    const r = await runInjectCommand(['--agent', 'claude-code']);
 
     assert.equal(
       r.status,
@@ -144,8 +144,8 @@ describe('CLI: cortex inject', () => {
     );
   });
 
-  it('--format yaml 错误：退出非 0，stderr 提示 --format 非法', () => {
-    const r = runInjectCommand(['--format', 'yaml']);
+  it('--format yaml 错误：退出非 0，stderr 提示 --format 非法', async () => {
+    const r = await runInjectCommand(['--format', 'yaml']);
 
     assert.notEqual(
       r.status,

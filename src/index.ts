@@ -48,7 +48,7 @@ import type {
   ExtractionCandidate,
 } from './core/extraction/types.js';
 import { extractFromClaudeCodeWorkspace } from './adapters/claude-code/index.js';
-import { extractFromOpenClawWorkspace } from './adapters/openclaw/index.js';
+import { extractFromOpenClawWorkspace, injectToOpenClaw } from './adapters/openclaw/index.js';
 import { resolveWorkspacePath } from './adapters/openclaw/workspace.js';
 
 import { basicSuggest } from './core/suggestion/basic-suggester.js';
@@ -80,6 +80,7 @@ function usage(): void {
   console.log('                                 输出当前 user context');
   console.log('                                 --scope 聚焦到特定项目（名/id）');
   console.log('                                 --task-hint 按任务线索过滤');
+  console.log('  cortex inject --target openclaw [--workspace <path>] [--dry-run]');
   console.log('  cortex inject [--agent <id>] [--format text|json]');
   console.log('                [--scope <scope>] [--task-hint "<hint>"]');
   console.log('                [--with-observation]');
@@ -223,7 +224,7 @@ export function cmdContext(args: string[] = []): void {
 type InjectFormat = 'text' | 'json';
 
 // CT-0011：支持 --scope 和 --task-hint，三条输出路径共享同一 selection 结果。
-export function cmdInject(args: string[]): void {
+export async function cmdInject(args: string[]): Promise<void> {
   const model = loadUserModel();
 
   let agentId = 'generic';
@@ -231,10 +232,29 @@ export function cmdInject(args: string[]): void {
   let scope: string | undefined;
   let taskHint: string | undefined;
   let withObservation = false;
+  let target: string | undefined;
+  let workspace: string | undefined;
+  let dryRun = false;
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    if (arg === '--agent') {
+    if (arg === '--target') {
+      if (i + 1 >= args.length || args[i + 1].startsWith('--')) {
+        console.error('错误：--target 缺少参数值。示例：--target openclaw');
+        process.exit(1);
+      }
+      target = args[i + 1];
+      i++;
+    } else if (arg === '--workspace') {
+      if (i + 1 >= args.length || args[i + 1].startsWith('--')) {
+        console.error('错误：--workspace 缺少参数值。');
+        process.exit(1);
+      }
+      workspace = args[i + 1];
+      i++;
+    } else if (arg === '--dry-run') {
+      dryRun = true;
+    } else if (arg === '--agent') {
       if (i + 1 >= args.length || args[i + 1].startsWith('--')) {
         console.error('错误：--agent 缺少参数值。示例：--agent claude-code');
         process.exit(1);
@@ -273,6 +293,11 @@ export function cmdInject(args: string[]): void {
       console.error(`错误：未知的参数 ${arg}`);
       process.exit(1);
     }
+  }
+
+  if (target === 'openclaw') {
+    await injectToOpenClaw({ workspacePath: workspace, dryRun });
+    return;
   }
 
   // CT-0019: 如果开启，则读取 observation 日志用于构建 recap (对 json format 无效，保留此逻辑避免副作用)
@@ -983,7 +1008,7 @@ async function main(): Promise<void> {
       cmdContext(rest);
       break;
     case 'inject':
-      cmdInject(rest);
+      await cmdInject(rest);
       break;
     case 'observe':
       cmdObserve(rest);
