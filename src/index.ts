@@ -50,6 +50,7 @@ import type {
 import { extractFromClaudeCodeWorkspace } from './adapters/claude-code/index.js';
 import { extractFromOpenClawWorkspace, injectToOpenClaw } from './adapters/openclaw/index.js';
 import { resolveWorkspacePath } from './adapters/openclaw/workspace.js';
+import { ALL_INJECT_TARGETS, injectToTarget, type InjectTarget } from './adapters/inject-targets.js';
 
 import { basicSuggest } from './core/suggestion/basic-suggester.js';
 import { llmSuggest } from './core/suggestion/llm-suggester.js';
@@ -81,6 +82,7 @@ function usage(): void {
   console.log('                                 --scope 聚焦到特定项目（名/id）');
   console.log('                                 --task-hint 按任务线索过滤');
   console.log('  cortex inject --target openclaw [--workspace <path>] [--dry-run]');
+  console.log('  cortex inject --all-targets [--workspace <path>] [--dry-run]');
   console.log('  cortex inject [--agent <id>] [--format text|json]');
   console.log('                [--scope <scope>] [--task-hint "<hint>"]');
   console.log('                [--with-observation]');
@@ -221,6 +223,39 @@ export function cmdContext(args: string[] = []): void {
   });
 }
 
+export async function injectAllTargets(opts: {
+  workspacePath?: string;
+  dryRun?: boolean;
+}): Promise<void> {
+  const results: { target: InjectTarget; ok: boolean; error?: string }[] = [];
+
+  for (const target of ALL_INJECT_TARGETS) {
+    try {
+      console.log(`\n--- ${target} ---`);
+      await injectToTarget(target, opts);
+      results.push({ target, ok: true });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error(`✗ ${target}: ${msg}`);
+      results.push({ target, ok: false, error: msg });
+      // continue-on-error: 不中断，继续下一个 target
+    }
+  }
+
+  // 汇总
+  console.log('\n=== 汇总 ===');
+  const okCount = results.filter(r => r.ok).length;
+  const failCount = results.length - okCount;
+  console.log(`✓ ${okCount} 个 target 成功`);
+  if (failCount > 0) {
+    console.log(`✗ ${failCount} 个 target 失败`);
+    for (const r of results.filter(r => !r.ok)) {
+      console.log(`   - ${r.target}: ${r.error}`);
+    }
+    process.exit(1);   // 整体退出码非 0，提示有失败
+  }
+}
+
 type InjectFormat = 'text' | 'json';
 
 // CT-0011：支持 --scope 和 --task-hint，三条输出路径共享同一 selection 结果。
@@ -233,6 +268,7 @@ export async function cmdInject(args: string[]): Promise<void> {
   let taskHint: string | undefined;
   let withObservation = false;
   let target: string | undefined;
+  let allTargets = false;
   let workspace: string | undefined;
   let dryRun = false;
 
@@ -245,6 +281,8 @@ export async function cmdInject(args: string[]): Promise<void> {
       }
       target = args[i + 1];
       i++;
+    } else if (arg === '--all-targets') {
+      allTargets = true;
     } else if (arg === '--workspace') {
       if (i + 1 >= args.length || args[i + 1].startsWith('--')) {
         console.error('错误：--workspace 缺少参数值。');
@@ -293,6 +331,15 @@ export async function cmdInject(args: string[]): Promise<void> {
       console.error(`错误：未知的参数 ${arg}`);
       process.exit(1);
     }
+  }
+
+  if (allTargets) {
+    if (target) {
+      console.error('错误：--all-targets 与 --target 不能同时使用');
+      process.exit(1);
+    }
+    await injectAllTargets({ workspacePath: workspace, dryRun });
+    return;
   }
 
   if (target === 'openclaw') {
@@ -563,6 +610,7 @@ async function cmdImport(args: string[]): Promise<void> {
       const basename = path.basename(item.source_path);
       console.log(`  - [${tag}] ${item.text} (${basename})`);
     }
+    console.log(`\nℹ️  运行 cortex inject --all-targets 同步到所有 agent`);
   } else {
     console.log('未写入任何条目。');
   }
@@ -673,6 +721,7 @@ async function cmdSuggest(args: string[]): Promise<void> {
     for (const item of written) {
       console.log(`  - [${item.type}] ${item.text}`);
     }
+    console.log(`\nℹ️  运行 cortex inject --all-targets 同步到所有 agent`);
   } else {
     console.log('未写入任何条目。');
   }
@@ -858,6 +907,10 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
   console.log(`\nYour user model is now ${writtenCount} facts richer.`);
   console.log('运行 `cortex context` 查看完整 user model。');
   console.log('运行 `cortex inject --format text` 获取可贴给其他 AI 的 context。');
+
+  if (!dryRun && (writtenCount > 0 || skippedCount > 0)) {
+    console.log(`\nℹ️  运行 cortex inject --all-targets 同步到所有 agent`);
+  }
 }
 
 // --- reflect ---

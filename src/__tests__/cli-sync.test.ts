@@ -247,6 +247,7 @@ describe('CLI: cortex sync', () => {
       const r = await runSync(['--from', 'claude-code', '--dry-run'], SUPPORTED_CANDIDATES);
       assert.equal(r.status, 0, `stderr=${r.stderr}`);
       assert.ok(r.stdout.includes('[dry-run]'), `stdout=${r.stdout}`);
+      assert.ok(!r.stdout.includes('ℹ️  运行 cortex inject --all-targets 同步到所有 agent'), 'dry-run should not remind to inject');
     });
 
     it('--dry-run：all unsupported → 过滤后无可写入，不 crash', async () => {
@@ -325,9 +326,10 @@ describe('CLI: cortex sync', () => {
       const r = await runSync(['--from', 'claude-code'], SUPPORTED_CANDIDATES, []);
       assert.equal(r.status, 0, `stderr=${r.stderr}`);
       assert.ok(r.stdout.includes('未选择任何候选'), `stdout=${r.stdout}`);
+      assert.ok(!r.stdout.includes('ℹ️  运行 cortex inject --all-targets 同步到所有 agent'), '0 writes should not remind to inject');
     });
 
-    it('--accept-all：stdout 包含 ✓ 写入', () => {
+    it('--accept-all：stdout 包含 ✓ 写入 和 inject 提示', () => {
       // Subprocess: write goes to isolated tmpHome so EROFS-safe
       const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'cortex-synchome-'));
       const workspace = fs.mkdtempSync(path.join(os.tmpdir(), 'cortex-syncws-'));
@@ -336,6 +338,7 @@ describe('CLI: cortex sync', () => {
         const r = spawnSyncInWorkspace(['--from', 'claude-code', '--accept-all'], workspace, tmpHome);
         assert.equal(r.status, 0, `stderr=${r.stderr}\nstdout=${r.stdout}`);
         assert.ok(r.stdout.includes('✓ 写入'), `stdout=${r.stdout}`);
+        assert.ok(r.stdout.includes('ℹ️  运行 cortex inject --all-targets 同步到所有 agent'), `stdout=${r.stdout}`);
       } finally {
         fs.rmSync(tmpHome, { recursive: true, force: true });
         fs.rmSync(workspace, { recursive: true, force: true });
