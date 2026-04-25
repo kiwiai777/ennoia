@@ -1,0 +1,2895 @@
+
+> cortex@0.0.1 test
+> node --import tsx --test "src/**/__tests__/**/*.test.ts" "src/__tests__/**/*.test.ts"
+
+TAP version 13
+# Subtest: openclaw inject - Append mode: USER.md does not exist -> create + marker block
+ok 1 - openclaw inject - Append mode: USER.md does not exist -> create + marker block
+  ---
+  duration_ms: 10.432455
+  type: 'test'
+  ...
+# Subtest: openclaw inject - Append mode: USER.md exists without marker -> append to end
+ok 2 - openclaw inject - Append mode: USER.md exists without marker -> append to end
+  ---
+  duration_ms: 7.34315
+  type: 'test'
+  ...
+# Subtest: openclaw inject - Replace mode: full marker exists -> replace inside
+ok 3 - openclaw inject - Replace mode: full marker exists -> replace inside
+  ---
+  duration_ms: 8.523043
+  type: 'test'
+  ...
+# Subtest: openclaw inject - Replace mode: renderedContent is empty -> clear inside
+ok 4 - openclaw inject - Replace mode: renderedContent is empty -> clear inside
+  ---
+  duration_ms: 4.031923
+  type: 'test'
+  ...
+# Subtest: openclaw inject - Mismatched marker (partial) -> abort + warning
+ok 5 - openclaw inject - Mismatched marker (partial) -> abort + warning
+  ---
+  duration_ms: 5.711793
+  type: 'test'
+  ...
+# Subtest: openclaw inject - Dry-run -> do not write, print preview
+ok 6 - openclaw inject - Dry-run -> do not write, print preview
+  ---
+  duration_ms: 3.406088
+  type: 'test'
+  ...
+# Subtest: openclaw inject - Atomic write: tmp is in same dir
+ok 7 - openclaw inject - Atomic write: tmp is in same dir
+  ---
+  duration_ms: 2.653009
+  type: 'test'
+  ...
+# [WARNING] OpenClaw marker mismatch: missing END marker detected. Skipping marker stripping.
+# [WARNING] OpenClaw marker mismatch: orphan END marker detected. Skipping marker stripping.
+# [WARNING] OpenClaw marker nested error: BEGIN-BEGIN-END detected. Skipping marker stripping.
+# Subtest: OpenClaw Adapter - stripCortexMarkers
+    # Subtest: Normal case - one pair
+    ok 1 - Normal case - one pair
+      ---
+      duration_ms: 0.730367
+      type: 'test'
+      ...
+    # Subtest: Multiple pairs
+    ok 2 - Multiple pairs
+      ---
+      duration_ms: 0.166963
+      type: 'test'
+      ...
+    # Subtest: Missing END marker
+    ok 3 - Missing END marker
+      ---
+      duration_ms: 0.703325
+      type: 'test'
+      ...
+    # Subtest: Missing BEGIN marker
+    ok 4 - Missing BEGIN marker
+      ---
+      duration_ms: 0.167022
+      type: 'test'
+      ...
+    # Subtest: Nested markers
+    ok 5 - Nested markers
+      ---
+      duration_ms: 0.399672
+      type: 'test'
+      ...
+    1..5
+ok 8 - OpenClaw Adapter - stripCortexMarkers
+  ---
+  duration_ms: 3.6443
+  type: 'test'
+  ...
+# Subtest: openclaw render - preference (English)
+ok 9 - openclaw render - preference (English)
+  ---
+  duration_ms: 1.149697
+  type: 'test'
+  ...
+# Subtest: openclaw render - goal (English)
+ok 10 - openclaw render - goal (English)
+  ---
+  duration_ms: 0.273657
+  type: 'test'
+  ...
+# Subtest: openclaw render - constraint (English)
+ok 11 - openclaw render - constraint (English)
+  ---
+  duration_ms: 0.150481
+  type: 'test'
+  ...
+# Subtest: openclaw render - other kind (English)
+ok 12 - openclaw render - other kind (English)
+  ---
+  duration_ms: 0.116689
+  type: 'test'
+  ...
+# Subtest: openclaw render - empty items
+ok 13 - openclaw render - empty items
+  ---
+  duration_ms: 0.157201
+  type: 'test'
+  ...
+# Subtest: openclaw render - preference (Chinese)
+ok 14 - openclaw render - preference (Chinese)
+  ---
+  duration_ms: 0.216619
+  type: 'test'
+  ...
+# Subtest: openclaw render - goal (Chinese)
+ok 15 - openclaw render - goal (Chinese)
+  ---
+  duration_ms: 0.223071
+  type: 'test'
+  ...
+# Subtest: openclaw render - constraint (Chinese)
+ok 16 - openclaw render - constraint (Chinese)
+  ---
+  duration_ms: 0.190683
+  type: 'test'
+  ...
+# Subtest: openclaw render - other kind (Chinese)
+ok 17 - openclaw render - other kind (Chinese)
+  ---
+  duration_ms: 0.710878
+  type: 'test'
+  ...
+# Subtest: openclaw render - multiple lines
+ok 18 - openclaw render - multiple lines
+  ---
+  duration_ms: 0.782221
+  type: 'test'
+  ...
+# [WARNING] Skipping SOUL.md: file does not exist at /tmp/cortex-openclaw-scan-test-vLSYHw/SOUL.md
+# [WARNING] Skipping USER.md: file does not exist at /tmp/cortex-openclaw-scan-test-vLSYHw/USER.md
+# [WARNING] Skipping SOUL.md: file does not exist at /tmp/cortex-openclaw-scan-test-vLSYHw/SOUL.md
+# [WARNING] Skipping SOUL.md: file does not exist at /tmp/cortex-openclaw-scan-test-vLSYHw/SOUL.md
+# Subtest: OpenClaw Adapter - scanWorkspace
+    # Subtest: Test 1: USER.md and SOUL.md both exist
+    ok 1 - Test 1: USER.md and SOUL.md both exist
+      ---
+      duration_ms: 1.269097
+      type: 'test'
+      ...
+    # Subtest: Test 2: Only USER.md exists
+    ok 2 - Test 2: Only USER.md exists
+      ---
+      duration_ms: 1.719324
+      type: 'test'
+      ...
+    # Subtest: Test 3: Neither exists
+    ok 3 - Test 3: Neither exists
+      ---
+      duration_ms: 1.155881
+      type: 'test'
+      ...
+    # Subtest: Test 4: Strip marker section completely
+    not ok 4 - Test 4: Strip marker section completely
+      ---
+      duration_ms: 5.495297
+      type: 'test'
+      location: '/home/kiwi/cortex/src/__tests__/adapters/openclaw-scan.test.ts:1:1505'
+      failureType: 'testCodeFailure'
+      error: |-
+        Expected values to be strictly equal:
+        + actual - expected
+        
+        + 'Hello\nWorld'
+        - 'Hello\n\nWorld'
+                  ^
+        
+      code: 'ERR_ASSERTION'
+      name: 'AssertionError'
+      expected: |-
+        Hello
+        
+        World
+      actual: |-
+        Hello
+        World
+      operator: 'strictEqual'
+      stack: |-
+        TestContext.<anonymous> (/home/kiwi/cortex/src/__tests__/adapters/openclaw-scan.test.ts:52:14)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async TestContext.<anonymous> (/home/kiwi/cortex/src/__tests__/adapters/openclaw-scan.test.ts:44:5)
+        async Test.run (node:internal/test_runner/test:1054:7)
+        async startSubtestAfterBootstrap (node:internal/test_runner/harness:296:3)
+      ...
+    # Subtest: Test 5: Partial markers are not stripped and should emit warning
+    ok 5 - Test 5: Partial markers are not stripped and should emit warning
+      ---
+      duration_ms: 0.721674
+      type: 'test'
+      ...
+    1..5
+not ok 19 - OpenClaw Adapter - scanWorkspace
+  ---
+  duration_ms: 14.556978
+  type: 'test'
+  location: '/home/kiwi/cortex/src/__tests__/adapters/openclaw-scan.test.ts:1:196'
+  failureType: 'subtestsFailed'
+  error: '1 subtest failed'
+  code: 'ERR_TEST_FAILURE'
+  ...
+# Subtest: OpenClaw Adapter - resolveWorkspacePath
+    # Subtest: Explicit path prioritized
+    ok 1 - Explicit path prioritized
+      ---
+      duration_ms: 1.034251
+      type: 'test'
+      ...
+    # Subtest: OpenClaw config parsing
+    ok 2 - OpenClaw config parsing
+      ---
+      duration_ms: 0.37716
+      type: 'test'
+      ...
+    # Subtest: Config not found throws
+    ok 3 - Config not found throws
+      ---
+      duration_ms: 0.52855
+      type: 'test'
+      ...
+    # Subtest: Field missing throws
+    ok 4 - Field missing throws
+      ---
+      duration_ms: 0.338658
+      type: 'test'
+      ...
+    # Subtest: Throws when path is not a directory
+    ok 5 - Throws when path is not a directory
+      ---
+      duration_ms: 0.307897
+      type: 'test'
+      ...
+    1..5
+ok 20 - OpenClaw Adapter - resolveWorkspacePath
+  ---
+  duration_ms: 6.123808
+  type: 'test'
+  ...
+# Subtest: CLI: cortex context
+    # Subtest: 无参数 → all 模式，退出 0，输出含 [User Context]
+    ok 1 - 无参数 → all 模式，退出 0，输出含 [User Context]
+      ---
+      duration_ms: 4.622091
+      type: 'test'
+      ...
+    # Subtest: --scope <value> → 退出 0，输出含 selection summary
+    ok 2 - --scope <value> → 退出 0，输出含 selection summary
+      ---
+      duration_ms: 2.021688
+      type: 'test'
+      ...
+    # Subtest: --task-hint <value> → 退出 0，输出含任务线索
+    ok 3 - --task-hint <value> → 退出 0，输出含任务线索
+      ---
+      duration_ms: 1.568606
+      type: 'test'
+      ...
+    # Subtest: --scope + --task-hint 叠加 → 退出 0，两者都出现
+    ok 4 - --scope + --task-hint 叠加 → 退出 0，两者都出现
+      ---
+      duration_ms: 1.510295
+      type: 'test'
+      ...
+    # Subtest: --scope 缺参 → 非零退出，stderr 含 --scope 提示
+    ok 5 - --scope 缺参 → 非零退出，stderr 含 --scope 提示
+      ---
+      duration_ms: 0.970441
+      type: 'test'
+      ...
+    # Subtest: --task-hint 缺参 → 非零退出，stderr 含 --task-hint 提示
+    ok 6 - --task-hint 缺参 → 非零退出，stderr 含 --task-hint 提示
+      ---
+      duration_ms: 0.649351
+      type: 'test'
+      ...
+    # Subtest: --scope --task-hint foo → fail-fast（不误把 --task-hint 当 scope 值）
+    ok 7 - --scope --task-hint foo → fail-fast（不误把 --task-hint 当 scope 值）
+      ---
+      duration_ms: 0.64078
+      type: 'test'
+      ...
+    # Subtest: 未知参数 → 非零退出，stderr 含参数名
+    ok 8 - 未知参数 → 非零退出，stderr 含参数名
+      ---
+      duration_ms: 0.697777
+      type: 'test'
+      ...
+    1..8
+ok 21 - CLI: cortex context
+  ---
+  duration_ms: 14.168035
+  type: 'suite'
+  ...
+# Subtest: CLI: cortex inject --target openclaw --dry-run
+ok 22 - CLI: cortex inject --target openclaw --dry-run
+  ---
+  duration_ms: 1003.44209
+  type: 'test'
+  ...
+# Subtest: CLI: cortex inject --target openclaw
+ok 23 - CLI: cortex inject --target openclaw
+  ---
+  duration_ms: 493.620589
+  type: 'test'
+  ...
+# Subtest: CLI: cortex inject
+    # Subtest: --format json 成功：退出 0，输出合法 Pack v0.1
+    ok 1 - --format json 成功：退出 0，输出合法 Pack v0.1
+      ---
+      duration_ms: 6.483503
+      type: 'test'
+      ...
+    # Subtest: --agent claude-code --format json 把 agent 反映在 source.agent 里
+    ok 2 - --agent claude-code --format json 把 agent 反映在 source.agent 里
+      ---
+      duration_ms: 1.698088
+      type: 'test'
+      ...
+    # Subtest: --agent claude-code（默认 text）：走 projector 路径，输出含 XML 包装标签
+    ok 3 - --agent claude-code（默认 text）：走 projector 路径，输出含 XML 包装标签
+      ---
+      duration_ms: 1.751483
+      type: 'test'
+      ...
+    # Subtest: --format yaml 错误：退出非 0，stderr 提示 --format 非法
+    ok 4 - --format yaml 错误：退出非 0，stderr 提示 --format 非法
+      ---
+      duration_ms: 0.873317
+      type: 'test'
+      ...
+    1..4
+ok 24 - CLI: cortex inject
+  ---
+  duration_ms: 12.326095
+  type: 'suite'
+  ...
+# Subtest: CLI: cortex reflect
+    # Subtest: 位置参数 happy path：有候选 → 选中 → 写入成功
+    ok 1 - 位置参数 happy path：有候选 → 选中 → 写入成功
+      ---
+      duration_ms: 6.328699
+      type: 'test'
+      ...
+    # Subtest: 位置参数：选择 none → 不写入，exit 0
+    ok 2 - 位置参数：选择 none → 不写入，exit 0
+      ---
+      duration_ms: 1.9598
+      type: 'test'
+      ...
+    # Subtest: 位置参数：选择 all（多候选）→ 全部写入
+    ok 3 - 位置参数：选择 all（多候选）→ 全部写入
+      ---
+      duration_ms: 3.525311
+      type: 'test'
+      ...
+    # Subtest: 位置参数：无候选 → 显式提示，exit 0
+    ok 4 - 位置参数：无候选 → 显式提示，exit 0
+      ---
+      duration_ms: 1.419585
+      type: 'test'
+      ...
+    # Subtest: --stdin happy path：多行 → 有候选 → 写入
+    ok 5 - --stdin happy path：多行 → 有候选 → 写入
+      ---
+      duration_ms: 2.337133
+      type: 'test'
+      ...
+    # Subtest: --stdin 空输入 → fail-fast exit 1
+    ok 6 - --stdin 空输入 → fail-fast exit 1
+      ---
+      duration_ms: 0.823189
+      type: 'test'
+      ...
+    # Subtest: --stdin 空行过滤：只有空行 → fail-fast exit 1
+    ok 7 - --stdin 空行过滤：只有空行 → fail-fast exit 1
+      ---
+      duration_ms: 0.713028
+      type: 'test'
+      ...
+    # Subtest: 空输入（无参数）→ fail-fast exit 1
+    ok 8 - 空输入（无参数）→ fail-fast exit 1
+      ---
+      duration_ms: 0.645984
+      type: 'test'
+      ...
+    # Subtest: 未知参数 → fail-fast exit 1
+    ok 9 - 未知参数 → fail-fast exit 1
+      ---
+      duration_ms: 0.992486
+      type: 'test'
+      ...
+    # Subtest: --stdin 与位置参数互斥 → fail-fast exit 1
+    ok 10 - --stdin 与位置参数互斥 → fail-fast exit 1
+      ---
+      duration_ms: 0.736235
+      type: 'test'
+      ...
+    # Subtest: --list 无数据 → 显式提示，exit 0
+    ok 11 - --list 无数据 → 显式提示，exit 0
+      ---
+      duration_ms: 0.707064
+      type: 'test'
+      ...
+    # Subtest: --list 有数据 → 显示最近条目，exit 0
+    ok 12 - --list 有数据 → 显示最近条目，exit 0
+      ---
+      duration_ms: 1.196537
+      type: 'test'
+      ...
+    # Subtest: --list 最多显示 20 条（写入 25 条后验证）
+    ok 13 - --list 最多显示 20 条（写入 25 条后验证）
+      ---
+      duration_ms: 1.153923
+      type: 'test'
+      ...
+    # Subtest: --stdin + --accept-all + 有候选 → 跳过交互，全部写入，exit 0
+    ok 14 - --stdin + --accept-all + 有候选 → 跳过交互，全部写入，exit 0
+      ---
+      duration_ms: 1.579904
+      type: 'test'
+      ...
+    # Subtest: --accept-all + 位置参数 → 互斥，fail-fast exit 1
+    ok 15 - --accept-all + 位置参数 → 互斥，fail-fast exit 1
+      ---
+      duration_ms: 0.728911
+      type: 'test'
+      ...
+    # Subtest: [real-path] 非 TTY + --stdin + 无 --accept-all → preflight exit 1，store 无写入
+    ok 16 - [real-path] 非 TTY + --stdin + 无 --accept-all → preflight exit 1，store 无写入
+      ---
+      duration_ms: 0.8478
+      type: 'test'
+      ...
+    # Subtest: [real-path] 非 TTY + --stdin + --accept-all + 有候选 → exit 0，store 写入
+    ok 17 - [real-path] 非 TTY + --stdin + --accept-all + 有候选 → exit 0，store 写入
+      ---
+      duration_ms: 327.205756
+      type: 'test'
+      ...
+    # Subtest: [real-path] --accept-all + 位置参数 → fail-fast exit 1（无需 stdin/prompt 注入）
+    ok 18 - [real-path] --accept-all + 位置参数 → fail-fast exit 1（无需 stdin/prompt 注入）
+      ---
+      duration_ms: 2.840117
+      type: 'test'
+      ...
+    # Subtest: 选择指定编号（部分选择）→ 只写入选中条目
+    ok 19 - 选择指定编号（部分选择）→ 只写入选中条目
+      ---
+      duration_ms: 1.864495
+      type: 'test'
+      ...
+    1..19
+ok 25 - CLI: cortex reflect
+  ---
+  duration_ms: 359.929994
+  type: 'suite'
+  ...
+# Subtest: CLI Sync - OpenClaw Adapter
+    # Subtest: Sync from explicit path
+    ok 1 - Sync from explicit path
+      ---
+      duration_ms: 82.748713
+      type: 'test'
+      ...
+    1..1
+ok 26 - CLI Sync - OpenClaw Adapter
+  ---
+  duration_ms: 86.044781
+  type: 'test'
+  ...
+# Cortex 正在从你的 workspace 理解你（不是记录你）...
+# 扫描路径：/home/kiwi/cortex
+# 扫描到 3 个候选事实。
+# [1] goal: build a cross-agent user model layer
+#     (from: CLAUDE.md)
+# [2] constraint: avoid single point of failure
+#     (from: README.md)
+# [3] preference: prefer TypeScript over JavaScript
+#     (from: package.json)
+# Subtest: CLI: cortex sync
+    # Subtest: arg validation
+        # Subtest: 缺少 --from → exit 1，提示用法
+        ok 1 - 缺少 --from → exit 1，提示用法
+          ---
+          duration_ms: 3.99549
+          type: 'test'
+          ...
+        # Subtest: --from 缺值 → exit 1
+        ok 2 - --from 缺值 → exit 1
+          ---
+          duration_ms: 0.377302
+          type: 'test'
+          ...
+        # Subtest: --from unsupported-adapter → exit 1，提示不支持
+        ok 3 - --from unsupported-adapter → exit 1，提示不支持
+          ---
+          duration_ms: 0.312925
+          type: 'test'
+          ...
+        # Subtest: --accept-all + --dry-run 互斥 → exit 1
+        ok 4 - --accept-all + --dry-run 互斥 → exit 1
+          ---
+          duration_ms: 0.213791
+          type: 'test'
+          ...
+        # Subtest: 未知参数 → exit 1
+        ok 5 - 未知参数 → exit 1
+          ---
+          duration_ms: 0.225476
+          type: 'test'
+          ...
+        1..5
+    ok 1 - arg validation
+      ---
+      duration_ms: 6.455224
+      type: 'suite'
+      ...
+    # Subtest: output and behaviour
+        # Subtest: 候选为空时友好提示，exit 0，不 crash
+        ok 1 - 候选为空时友好提示，exit 0，不 crash
+          ---
+          duration_ms: 0.485402
+          type: 'test'
+          ...
+        # Subtest: --dry-run：展示候选，输出 [dry-run]
+        ok 2 - --dry-run：展示候选，输出 [dry-run]
+          ---
+          duration_ms: 0.301209
+          type: 'test'
+          ...
+        # Subtest: --dry-run：all unsupported → 过滤后无可写入，不 crash
+        ok 3 - --dry-run：all unsupported → 过滤后无可写入，不 crash
+          ---
+          duration_ms: 1.578289
+          type: 'test'
+          ...
+        # Subtest: 非 TTY + 无 --accept-all → exit 1，提示使用 --accept-all
+        ok 4 - 非 TTY + 无 --accept-all → exit 1，提示使用 --accept-all
+          ---
+          duration_ms: 1.807671
+          type: 'test'
+          ...
+        # Subtest: kind warning 含逐条候选摘要（kind / content / from）
+        ok 5 - kind warning 含逐条候选摘要（kind / content / from）
+          ---
+          duration_ms: 363.211141
+          type: 'test'
+          ...
+        # Subtest: 交互选择：stdout 包含 ✓ 写入
+        ok 6 - 交互选择：stdout 包含 ✓ 写入
+          ---
+          duration_ms: 356.314775
+          type: 'test'
+          ...
+        # Subtest: 交互选择：选择 none → stdout 包含 未选择任何候选
+        ok 7 - 交互选择：选择 none → stdout 包含 未选择任何候选
+          ---
+          duration_ms: 0.476858
+          type: 'test'
+          ...
+        # Subtest: --accept-all：stdout 包含 ✓ 写入
+        ok 8 - --accept-all：stdout 包含 ✓ 写入
+          ---
+          duration_ms: 285.068545
+          type: 'test'
+          ...
+        1..8
+    ok 2 - output and behaviour
+      ---
+      duration_ms: 1009.906166
+      type: 'suite'
+      ...
+    # Subtest: state (subprocess + tmpHome)
+        # Subtest: --accept-all：supported-only workspace → entry 数量正确
+        ok 1 - --accept-all：supported-only workspace → entry 数量正确
+          ---
+          duration_ms: 182.586778
+          type: 'test'
+          ...
+        # Subtest: --accept-all：mixed workspace → kind warning 出现，只写入 supported kinds
+        ok 2 - --accept-all：mixed workspace → kind warning 出现，只写入 supported kinds
+          ---
+          duration_ms: 153.892853
+          type: 'test'
+          ...
+        # Subtest: 连续两次 --accept-all：相同内容第二次提示重复
+        ok 3 - 连续两次 --accept-all：相同内容第二次提示重复
+          ---
+          duration_ms: 437.605318
+          type: 'test'
+          ...
+        # Subtest: 写入的 source 格式为 cli:sync:claude-code:<path>
+        ok 4 - 写入的 source 格式为 cli:sync:claude-code:<path>
+          ---
+          duration_ms: 140.941255
+          type: 'test'
+          ...
+        # Subtest: [real-path] mock workspace + --accept-all → exit 0，user_model.json 有写入
+        ok 5 - [real-path] mock workspace + --accept-all → exit 0，user_model.json 有写入
+          ---
+          duration_ms: 144.101636
+          type: 'test'
+          ...
+        1..5
+    ok 3 - state (subprocess + tmpHome)
+      ---
+      duration_ms: 1059.352259
+      type: 'suite'
+      ...
+    1..3
+ok 27 - CLI: cortex sync
+  ---
+  duration_ms: 2076.634882
+  type: 'suite'
+  ...
+# Subtest: extractFromClaudeCodeWorkspace
+    # Subtest: extracts correctly from a full mock workspace
+    ok 1 - extracts correctly from a full mock workspace
+      ---
+      duration_ms: 11.014041
+      type: 'test'
+      ...
+    # Subtest: handles empty workspace gracefully
+    ok 2 - handles empty workspace gracefully
+      ---
+      duration_ms: 1.130354
+      type: 'test'
+      ...
+    1..2
+ok 28 - extractFromClaudeCodeWorkspace
+  ---
+  duration_ms: 13.096445
+  type: 'suite'
+  ...
+# Subtest: projectPackForClaudeCode
+    # Subtest: 返回的 projection 包含所有顶层字段
+    ok 1 - 返回的 projection 包含所有顶层字段
+      ---
+      duration_ms: 3.454423
+      type: 'test'
+      ...
+    # Subtest: instruction_text 包含 XML 包装标签
+    ok 2 - instruction_text 包含 XML 包装标签
+      ---
+      duration_ms: 0.403113
+      type: 'test'
+      ...
+    # Subtest: 有数据的每种 bucket 都产生对应 section
+    ok 3 - 有数据的每种 bucket 都产生对应 section
+      ---
+      duration_ms: 0.552639
+      type: 'test'
+      ...
+    # Subtest: 每个 section 有 heading / entries / rendered_lines
+    ok 4 - 每个 section 有 heading / entries / rendered_lines
+      ---
+      duration_ms: 0.327371
+      type: 'test'
+      ...
+    # Subtest: 空 user model → 无 sections，projection 仍合法
+    ok 5 - 空 user model → 无 sections，projection 仍合法
+      ---
+      duration_ms: 0.558885
+      type: 'test'
+      ...
+    # Subtest: decision_rule 有 when/then details → content 保留且附加结构化注解
+    ok 6 - decision_rule 有 when/then details → content 保留且附加结构化注解
+      ---
+      duration_ms: 0.526205
+      type: 'test'
+      ...
+    # Subtest: decision_rule 无 when/then → 回退到 content
+    ok 7 - decision_rule 无 when/then → 回退到 content
+      ---
+      duration_ms: 0.279181
+      type: 'test'
+      ...
+    # Subtest: 部分 bucket 为空时不产生空 section（稳定性）
+    ok 8 - 部分 bucket 为空时不产生空 section（稳定性）
+      ---
+      duration_ms: 0.34025
+      type: 'test'
+      ...
+    # Subtest: entry_count 与 pack 的 total_entries 一致
+    ok 9 - entry_count 与 pack 的 total_entries 一致
+      ---
+      duration_ms: 0.357435
+      type: 'test'
+      ...
+    1..9
+ok 29 - projectPackForClaudeCode
+  ---
+  duration_ms: 8.890436
+  type: 'suite'
+  ...
+# [scanWorkspace] 达到 .claude/agents 目录数量限制 (20)：截断剩余文件
+# [scanWorkspace] 跳过文件：文件大小超出限制 (112640 bytes > 100KB) - /tmp/cortex-scan-test-kyJiMZ/README.md
+# [scanWorkspace] 跳过文件：非 UTF-8 编码 - /tmp/cortex-scan-test-9Ihjge/README.md
+# Subtest: scanWorkspace
+    # Subtest: should fail-soft on empty or non-existent dir
+    ok 1 - should fail-soft on empty or non-existent dir
+      ---
+      duration_ms: 3.223273
+      type: 'test'
+      ...
+    # Subtest: should extract target files with correct hints
+    ok 2 - should extract target files with correct hints
+      ---
+      duration_ms: 5.545833
+      type: 'test'
+      ...
+    # Subtest: should ignore non-target files (negative testing)
+    ok 3 - should ignore non-target files (negative testing)
+      ---
+      duration_ms: 2.512163
+      type: 'test'
+      ...
+    # Subtest: should respect file limits in subdirectories
+    ok 4 - should respect file limits in subdirectories
+      ---
+      duration_ms: 6.984721
+      type: 'test'
+      ...
+    # Subtest: should respect individual file size limit
+    ok 5 - should respect individual file size limit
+      ---
+      duration_ms: 2.369645
+      type: 'test'
+      ...
+    # Subtest: should skip non-utf8 files
+    ok 6 - should skip non-utf8 files
+      ---
+      duration_ms: 1.108043
+      type: 'test'
+      ...
+    # Subtest: 3a: package.json extra fields are stripped before ContentBlock
+    ok 7 - 3a: package.json extra fields are stripped before ContentBlock
+      ---
+      duration_ms: 1.664449
+      type: 'test'
+      ...
+    # Subtest: 3b: total budget exceeded stops scanning (not just skips current file)
+    ok 8 - 3b: total budget exceeded stops scanning (not just skips current file)
+      ---
+      duration_ms: 7.142069
+      type: 'test'
+      ...
+    # Subtest: 3c: deny-listed files are not read when allowed files coexist
+    ok 9 - 3c: deny-listed files are not read when allowed files coexist
+      ---
+      duration_ms: 2.318629
+      type: 'test'
+      ...
+    1..9
+ok 30 - scanWorkspace
+  ---
+  duration_ms: 34.683839
+  type: 'suite'
+  ...
+# Subtest: extractFromMarkdown
+    # Subtest: extracts role and constraints from agent-def
+    ok 1 - extracts role and constraints from agent-def
+      ---
+      duration_ms: 1.311496
+      type: 'test'
+      ...
+    # Subtest: extracts skill from skill-def title
+    ok 2 - extracts skill from skill-def title
+      ---
+      duration_ms: 0.537237
+      type: 'test'
+      ...
+    # Subtest: extracts project from readme title
+    ok 3 - extracts project from readme title
+      ---
+      duration_ms: 0.314107
+      type: 'test'
+      ...
+    # Subtest: extracts code block languages as skills
+    ok 4 - extracts code block languages as skills
+      ---
+      duration_ms: 0.391041
+      type: 'test'
+      ...
+    1..4
+ok 31 - extractFromMarkdown
+  ---
+  duration_ms: 3.792586
+  type: 'suite'
+  ...
+# Subtest: extractFromPackageManifest
+    # Subtest: extracts project name and description
+    ok 1 - extracts project name and description
+      ---
+      duration_ms: 0.9169
+      type: 'test'
+      ...
+    # Subtest: extracts skills from known dependencies
+    ok 2 - extracts skills from known dependencies
+      ---
+      duration_ms: 0.357433
+      type: 'test'
+      ...
+    # Subtest: extracts constraint from node engines
+    ok 3 - extracts constraint from node engines
+      ---
+      duration_ms: 0.156358
+      type: 'test'
+      ...
+    # Subtest: fail-soft on invalid JSON
+    ok 4 - fail-soft on invalid JSON
+      ---
+      duration_ms: 0.166451
+      type: 'test'
+      ...
+    1..4
+ok 32 - extractFromPackageManifest
+  ---
+  duration_ms: 2.687228
+  type: 'suite'
+  ...
+# Subtest: extractFromPlain
+    # Subtest: extracts preference, goal, constraint from pattern matching
+    ok 1 - extracts preference, goal, constraint from pattern matching
+      ---
+      duration_ms: 1.055682
+      type: 'test'
+      ...
+    # Subtest: skips hedged sentences
+    ok 2 - skips hedged sentences
+      ---
+      duration_ms: 0.213309
+      type: 'test'
+      ...
+    1..2
+ok 33 - extractFromPlain
+  ---
+  duration_ms: 2.133088
+  type: 'suite'
+  ...
+# Subtest: CT-0013 human-facing context
+    # Subtest: all 模式
+        # Subtest: 输出包含 [User Context] 标头
+        ok 1 - 输出包含 [User Context] 标头
+          ---
+          duration_ms: 2.452971
+          type: 'test'
+          ...
+        # Subtest: 不输出 [当前上下文范围] 块
+        ok 2 - 不输出 [当前上下文范围] 块
+          ---
+          duration_ms: 0.257799
+          type: 'test'
+          ...
+        # Subtest: 不输出 [待确认信息] 块
+        ok 3 - 不输出 [待确认信息] 块
+          ---
+          duration_ms: 0.215682
+          type: 'test'
+          ...
+        # Subtest: 包含所有项目（无过滤）
+        ok 4 - 包含所有项目（无过滤）
+          ---
+          duration_ms: 0.299869
+          type: 'test'
+          ...
+        1..4
+    ok 1 - all 模式
+      ---
+      duration_ms: 6.996551
+      type: 'suite'
+      ...
+    # Subtest: scoped 模式 — scope 命中
+        # Subtest: 输出包含 [当前上下文范围] 块
+        ok 1 - 输出包含 [当前上下文范围] 块
+          ---
+          duration_ms: 0.869053
+          type: 'test'
+          ...
+        # Subtest: 显示 聚焦（非全量）
+        ok 2 - 显示 聚焦（非全量）
+          ---
+          duration_ms: 0.305873
+          type: 'test'
+          ...
+        # Subtest: 显示聚焦项目名
+        ok 3 - 显示聚焦项目名
+          ---
+          duration_ms: 0.217769
+          type: 'test'
+          ...
+        # Subtest: 显示 已选条目 / 总条目
+        ok 4 - 显示 已选条目 / 总条目
+          ---
+          duration_ms: 0.52673
+          type: 'test'
+          ...
+        # Subtest: [User Context] 出现在 selection summary 之后
+        ok 5 - [User Context] 出现在 selection summary 之后
+          ---
+          duration_ms: 1.198027
+          type: 'test'
+          ...
+        1..5
+    ok 2 - scoped 模式 — scope 命中
+      ---
+      duration_ms: 4.368427
+      type: 'suite'
+      ...
+    # Subtest: scoped 模式 — task-hint
+        # Subtest: 显示任务线索
+        ok 1 - 显示任务线索
+          ---
+          duration_ms: 0.522633
+          type: 'test'
+          ...
+        # Subtest: 不显示聚焦项目行（无 scope）
+        ok 2 - 不显示聚焦项目行（无 scope）
+          ---
+          duration_ms: 0.32909
+          type: 'test'
+          ...
+        1..2
+    ok 3 - scoped 模式 — task-hint
+      ---
+      duration_ms: 1.106673
+      type: 'suite'
+      ...
+    # Subtest: scoped 模式 — scope + task-hint 叠加
+        # Subtest: scope 和 task-hint 都出现在 summary 中
+        ok 1 - scope 和 task-hint 都出现在 summary 中
+          ---
+          duration_ms: 0.27272
+          type: 'test'
+          ...
+        1..1
+    ok 4 - scoped 模式 — scope + task-hint 叠加
+      ---
+      duration_ms: 0.732432
+      type: 'suite'
+      ...
+    # Subtest: open_questions 呈现
+        # Subtest: scope 未命中时显示 [待确认信息] 块
+        ok 1 - scope 未命中时显示 [待确认信息] 块
+          ---
+          duration_ms: 0.337798
+          type: 'test'
+          ...
+        # Subtest: [待确认信息] 不含 ⚠️（agent 警告格式不用于 human-facing）
+        ok 2 - [待确认信息] 不含 ⚠️（agent 警告格式不用于 human-facing）
+          ---
+          duration_ms: 0.338824
+          type: 'test'
+          ...
+        # Subtest: 包含 "供参考，不影响执行" 的克制措辞
+        ok 3 - 包含 "供参考，不影响执行" 的克制措辞
+          ---
+          duration_ms: 0.206336
+          type: 'test'
+          ...
+        # Subtest: open_questions 内容出现在 [待确认信息] 块中
+        ok 4 - open_questions 内容出现在 [待确认信息] 块中
+          ---
+          duration_ms: 0.151676
+          type: 'test'
+          ...
+        # Subtest: open_questions 为空时不输出 [待确认信息] 块
+        ok 5 - open_questions 为空时不输出 [待确认信息] 块
+          ---
+          duration_ms: 0.24057
+          type: 'test'
+          ...
+        # Subtest: [待确认信息] 出现在内容区之后
+        ok 6 - [待确认信息] 出现在内容区之后
+          ---
+          duration_ms: 0.256791
+          type: 'test'
+          ...
+        1..6
+    ok 5 - open_questions 呈现
+      ---
+      duration_ms: 1.803938
+      type: 'suite'
+      ...
+    # Subtest: 语义一致性
+        # Subtest: human-facing selected_entries 与 selectRuntimeContext meta 一致
+        ok 1 - human-facing selected_entries 与 selectRuntimeContext meta 一致
+          ---
+          duration_ms: 0.254672
+          type: 'test'
+          ...
+        # Subtest: 空模型 all 模式稳定
+        ok 2 - 空模型 all 模式稳定
+          ---
+          duration_ms: 0.207455
+          type: 'test'
+          ...
+        # Subtest: 空模型 scoped 模式稳定
+        ok 3 - 空模型 scoped 模式稳定
+          ---
+          duration_ms: 0.145279
+          type: 'test'
+          ...
+        1..3
+    ok 6 - 语义一致性
+      ---
+      duration_ms: 0.751305
+      type: 'suite'
+      ...
+    1..6
+ok 34 - CT-0013 human-facing context
+  ---
+  duration_ms: 16.862046
+  type: 'suite'
+  ...
+# Subtest: Structured Injection Pack v0.1
+    # Subtest: CT-0008 text 路径仍输出 instruction_text（默认行为兼容）
+    ok 1 - CT-0008 text 路径仍输出 instruction_text（默认行为兼容）
+      ---
+      duration_ms: 2.661589
+      type: 'test'
+      ...
+    # Subtest: serializeInjectionPack 输出合法 JSON
+    ok 2 - serializeInjectionPack 输出合法 JSON
+      ---
+      duration_ms: 0.756426
+      type: 'test'
+      ...
+    # Subtest: pack 顶层含 version / generated_at / instructions / entries
+    ok 3 - pack 顶层含 version / generated_at / instructions / entries
+      ---
+      duration_ms: 0.453752
+      type: 'test'
+      ...
+    # Subtest: source / user_summary 元信息正确
+    ok 4 - source / user_summary 元信息正确
+      ---
+      duration_ms: 0.269945
+      type: 'test'
+      ...
+    # Subtest: 每个 entry 至少含 id / kind / content / confirmed / 时间戳
+    ok 5 - 每个 entry 至少含 id / kind / content / confirmed / 时间戳
+      ---
+      duration_ms: 0.281016
+      type: 'test'
+      ...
+    # Subtest: decision_rule 的 when/then 在 details 中保留
+    ok 6 - decision_rule 的 when/then 在 details 中保留
+      ---
+      duration_ms: 0.954465
+      type: 'test'
+      ...
+    # Subtest: description 折进 content（label：description）
+    ok 7 - description 折进 content（label：description）
+      ---
+      duration_ms: 0.326393
+      type: 'test'
+      ...
+    # Subtest: provenance 来自 source 字段；未提供时为 null
+    ok 8 - provenance 来自 source 字段；未提供时为 null
+      ---
+      duration_ms: 3.352721
+      type: 'test'
+      ...
+    # Subtest: buckets 与 entries 一致（派生关系）
+    ok 9 - buckets 与 entries 一致（派生关系）
+      ---
+      duration_ms: 0.439921
+      type: 'test'
+      ...
+    # Subtest: 空 user model 输出稳定：所有 bucket 是空数组而非 null
+    ok 10 - 空 user model 输出稳定：所有 bucket 是空数组而非 null
+      ---
+      duration_ms: 0.485443
+      type: 'test'
+      ...
+    # Subtest: 部分类型为空时不报错且其他类型仍正确
+    ok 11 - 部分类型为空时不报错且其他类型仍正确
+      ---
+      duration_ms: 0.225013
+      type: 'test'
+      ...
+    # Subtest: text 渲染与 structured pack 互不依赖（修改一边不会污染另一边）
+    ok 12 - text 渲染与 structured pack 互不依赖（修改一边不会污染另一边）
+      ---
+      duration_ms: 0.262974
+      type: 'test'
+      ...
+    1..12
+ok 35 - Structured Injection Pack v0.1
+  ---
+  duration_ms: 12.462145
+  type: 'suite'
+  ...
+# Subtest: CT-0016: buildHealthSignals — 空日志
+    # Subtest: 空列表返回空数组
+    ok 1 - 空列表返回空数组
+      ---
+      duration_ms: 1.673244
+      type: 'test'
+      ...
+    1..1
+ok 36 - CT-0016: buildHealthSignals — 空日志
+  ---
+  duration_ms: 2.541453
+  type: 'suite'
+  ...
+# Subtest: CT-0016: buildHealthSignals — 样本不足
+    # Subtest: total < 5 → 仅 low_sample signal
+    ok 1 - total < 5 → 仅 low_sample signal
+      ---
+      duration_ms: 0.523024
+      type: 'test'
+      ...
+    # Subtest: 1 条记录 → low_sample signal，不含其他
+    ok 2 - 1 条记录 → low_sample signal，不含其他
+      ---
+      duration_ms: 0.141178
+      type: 'test'
+      ...
+    # Subtest: total = 5 时不出现 low_sample
+    ok 3 - total = 5 时不出现 low_sample
+      ---
+      duration_ms: 0.298663
+      type: 'test'
+      ...
+    1..3
+ok 37 - CT-0016: buildHealthSignals — 样本不足
+  ---
+  duration_ms: 1.221915
+  type: 'suite'
+  ...
+# Subtest: CT-0016: buildHealthSignals — mostly_all_mode
+    # Subtest: 全量比例 >= 0.8 时出现 mostly_all_mode
+    ok 1 - 全量比例 >= 0.8 时出现 mostly_all_mode
+      ---
+      duration_ms: 0.325355
+      type: 'test'
+      ...
+    # Subtest: 全量比例 < 0.8 时不出现 mostly_all_mode
+    ok 2 - 全量比例 < 0.8 时不出现 mostly_all_mode
+      ---
+      duration_ms: 0.697116
+      type: 'test'
+      ...
+    # Subtest: message 含全量次数和总次数
+    ok 3 - message 含全量次数和总次数
+      ---
+      duration_ms: 5.727805
+      type: 'test'
+      ...
+    1..3
+ok 38 - CT-0016: buildHealthSignals — mostly_all_mode
+  ---
+  duration_ms: 9.38242
+  type: 'suite'
+  ...
+# Subtest: CT-0016: buildHealthSignals — scoped_emerging
+    # Subtest: 至少 1 条 scoped 时出现 scoped_emerging
+    ok 1 - 至少 1 条 scoped 时出现 scoped_emerging
+      ---
+      duration_ms: 0.272177
+      type: 'test'
+      ...
+    # Subtest: 全部 all 时无 scoped_emerging
+    ok 2 - 全部 all 时无 scoped_emerging
+      ---
+      duration_ms: 0.245761
+      type: 'test'
+      ...
+    # Subtest: message 含 scoped 次数
+    ok 3 - message 含 scoped 次数
+      ---
+      duration_ms: 0.326709
+      type: 'test'
+      ...
+    1..3
+ok 39 - CT-0016: buildHealthSignals — scoped_emerging
+  ---
+  duration_ms: 1.032153
+  type: 'suite'
+  ...
+# Subtest: CT-0016: buildHealthSignals — task_hint_used
+    # Subtest: 任一记录有 task_hint → task_hint_used signal
+    ok 1 - 任一记录有 task_hint → task_hint_used signal
+      ---
+      duration_ms: 0.258331
+      type: 'test'
+      ...
+    # Subtest: 无 task_hint 时不出现 task_hint_used
+    ok 2 - 无 task_hint 时不出现 task_hint_used
+      ---
+      duration_ms: 0.12003
+      type: 'test'
+      ...
+    1..2
+ok 40 - CT-0016: buildHealthSignals — task_hint_used
+  ---
+  duration_ms: 0.58369
+  type: 'suite'
+  ...
+# Subtest: CT-0016: buildHealthSignals — single_event_type
+    # Subtest: 只有 context（total >= threshold）→ single_event_type
+    ok 1 - 只有 context（total >= threshold）→ single_event_type
+      ---
+      duration_ms: 0.169277
+      type: 'test'
+      ...
+    # Subtest: 只有 inject（total >= threshold）→ single_event_type
+    ok 2 - 只有 inject（total >= threshold）→ single_event_type
+      ---
+      duration_ms: 0.09299
+      type: 'test'
+      ...
+    # Subtest: context + inject 都有时不出现 single_event_type
+    ok 3 - context + inject 都有时不出现 single_event_type
+      ---
+      duration_ms: 0.091668
+      type: 'test'
+      ...
+    1..3
+ok 41 - CT-0016: buildHealthSignals — single_event_type
+  ---
+  duration_ms: 0.452186
+  type: 'suite'
+  ...
+# Subtest: CT-0016: buildHealthSignals — 多 signal 共存
+    # Subtest: mostly_all + scoped_emerging + task_hint_used 同时存在
+    ok 1 - mostly_all + scoped_emerging + task_hint_used 同时存在
+      ---
+      duration_ms: 0.148568
+      type: 'test'
+      ...
+    1..1
+ok 42 - CT-0016: buildHealthSignals — 多 signal 共存
+  ---
+  duration_ms: 0.205999
+  type: 'suite'
+  ...
+# Subtest: CT-0016: renderHealthSignals
+    # Subtest: 空 signals 返回空字符串
+    ok 1 - 空 signals 返回空字符串
+      ---
+      duration_ms: 0.185028
+      type: 'test'
+      ...
+    # Subtest: 含 [使用健康信号] 标题
+    ok 2 - 含 [使用健康信号] 标题
+      ---
+      duration_ms: 0.118841
+      type: 'test'
+      ...
+    # Subtest: 每条 signal 以 · 开头
+    ok 3 - 每条 signal 以 · 开头
+      ---
+      duration_ms: 0.087313
+      type: 'test'
+      ...
+    # Subtest: 不含 user model 推断字段
+    ok 4 - 不含 user model 推断字段
+      ---
+      duration_ms: 0.076025
+      type: 'test'
+      ...
+    1..4
+ok 43 - CT-0016: renderHealthSignals
+  ---
+  duration_ms: 0.59933
+  type: 'suite'
+  ...
+# Subtest: CT-0016: cmdObserve — health signals 集成
+    # Subtest: 空日志时不含 [使用健康信号]
+    ok 1 - 空日志时不含 [使用健康信号]
+      ---
+      duration_ms: 1.587014
+      type: 'test'
+      ...
+    # Subtest: 样本不足时输出 [使用健康信号] 含 low_sample 提示
+    ok 2 - 样本不足时输出 [使用健康信号] 含 low_sample 提示
+      ---
+      duration_ms: 51.383887
+      type: 'test'
+      ...
+    # Subtest: health signals 出现在 recap 之前
+    ok 3 - health signals 出现在 recap 之前
+      ---
+      duration_ms: 4.657739
+      type: 'test'
+      ...
+    # Subtest: health signals 出现在 recent records 之前
+    ok 4 - health signals 出现在 recent records 之前
+      ---
+      duration_ms: 2.673491
+      type: 'test'
+      ...
+    # Subtest: 足够样本 + scoped 时出现 scoped_emerging signal
+    ok 5 - 足够样本 + scoped 时出现 scoped_emerging signal
+      ---
+      duration_ms: 4.058408
+      type: 'test'
+      ...
+    # Subtest: task-hint 出现时输出 task_hint_used signal
+    ok 6 - task-hint 出现时输出 task_hint_used signal
+      ---
+      duration_ms: 4.457389
+      type: 'test'
+      ...
+    # Subtest: health signals 不含 user fact inference / 注入正文
+    ok 7 - health signals 不含 user fact inference / 注入正文
+      ---
+      duration_ms: 1.881907
+      type: 'test'
+      ...
+    # Subtest: 三层输出（health signals + recap + records）全部存在
+    ok 8 - 三层输出（health signals + recap + records）全部存在
+      ---
+      duration_ms: 4.287783
+      type: 'test'
+      ...
+    1..8
+ok 44 - CT-0016: cmdObserve — health signals 集成
+  ---
+  duration_ms: 75.550576
+  type: 'suite'
+  ...
+# Subtest: CT-0019: Observation Recap Injection
+    # Subtest: 默认不带 --with-observation 时不输出 observation recap block
+    ok 1 - 默认不带 --with-observation 时不输出 observation recap block
+      ---
+      duration_ms: 12.791071
+      type: 'test'
+      ...
+    # Subtest: 带 --with-observation 但 observation 为空时不输出 observation recap block
+    ok 2 - 带 --with-observation 但 observation 为空时不输出 observation recap block
+      ---
+      duration_ms: 3.464932
+      type: 'test'
+      ...
+    # Subtest: 带 --with-observation 且有内容时，generic agent 能够注入 recap block
+    ok 3 - 带 --with-observation 且有内容时，generic agent 能够注入 recap block
+      ---
+      duration_ms: 6.500296
+      type: 'test'
+      ...
+    # Subtest: 带 --with-observation 且有内容时，claude-code projector 能够注入 recap block
+    ok 4 - 带 --with-observation 且有内容时，claude-code projector 能够注入 recap block
+      ---
+      duration_ms: 4.502755
+      type: 'test'
+      ...
+    # Subtest: 未知参数仍 fail-fast
+    ok 5 - 未知参数仍 fail-fast
+      ---
+      duration_ms: 1.726788
+      type: 'test'
+      ...
+    # Subtest: 防回归校验：不会渲染出推断、行动指导等越界措辞
+    ok 6 - 防回归校验：不会渲染出推断、行动指导等越界措辞
+      ---
+      duration_ms: 5.917876
+      type: 'test'
+      ...
+    # Subtest: --format json --with-observation 不污染 JSON pack 契约
+    ok 7 - --format json --with-observation 不污染 JSON pack 契约
+      ---
+      duration_ms: 2.675383
+      type: 'test'
+      ...
+    # Subtest: --format json --with-observation --agent claude-code 也不污染 JSON pack 契约
+    ok 8 - --format json --with-observation --agent claude-code 也不污染 JSON pack 契约
+      ---
+      duration_ms: 2.120909
+      type: 'test'
+      ...
+    1..8
+ok 45 - CT-0019: Observation Recap Injection
+  ---
+  duration_ms: 41.15891
+  type: 'suite'
+  ...
+# Subtest: CT-0015: buildRecap — 空日志
+    # Subtest: 空列表返回 total=0，所有计数为 0
+    ok 1 - 空列表返回 total=0，所有计数为 0
+      ---
+      duration_ms: 0.876587
+      type: 'test'
+      ...
+    1..1
+ok 46 - CT-0015: buildRecap — 空日志
+  ---
+  duration_ms: 1.908517
+  type: 'suite'
+  ...
+# Subtest: CT-0015: buildRecap — 只有 context
+    # Subtest: contextCount 正确，injectCount=0
+    ok 1 - contextCount 正确，injectCount=0
+      ---
+      duration_ms: 0.313977
+      type: 'test'
+      ...
+    1..1
+ok 47 - CT-0015: buildRecap — 只有 context
+  ---
+  duration_ms: 0.447839
+  type: 'suite'
+  ...
+# Subtest: CT-0015: buildRecap — 只有 inject
+    # Subtest: injectCount 正确，contextCount=0
+    ok 1 - injectCount 正确，contextCount=0
+      ---
+      duration_ms: 0.195461
+      type: 'test'
+      ...
+    1..1
+ok 48 - CT-0015: buildRecap — 只有 inject
+  ---
+  duration_ms: 0.401568
+  type: 'suite'
+  ...
+# Subtest: CT-0015: buildRecap — all / scoped 混合
+    # Subtest: allCount 和 scopedCount 分别统计
+    ok 1 - allCount 和 scopedCount 分别统计
+      ---
+      duration_ms: 0.170823
+      type: 'test'
+      ...
+    1..1
+ok 49 - CT-0015: buildRecap — all / scoped 混合
+  ---
+  duration_ms: 0.3057
+  type: 'suite'
+  ...
+# Subtest: CT-0015: buildRecap — scope 统计
+    # Subtest: topScope 返回最高频 scope
+    ok 1 - topScope 返回最高频 scope
+      ---
+      duration_ms: 0.359706
+      type: 'test'
+      ...
+    # Subtest: 无 scope 时 topScope=undefined
+    ok 2 - 无 scope 时 topScope=undefined
+      ---
+      duration_ms: 0.179269
+      type: 'test'
+      ...
+    1..2
+ok 50 - CT-0015: buildRecap — scope 统计
+  ---
+  duration_ms: 2.07128
+  type: 'suite'
+  ...
+# Subtest: CT-0015: buildRecap — task_hint
+    # Subtest: 任一记录有 task_hint 时 hasTaskHint=true
+    ok 1 - 任一记录有 task_hint 时 hasTaskHint=true
+      ---
+      duration_ms: 0.232241
+      type: 'test'
+      ...
+    # Subtest: 全无 task_hint 时 hasTaskHint=false
+    ok 2 - 全无 task_hint 时 hasTaskHint=false
+      ---
+      duration_ms: 0.126024
+      type: 'test'
+      ...
+    1..2
+ok 51 - CT-0015: buildRecap — task_hint
+  ---
+  duration_ms: 0.484156
+  type: 'suite'
+  ...
+# Subtest: CT-0015: renderRecap
+    # Subtest: 空 recap 返回空字符串
+    ok 1 - 空 recap 返回空字符串
+      ---
+      duration_ms: 0.328815
+      type: 'test'
+      ...
+    # Subtest: 包含 [使用摘要] 标题
+    ok 2 - 包含 [使用摘要] 标题
+      ---
+      duration_ms: 0.279437
+      type: 'test'
+      ...
+    # Subtest: 含 context 计数
+    ok 3 - 含 context 计数
+      ---
+      duration_ms: 0.116939
+      type: 'test'
+      ...
+    # Subtest: 含 inject 计数
+    ok 4 - 含 inject 计数
+      ---
+      duration_ms: 0.19056
+      type: 'test'
+      ...
+    # Subtest: 含 全量 计数
+    ok 5 - 含 全量 计数
+      ---
+      duration_ms: 0.141552
+      type: 'test'
+      ...
+    # Subtest: 含 聚焦 计数
+    ok 6 - 含 聚焦 计数
+      ---
+      duration_ms: 0.117585
+      type: 'test'
+      ...
+    # Subtest: 含 topScope
+    ok 7 - 含 topScope
+      ---
+      duration_ms: 0.087888
+      type: 'test'
+      ...
+    # Subtest: 含 task-hint 提示
+    ok 8 - 含 task-hint 提示
+      ---
+      duration_ms: 0.076081
+      type: 'test'
+      ...
+    # Subtest: 无 task_hint 时不含 task-hint 行
+    ok 9 - 无 task_hint 时不含 task-hint 行
+      ---
+      duration_ms: 0.12261
+      type: 'test'
+      ...
+    1..9
+ok 52 - CT-0015: renderRecap
+  ---
+  duration_ms: 1.692394
+  type: 'suite'
+  ...
+# Subtest: CT-0015: cmdObserve 输出 recap + 记录列表
+    # Subtest: 空日志时只输出暂无记录，不崩溃
+    ok 1 - 空日志时只输出暂无记录，不崩溃
+      ---
+      duration_ms: 1.647631
+      type: 'test'
+      ...
+    # Subtest: 有记录时同时输出 recap 和 最近使用记录
+    ok 2 - 有记录时同时输出 recap 和 最近使用记录
+      ---
+      duration_ms: 23.04369
+      type: 'test'
+      ...
+    # Subtest: recap 出现在记录列表之前
+    ok 3 - recap 出现在记录列表之前
+      ---
+      duration_ms: 2.032702
+      type: 'test'
+      ...
+    # Subtest: recap 含 inject 计数
+    ok 4 - recap 含 inject 计数
+      ---
+      duration_ms: 1.85687
+      type: 'test'
+      ...
+    # Subtest: recap 含 context 计数
+    ok 5 - recap 含 context 计数
+      ---
+      duration_ms: 1.746632
+      type: 'test'
+      ...
+    # Subtest: scoped observation 时 recap 含聚焦计数和 topScope
+    ok 6 - scoped observation 时 recap 含聚焦计数和 topScope
+      ---
+      duration_ms: 2.371553
+      type: 'test'
+      ...
+    # Subtest: task_hint observation 时 recap 含 task-hint 提示
+    ok 7 - task_hint observation 时 recap 含 task-hint 提示
+      ---
+      duration_ms: 3.085141
+      type: 'test'
+      ...
+    # Subtest: recap 不含具体注入正文
+    ok 8 - recap 不含具体注入正文
+      ---
+      duration_ms: 1.821073
+      type: 'test'
+      ...
+    1..8
+ok 53 - CT-0015: cmdObserve 输出 recap + 记录列表
+  ---
+  duration_ms: 38.082588
+  type: 'suite'
+  ...
+# Subtest: CT-0017: buildTriggerHints — 空日志
+    # Subtest: 空列表返回空数组
+    ok 1 - 空列表返回空数组
+      ---
+      duration_ms: 1.145329
+      type: 'test'
+      ...
+    1..1
+ok 54 - CT-0017: buildTriggerHints — 空日志
+  ---
+  duration_ms: 1.966194
+  type: 'suite'
+  ...
+# Subtest: CT-0017: buildTriggerHints — 样本不足
+    # Subtest: total < 5 → 无 hints
+    ok 1 - total < 5 → 无 hints
+      ---
+      duration_ms: 0.313403
+      type: 'test'
+      ...
+    # Subtest: total = 5 时才开始给 hints
+    ok 2 - total = 5 时才开始给 hints
+      ---
+      duration_ms: 0.308204
+      type: 'test'
+      ...
+    1..2
+ok 55 - CT-0017: buildTriggerHints — 样本不足
+  ---
+  duration_ms: 0.786961
+  type: 'suite'
+  ...
+# Subtest: CT-0017: buildTriggerHints — focused_pattern_observed
+    # Subtest: scoped >= 1 时出现 focused_pattern_observed
+    ok 1 - scoped >= 1 时出现 focused_pattern_observed
+      ---
+      duration_ms: 0.683734
+      type: 'test'
+      ...
+    # Subtest: hasTaskHint 时出现 focused_pattern_observed
+    ok 2 - hasTaskHint 时出现 focused_pattern_observed
+      ---
+      duration_ms: 0.285576
+      type: 'test'
+      ...
+    # Subtest: 全 all 且无 task-hint → 无 focused_pattern_observed
+    ok 3 - 全 all 且无 task-hint → 无 focused_pattern_observed
+      ---
+      duration_ms: 0.885574
+      type: 'test'
+      ...
+    1..3
+ok 56 - CT-0017: buildTriggerHints — focused_pattern_observed
+  ---
+  duration_ms: 3.434125
+  type: 'suite'
+  ...
+# Subtest: CT-0017: buildTriggerHints — focused_mode_shifting
+    # Subtest: scoped/total >= 0.3 时出现 focused_mode_shifting
+    ok 1 - scoped/total >= 0.3 时出现 focused_mode_shifting
+      ---
+      duration_ms: 0.294032
+      type: 'test'
+      ...
+    # Subtest: scoped/total < 0.3 时不出现 focused_mode_shifting
+    ok 2 - scoped/total < 0.3 时不出现 focused_mode_shifting
+      ---
+      duration_ms: 0.312438
+      type: 'test'
+      ...
+    # Subtest: 全 all 模式 → 无 focused_mode_shifting
+    ok 3 - 全 all 模式 → 无 focused_mode_shifting
+      ---
+      duration_ms: 0.213396
+      type: 'test'
+      ...
+    1..3
+ok 57 - CT-0017: buildTriggerHints — focused_mode_shifting
+  ---
+  duration_ms: 1.188331
+  type: 'suite'
+  ...
+# Subtest: CT-0017: buildTriggerHints — inject_pattern_observed
+    # Subtest: inject/total >= 0.5 时出现 inject_pattern_observed
+    ok 1 - inject/total >= 0.5 时出现 inject_pattern_observed
+      ---
+      duration_ms: 0.305496
+      type: 'test'
+      ...
+    # Subtest: inject/total < 0.5 时不出现 inject_pattern_observed
+    ok 2 - inject/total < 0.5 时不出现 inject_pattern_observed
+      ---
+      duration_ms: 0.147652
+      type: 'test'
+      ...
+    # Subtest: 全 context 且无 inject → 无 inject_pattern_observed
+    ok 3 - 全 context 且无 inject → 无 inject_pattern_observed
+      ---
+      duration_ms: 0.089698
+      type: 'test'
+      ...
+    1..3
+ok 58 - CT-0017: buildTriggerHints — inject_pattern_observed
+  ---
+  duration_ms: 0.660457
+  type: 'suite'
+  ...
+# Subtest: CT-0017: buildTriggerHints — 多 hint 共存
+    # Subtest: scoped + inject 占比高时多 hint 同时出现
+    ok 1 - scoped + inject 占比高时多 hint 同时出现
+      ---
+      duration_ms: 0.139012
+      type: 'test'
+      ...
+    1..1
+ok 59 - CT-0017: buildTriggerHints — 多 hint 共存
+  ---
+  duration_ms: 0.192151
+  type: 'suite'
+  ...
+# Subtest: CT-0017: renderTriggerHints
+    # Subtest: 空 hints 返回空字符串
+    ok 1 - 空 hints 返回空字符串
+      ---
+      duration_ms: 0.156163
+      type: 'test'
+      ...
+    # Subtest: 含 [触发提示] 标题
+    ok 2 - 含 [触发提示] 标题
+      ---
+      duration_ms: 0.080129
+      type: 'test'
+      ...
+    # Subtest: 每条 hint 以 · 开头
+    ok 3 - 每条 hint 以 · 开头
+      ---
+      duration_ms: 0.075124
+      type: 'test'
+      ...
+    # Subtest: hints 仅为观察性信号，不包含建议性提示
+    ok 4 - hints 仅为观察性信号，不包含建议性提示
+      ---
+      duration_ms: 0.08228
+      type: 'test'
+      ...
+    # Subtest: 不含 recommendation 措辞
+    ok 5 - 不含 recommendation 措辞
+      ---
+      duration_ms: 0.099298
+      type: 'test'
+      ...
+    1..5
+ok 60 - CT-0017: renderTriggerHints
+  ---
+  duration_ms: 0.602831
+  type: 'suite'
+  ...
+# Subtest: CT-0017: cmdObserve — trigger hints 集成
+    # Subtest: 空日志时不含 [触发提示]
+    ok 1 - 空日志时不含 [触发提示]
+      ---
+      duration_ms: 1.310588
+      type: 'test'
+      ...
+    # Subtest: 样本不足时不含 [触发提示]
+    ok 2 - 样本不足时不含 [触发提示]
+      ---
+      duration_ms: 21.51011
+      type: 'test'
+      ...
+    # Subtest: 足量 inject 样本时出现 inject_pattern_observed hint
+    ok 3 - 足量 inject 样本时出现 inject_pattern_observed hint
+      ---
+      duration_ms: 3.688896
+      type: 'test'
+      ...
+    # Subtest: scoped 出现时包含 focused_pattern_observed hint
+    ok 4 - scoped 出现时包含 focused_pattern_observed hint
+      ---
+      duration_ms: 4.270254
+      type: 'test'
+      ...
+    # Subtest: trigger hints 出现在 health signals 之前
+    ok 5 - trigger hints 出现在 health signals 之前
+      ---
+      duration_ms: 11.277267
+      type: 'test'
+      ...
+    # Subtest: trigger hints 出现在 recap 之前
+    ok 6 - trigger hints 出现在 recap 之前
+      ---
+      duration_ms: 5.282791
+      type: 'test'
+      ...
+    # Subtest: 四层输出（trigger hints + health signals + recap + records）可共存
+    ok 7 - 四层输出（trigger hints + health signals + recap + records）可共存
+      ---
+      duration_ms: 7.633005
+      type: 'test'
+      ...
+    # Subtest: trigger hints 不含 user fact inference / 注入正文
+    ok 8 - trigger hints 不含 user fact inference / 注入正文
+      ---
+      duration_ms: 8.328378
+      type: 'test'
+      ...
+    1..8
+ok 61 - CT-0017: cmdObserve — trigger hints 集成
+  ---
+  duration_ms: 63.696168
+  type: 'suite'
+  ...
+# Subtest: CT-0014: appendObservation / loadObservationLog
+    # Subtest: 空环境下 loadObservationLog 返回空日志
+    ok 1 - 空环境下 loadObservationLog 返回空日志
+      ---
+      duration_ms: 3.00032
+      type: 'test'
+      ...
+    # Subtest: appendObservation 写入后可被 loadObservationLog 读回
+    ok 2 - appendObservation 写入后可被 loadObservationLog 读回
+      ---
+      duration_ms: 2.296069
+      type: 'test'
+      ...
+    # Subtest: inject 类型 observation 包含 agent 字段
+    ok 3 - inject 类型 observation 包含 agent 字段
+      ---
+      duration_ms: 1.466856
+      type: 'test'
+      ...
+    # Subtest: observation 不含具体内容字段（无 entries 文本、无注入正文）
+    ok 4 - observation 不含具体内容字段（无 entries 文本、无注入正文）
+      ---
+      duration_ms: 1.470064
+      type: 'test'
+      ...
+    # Subtest: 多次 append 后所有记录都保留
+    ok 5 - 多次 append 后所有记录都保留
+      ---
+      duration_ms: 1.62962
+      type: 'test'
+      ...
+    # Subtest: observation 存储路径与 user model 路径不同
+    ok 6 - observation 存储路径与 user model 路径不同
+      ---
+      duration_ms: 0.188685
+      type: 'test'
+      ...
+    # Subtest: 损坏的 observations.json 返回空日志（不抛出）
+    ok 7 - 损坏的 observations.json 返回空日志（不抛出）
+      ---
+      duration_ms: 1.504885
+      type: 'test'
+      ...
+    1..7
+ok 62 - CT-0014: appendObservation / loadObservationLog
+  ---
+  duration_ms: 12.937514
+  type: 'suite'
+  ...
+# Subtest: CT-0014: renderObservation
+    # Subtest: all 模式包含 全量 标签
+    ok 1 - all 模式包含 全量 标签
+      ---
+      duration_ms: 17.088486
+      type: 'test'
+      ...
+    # Subtest: scoped 模式包含 聚焦 标签和 scope / task-hint
+    ok 2 - scoped 模式包含 聚焦 标签和 scope / task-hint
+      ---
+      duration_ms: 0.419909
+      type: 'test'
+      ...
+    1..2
+ok 63 - CT-0014: renderObservation
+  ---
+  duration_ms: 17.934339
+  type: 'suite'
+  ...
+# Subtest: CT-0014: cmdInject 写入 observation
+    # Subtest: inject 成功后产生 observation
+    ok 1 - inject 成功后产生 observation
+      ---
+      duration_ms: 3.47731
+      type: 'test'
+      ...
+    # Subtest: inject --agent claude-code 产生 agent=claude-code 的 observation
+    ok 2 - inject --agent claude-code 产生 agent=claude-code 的 observation
+      ---
+      duration_ms: 1.619411
+      type: 'test'
+      ...
+    # Subtest: inject --scope 产生 scoped observation
+    ok 3 - inject --scope 产生 scoped observation
+      ---
+      duration_ms: 1.887541
+      type: 'test'
+      ...
+    # Subtest: inject 失败路径（--format yaml）不写 observation
+    ok 4 - inject 失败路径（--format yaml）不写 observation
+      ---
+      duration_ms: 0.915639
+      type: 'test'
+      ...
+    1..4
+ok 64 - CT-0014: cmdInject 写入 observation
+  ---
+  duration_ms: 8.11346
+  type: 'suite'
+  ...
+# Subtest: CT-0014: cmdContext 写入 observation
+    # Subtest: context 成功后产生 observation
+    ok 1 - context 成功后产生 observation
+      ---
+      duration_ms: 1.714166
+      type: 'test'
+      ...
+    # Subtest: context --scope 产生 scoped observation
+    ok 2 - context --scope 产生 scoped observation
+      ---
+      duration_ms: 1.246744
+      type: 'test'
+      ...
+    # Subtest: context 失败路径（缺参）不写 observation
+    ok 3 - context 失败路径（缺参）不写 observation
+      ---
+      duration_ms: 0.709761
+      type: 'test'
+      ...
+    1..3
+ok 65 - CT-0014: cmdContext 写入 observation
+  ---
+  duration_ms: 3.837203
+  type: 'suite'
+  ...
+# Subtest: CT-0014: cmdObserve
+    # Subtest: 无记录时输出稳定（不崩溃）
+    ok 1 - 无记录时输出稳定（不崩溃）
+      ---
+      duration_ms: 0.629286
+      type: 'test'
+      ...
+    # Subtest: 有记录时显示 [最近使用记录] 和条目
+    ok 2 - 有记录时显示 [最近使用记录] 和条目
+      ---
+      duration_ms: 2.45873
+      type: 'test'
+      ...
+    # Subtest: observe 输出不含具体 user model 内容
+    ok 3 - observe 输出不含具体 user model 内容
+      ---
+      duration_ms: 2.00384
+      type: 'test'
+      ...
+    # Subtest: 无参数成功路径：退出 0
+    ok 4 - 无参数成功路径：退出 0
+      ---
+      duration_ms: 0.646512
+      type: 'test'
+      ...
+    # Subtest: 多余参数 → 非零退出，stderr 含错误提示
+    ok 5 - 多余参数 → 非零退出，stderr 含错误提示
+      ---
+      duration_ms: 0.925808
+      type: 'test'
+      ...
+    1..5
+ok 66 - CT-0014: cmdObserve
+  ---
+  duration_ms: 7.063805
+  type: 'suite'
+  ...
+# Subtest: CT-0020: cmdObserve 收敛目标验证
+    # Subtest: 验证复合样本下的层级收敛与去重
+    ok 1 - 验证复合样本下的层级收敛与去重
+      ---
+      duration_ms: 27.413989
+      type: 'test'
+      ...
+    1..1
+ok 67 - CT-0020: cmdObserve 收敛目标验证
+  ---
+  duration_ms: 28.295166
+  type: 'suite'
+  ...
+# Subtest: CT-0012: generic text — all 模式无 framing
+    # Subtest: all 模式下 instruction_text 不含 [注入范围] 标头
+    ok 1 - all 模式下 instruction_text 不含 [注入范围] 标头
+      ---
+      duration_ms: 1.89986
+      type: 'test'
+      ...
+    # Subtest: all 模式下不含 ⚠️ 待确认问题
+    ok 2 - all 模式下不含 ⚠️ 待确认问题
+      ---
+      duration_ms: 0.262202
+      type: 'test'
+      ...
+    1..2
+ok 68 - CT-0012: generic text — all 模式无 framing
+  ---
+  duration_ms: 3.580413
+  type: 'suite'
+  ...
+# Subtest: CT-0012: generic text — scope framing
+    # Subtest: scope 存在时 instruction_text 含 [注入范围：聚焦 → ...]
+    ok 1 - scope 存在时 instruction_text 含 [注入范围：聚焦 → ...]
+      ---
+      duration_ms: 0.659814
+      type: 'test'
+      ...
+    # Subtest: task-hint 存在时 instruction_text 含 任务线索
+    ok 2 - task-hint 存在时 instruction_text 含 任务线索
+      ---
+      duration_ms: 0.383774
+      type: 'test'
+      ...
+    # Subtest: scope + task-hint 叠加时二者都出现在 framing 行
+    ok 3 - scope + task-hint 叠加时二者都出现在 framing 行
+      ---
+      duration_ms: 0.324078
+      type: 'test'
+      ...
+    1..3
+ok 69 - CT-0012: generic text — scope framing
+  ---
+  duration_ms: 1.681841
+  type: 'suite'
+  ...
+# Subtest: CT-0012: generic text — open_questions
+    # Subtest: scope 未命中时 open_questions 进入 text 输出
+    ok 1 - scope 未命中时 open_questions 进入 text 输出
+      ---
+      duration_ms: 0.392055
+      type: 'test'
+      ...
+    # Subtest: scope 命中多个项目时 open_questions 提示多候选
+    ok 2 - scope 命中多个项目时 open_questions 提示多候选
+      ---
+      duration_ms: 0.488389
+      type: 'test'
+      ...
+    # Subtest: open_questions 为空时不含 ⚠️ 标头（scope 精确命中）
+    ok 3 - open_questions 为空时不含 ⚠️ 标头（scope 精确命中）
+      ---
+      duration_ms: 0.466108
+      type: 'test'
+      ...
+    1..3
+ok 70 - CT-0012: generic text — open_questions
+  ---
+  duration_ms: 1.668067
+  type: 'suite'
+  ...
+# Subtest: CT-0012: claude-code projector — all 模式无 framing
+    # Subtest: all 模式下 instruction_text 不含 [注入范围] 标头
+    ok 1 - all 模式下 instruction_text 不含 [注入范围] 标头
+      ---
+      duration_ms: 1.444833
+      type: 'test'
+      ...
+    # Subtest: all 模式下不含 ⚠️ 待确认问题
+    ok 2 - all 模式下不含 ⚠️ 待确认问题
+      ---
+      duration_ms: 0.644959
+      type: 'test'
+      ...
+    # Subtest: all 模式下 XML 包装标签仍存在（regression）
+    ok 3 - all 模式下 XML 包装标签仍存在（regression）
+      ---
+      duration_ms: 1.254877
+      type: 'test'
+      ...
+    1..3
+ok 71 - CT-0012: claude-code projector — all 模式无 framing
+  ---
+  duration_ms: 3.657706
+  type: 'suite'
+  ...
+# Subtest: CT-0012: claude-code projector — scope framing
+    # Subtest: scope 存在时 instruction_text 含 [注入范围：聚焦 → ...]
+    ok 1 - scope 存在时 instruction_text 含 [注入范围：聚焦 → ...]
+      ---
+      duration_ms: 0.504778
+      type: 'test'
+      ...
+    # Subtest: task-hint 存在时 instruction_text 含 任务线索
+    ok 2 - task-hint 存在时 instruction_text 含 任务线索
+      ---
+      duration_ms: 0.416672
+      type: 'test'
+      ...
+    # Subtest: scope + task-hint 叠加时二者都出现
+    ok 3 - scope + task-hint 叠加时二者都出现
+      ---
+      duration_ms: 0.387119
+      type: 'test'
+      ...
+    1..3
+ok 72 - CT-0012: claude-code projector — scope framing
+  ---
+  duration_ms: 1.483872
+  type: 'suite'
+  ...
+# Subtest: CT-0012: claude-code projector — open_questions
+    # Subtest: scope 未命中时 open_questions 进入 projector instruction_text
+    ok 1 - scope 未命中时 open_questions 进入 projector instruction_text
+      ---
+      duration_ms: 0.391282
+      type: 'test'
+      ...
+    # Subtest: scope 精确命中时 projector 不含 ⚠️
+    ok 2 - scope 精确命中时 projector 不含 ⚠️
+      ---
+      duration_ms: 0.205113
+      type: 'test'
+      ...
+    1..2
+ok 73 - CT-0012: claude-code projector — open_questions
+  ---
+  duration_ms: 0.763811
+  type: 'suite'
+  ...
+# Subtest: CT-0012: JSON pack 结构不受影响
+    # Subtest: buildInjectionPack 输出仍是合法结构化 JSON
+    ok 1 - buildInjectionPack 输出仍是合法结构化 JSON
+      ---
+      duration_ms: 4.571906
+      type: 'test'
+      ...
+    # Subtest: open_questions 在 JSON 中仍是数组（不被渲染层消费后清空）
+    ok 2 - open_questions 在 JSON 中仍是数组（不被渲染层消费后清空）
+      ---
+      duration_ms: 0.465757
+      type: 'test'
+      ...
+    1..2
+ok 74 - CT-0012: JSON pack 结构不受影响
+  ---
+  duration_ms: 5.169756
+  type: 'suite'
+  ...
+# Subtest: CT-0012: generic text 与 projector 模板独立
+    # Subtest: 相同 scope 下 generic text 与 projector framing 用词不完全相同
+    ok 1 - 相同 scope 下 generic text 与 projector framing 用词不完全相同
+      ---
+      duration_ms: 0.329371
+      type: 'test'
+      ...
+    # Subtest: 相同 scope 下两条路径选择的条目数一致（共享 selection 语义）
+    ok 2 - 相同 scope 下两条路径选择的条目数一致（共享 selection 语义）
+      ---
+      duration_ms: 0.20589
+      type: 'test'
+      ...
+    1..2
+ok 75 - CT-0012: generic text 与 projector 模板独立
+  ---
+  duration_ms: 0.644383
+  type: 'suite'
+  ...
+# Subtest: CT-0011: selectRuntimeContext — 无 scope/taskHint 保持 all
+    # Subtest: strategy 为 all，entry 数与原模型一致
+    ok 1 - strategy 为 all，entry 数与原模型一致
+      ---
+      duration_ms: 2.200258
+      type: 'test'
+      ...
+    # Subtest: 空模型时 all 策略稳定，open_questions 为空
+    ok 2 - 空模型时 all 策略稳定，open_questions 为空
+      ---
+      duration_ms: 0.205771
+      type: 'test'
+      ...
+    1..2
+ok 76 - CT-0011: selectRuntimeContext — 无 scope/taskHint 保持 all
+  ---
+  duration_ms: 3.427395
+  type: 'suite'
+  ...
+# Subtest: CT-0011: selectRuntimeContext — scope 过滤
+    # Subtest: scope 命中单个项目时，只选该项目及其关联条目
+    ok 1 - scope 命中单个项目时，只选该项目及其关联条目
+      ---
+      duration_ms: 0.690216
+      type: 'test'
+      ...
+    # Subtest: preferences / constraints / decision_rules 全量保留（全局上下文）
+    ok 2 - preferences / constraints / decision_rules 全量保留（全局上下文）
+      ---
+      duration_ms: 0.207963
+      type: 'test'
+      ...
+    # Subtest: scope 匹配大小写不敏感
+    ok 3 - scope 匹配大小写不敏感
+      ---
+      duration_ms: 0.261945
+      type: 'test'
+      ...
+    # Subtest: scope 未命中任何项目 → open_questions 非空，返回全量项目
+    ok 4 - scope 未命中任何项目 → open_questions 非空，返回全量项目
+      ---
+      duration_ms: 0.213321
+      type: 'test'
+      ...
+    # Subtest: scope 匹配多个项目 → open_questions 含多候选提示
+    ok 5 - scope 匹配多个项目 → open_questions 含多候选提示
+      ---
+      duration_ms: 0.30102
+      type: 'test'
+      ...
+    # Subtest: meta 体现 scope / matched_project_ids
+    ok 6 - meta 体现 scope / matched_project_ids
+      ---
+      duration_ms: 0.37444
+      type: 'test'
+      ...
+    # Subtest: meta.total_model_entries 与 selected_entries 不同（scoped < all）
+    ok 7 - meta.total_model_entries 与 selected_entries 不同（scoped < all）
+      ---
+      duration_ms: 0.325129
+      type: 'test'
+      ...
+    1..7
+ok 77 - CT-0011: selectRuntimeContext — scope 过滤
+  ---
+  duration_ms: 2.942612
+  type: 'suite'
+  ...
+# Subtest: CT-0011: selectRuntimeContext — task-hint 过滤
+    # Subtest: task-hint 命中 goal label 时该条目被选入，未命中条目被排除
+    ok 1 - task-hint 命中 goal label 时该条目被选入，未命中条目被排除
+      ---
+      duration_ms: 1.519266
+      type: 'test'
+      ...
+    # Subtest: task-hint 单独使用时 selected_entries < total_model_entries（真实缩小）
+    ok 2 - task-hint 单独使用时 selected_entries < total_model_entries（真实缩小）
+      ---
+      duration_ms: 0.383188
+      type: 'test'
+      ...
+    # Subtest: task-hint 无匹配时 open_questions 包含未命中提示
+    ok 3 - task-hint 无匹配时 open_questions 包含未命中提示
+      ---
+      duration_ms: 0.19691
+      type: 'test'
+      ...
+    # Subtest: scope + task-hint 叠加：两者条件都参与选择
+    ok 4 - scope + task-hint 叠加：两者条件都参与选择
+      ---
+      duration_ms: 0.164374
+      type: 'test'
+      ...
+    # Subtest: meta.task_hint 体现传入值
+    ok 5 - meta.task_hint 体现传入值
+      ---
+      duration_ms: 0.111809
+      type: 'test'
+      ...
+    1..5
+ok 78 - CT-0011: selectRuntimeContext — task-hint 过滤
+  ---
+  duration_ms: 2.569662
+  type: 'suite'
+  ...
+# Subtest: CT-0011: buildInjectionPack — scope/taskHint 透传
+    # Subtest: 有 scope 时 pack.source.selection_strategy 为 scoped
+    ok 1 - 有 scope 时 pack.source.selection_strategy 为 scoped
+      ---
+      duration_ms: 0.799591
+      type: 'test'
+      ...
+    # Subtest: 有 scope 时 entries 只含命中项目相关条目（比 all 少）
+    ok 2 - 有 scope 时 entries 只含命中项目相关条目（比 all 少）
+      ---
+      duration_ms: 0.65464
+      type: 'test'
+      ...
+    # Subtest: 无 scope/taskHint 时 open_questions 仍为空
+    ok 3 - 无 scope/taskHint 时 open_questions 仍为空
+      ---
+      duration_ms: 0.191433
+      type: 'test'
+      ...
+    # Subtest: scope 未命中时 open_questions 非空
+    ok 4 - scope 未命中时 open_questions 非空
+      ---
+      duration_ms: 0.368204
+      type: 'test'
+      ...
+    # Subtest: pack.source.task_hint 体现传入值
+    ok 5 - pack.source.task_hint 体现传入值
+      ---
+      duration_ms: 0.317813
+      type: 'test'
+      ...
+    # Subtest: 空模型 + scope 不崩溃，open_questions 含未命中提示
+    ok 6 - 空模型 + scope 不崩溃，open_questions 含未命中提示
+      ---
+      duration_ms: 0.159577
+      type: 'test'
+      ...
+    1..6
+ok 79 - CT-0011: buildInjectionPack — scope/taskHint 透传
+  ---
+  duration_ms: 2.698879
+  type: 'suite'
+  ...
+# Subtest: CT-0011: 三条输出路径共享 selection 结果
+    # Subtest: json path 与 projector path entry_count 一致（同一 scope）
+    ok 1 - json path 与 projector path entry_count 一致（同一 scope）
+      ---
+      duration_ms: 0.533768
+      type: 'test'
+      ...
+    # Subtest: json path 与 text path（generic）选择结果 snapshot 条目数一致
+    ok 2 - json path 与 text path（generic）选择结果 snapshot 条目数一致
+      ---
+      duration_ms: 0.992447
+      type: 'test'
+      ...
+    # Subtest: scoped json pack 的 projects bucket 只含匹配项目
+    ok 3 - scoped json pack 的 projects bucket 只含匹配项目
+      ---
+      duration_ms: 0.384101
+      type: 'test'
+      ...
+    # Subtest: all 三条路径在无 scope 时行为与之前一致（regression）
+    ok 4 - all 三条路径在无 scope 时行为与之前一致（regression）
+      ---
+      duration_ms: 0.417679
+      type: 'test'
+      ...
+    1..4
+ok 80 - CT-0011: 三条输出路径共享 selection 结果
+  ---
+  duration_ms: 2.522299
+  type: 'suite'
+  ...
+# Subtest: CT-0011: CLI --scope / --task-hint 参数
+    # Subtest: --scope 参数解析正常，退出 0，json 输出含 scoped strategy
+    ok 1 - --scope 参数解析正常，退出 0，json 输出含 scoped strategy
+      ---
+      duration_ms: 6.750924
+      type: 'test'
+      ...
+    # Subtest: --task-hint 参数解析正常，退出 0，json 输出含 task_hint
+    ok 2 - --task-hint 参数解析正常，退出 0，json 输出含 task_hint
+      ---
+      duration_ms: 1.679608
+      type: 'test'
+      ...
+    # Subtest: --scope 缺少参数值 → 退出非 0，stderr 含提示
+    ok 3 - --scope 缺少参数值 → 退出非 0，stderr 含提示
+      ---
+      duration_ms: 1.398662
+      type: 'test'
+      ...
+    # Subtest: --task-hint 缺少参数值 → 退出非 0，stderr 含提示
+    ok 4 - --task-hint 缺少参数值 → 退出非 0，stderr 含提示
+      ---
+      duration_ms: 0.769677
+      type: 'test'
+      ...
+    # Subtest: --scope 与 --format json 组合：json 输出中 open_questions 是数组
+    ok 5 - --scope 与 --format json 组合：json 输出中 open_questions 是数组
+      ---
+      duration_ms: 1.664643
+      type: 'test'
+      ...
+    # Subtest: --agent claude-code --scope 组合：text 路径仍含 XML 标签
+    ok 6 - --agent claude-code --scope 组合：text 路径仍含 XML 标签
+      ---
+      duration_ms: 1.529869
+      type: 'test'
+      ...
+    1..6
+ok 81 - CT-0011: CLI --scope / --task-hint 参数
+  ---
+  duration_ms: 14.131215
+  type: 'suite'
+  ...
+# Subtest: buildSuggestions
+    # Subtest: builds correct item for preference candidate
+    ok 1 - builds correct item for preference candidate
+      ---
+      duration_ms: 1.499099
+      type: 'test'
+      ...
+    # Subtest: builds correct item for goal candidate
+    ok 2 - builds correct item for goal candidate
+      ---
+      duration_ms: 0.173965
+      type: 'test'
+      ...
+    # Subtest: builds correct item for constraint candidate
+    ok 3 - builds correct item for constraint candidate
+      ---
+      duration_ms: 0.151122
+      type: 'test'
+      ...
+    # Subtest: returns empty array for empty input
+    ok 4 - returns empty array for empty input
+      ---
+      duration_ms: 1.449013
+      type: 'test'
+      ...
+    # Subtest: preserves input order
+    ok 5 - preserves input order
+      ---
+      duration_ms: 0.151195
+      type: 'test'
+      ...
+    # Subtest: displayText uses correct prefix for each type
+    ok 6 - displayText uses correct prefix for each type
+      ---
+      duration_ms: 0.214548
+      type: 'test'
+      ...
+    # Subtest: displayText contains original content
+    ok 7 - displayText contains original content
+      ---
+      duration_ms: 0.119681
+      type: 'test'
+      ...
+    # Subtest: produces stable id across repeated calls with same input
+    ok 8 - produces stable id across repeated calls with same input
+      ---
+      duration_ms: 0.16444
+      type: 'test'
+      ...
+    # Subtest: produces distinct ids for candidates at different positions
+    ok 9 - produces distinct ids for candidates at different positions
+      ---
+      duration_ms: 0.196106
+      type: 'test'
+      ...
+    # Subtest: produces distinct ids for candidates with different content
+    ok 10 - produces distinct ids for candidates with different content
+      ---
+      duration_ms: 0.309431
+      type: 'test'
+      ...
+    # Subtest: does not dedupe identical candidates
+    ok 11 - does not dedupe identical candidates
+      ---
+      duration_ms: 0.104628
+      type: 'test'
+      ...
+    # Subtest: output object has exactly the four expected keys
+    ok 12 - output object has exactly the four expected keys
+      ---
+      duration_ms: 0.19128
+      type: 'test'
+      ...
+    1..12
+ok 82 - buildSuggestions
+  ---
+  duration_ms: 6.104528
+  type: 'suite'
+  ...
+# Subtest: createCandidate
+    # Subtest: returns correct schema for preference
+    ok 1 - returns correct schema for preference
+      ---
+      duration_ms: 1.500234
+      type: 'test'
+      ...
+    # Subtest: returns correct schema for goal
+    ok 2 - returns correct schema for goal
+      ---
+      duration_ms: 0.214223
+      type: 'test'
+      ...
+    # Subtest: returns correct schema for constraint
+    ok 3 - returns correct schema for constraint
+      ---
+      duration_ms: 0.867015
+      type: 'test'
+      ...
+    # Subtest: is JSON serializable
+    ok 4 - is JSON serializable
+      ---
+      duration_ms: 0.218553
+      type: 'test'
+      ...
+    # Subtest: throws on invalid type
+    ok 5 - throws on invalid type
+      ---
+      duration_ms: 1.01214
+      type: 'test'
+      ...
+    # Subtest: throws on empty content
+    ok 6 - throws on empty content
+      ---
+      duration_ms: 0.195506
+      type: 'test'
+      ...
+    1..6
+ok 83 - createCandidate
+  ---
+  duration_ms: 5.403104
+  type: 'suite'
+  ...
+# Subtest: confirmSuggestion
+    # Subtest: confirm preference appends a preference entry
+    ok 1 - confirm preference appends a preference entry
+      ---
+      duration_ms: 1.444568
+      type: 'test'
+      ...
+    # Subtest: confirm goal appends a goal entry
+    ok 2 - confirm goal appends a goal entry
+      ---
+      duration_ms: 0.212339
+      type: 'test'
+      ...
+    # Subtest: confirm constraint appends a constraint entry
+    ok 3 - confirm constraint appends a constraint entry
+      ---
+      duration_ms: 0.177619
+      type: 'test'
+      ...
+    # Subtest: skip does not write any entry
+    ok 4 - skip does not write any entry
+      ---
+      duration_ms: 0.129872
+      type: 'test'
+      ...
+    # Subtest: skip does not mutate existing entries
+    ok 5 - skip does not mutate existing entries
+      ---
+      duration_ms: 0.143689
+      type: 'test'
+      ...
+    # Subtest: two sequential confirms produce two entries
+    ok 6 - two sequential confirms produce two entries
+      ---
+      duration_ms: 0.195976
+      type: 'test'
+      ...
+    # Subtest: confirming the same suggestion twice keeps both entries (no dedupe)
+    ok 7 - confirming the same suggestion twice keeps both entries (no dedupe)
+      ---
+      duration_ms: 0.143344
+      type: 'test'
+      ...
+    # Subtest: entries preserve confirm order
+    ok 8 - entries preserve confirm order
+      ---
+      duration_ms: 0.185682
+      type: 'test'
+      ...
+    # Subtest: entry contains only type, content, source
+    ok 9 - entry contains only type, content, source
+      ---
+      duration_ms: 0.983199
+      type: 'test'
+      ...
+    # Subtest: source is fixed as suggest_loop
+    ok 10 - source is fixed as suggest_loop
+      ---
+      duration_ms: 0.36696
+      type: 'test'
+      ...
+    # Subtest: content matches suggestion.content (not displayText)
+    ok 11 - content matches suggestion.content (not displayText)
+      ---
+      duration_ms: 0.176589
+      type: 'test'
+      ...
+    # Subtest: suggestion id is not written to entry
+    ok 12 - suggestion id is not written to entry
+      ---
+      duration_ms: 0.170464
+      type: 'test'
+      ...
+    # Subtest: works with empty store
+    ok 13 - works with empty store
+      ---
+      duration_ms: 0.182164
+      type: 'test'
+      ...
+    # Subtest: does not mutate the original store object (pure function)
+    ok 14 - does not mutate the original store object (pure function)
+      ---
+      duration_ms: 0.087043
+      type: 'test'
+      ...
+    1..14
+ok 84 - confirmSuggestion
+  ---
+  duration_ms: 6.238816
+  type: 'suite'
+  ...
+# Subtest: generateCandidatesFromRecent
+    # Subtest: generates candidate from single input
+    ok 1 - generates candidate from single input
+      ---
+      duration_ms: 1.286552
+      type: 'test'
+      ...
+    # Subtest: flattens candidates from multiple inputs
+    ok 2 - flattens candidates from multiple inputs
+      ---
+      duration_ms: 0.236244
+      type: 'test'
+      ...
+    # Subtest: returns empty array when no input matches
+    ok 3 - returns empty array when no input matches
+      ---
+      duration_ms: 0.737074
+      type: 'test'
+      ...
+    # Subtest: returns empty array for empty input list
+    ok 4 - returns empty array for empty input list
+      ---
+      duration_ms: 0.143383
+      type: 'test'
+      ...
+    # Subtest: preserves order across multiple recent inputs
+    ok 5 - preserves order across multiple recent inputs
+      ---
+      duration_ms: 0.183978
+      type: 'test'
+      ...
+    # Subtest: preserves intra-input sentence order for multi-sentence input
+    ok 6 - preserves intra-input sentence order for multi-sentence input
+      ---
+      duration_ms: 0.271352
+      type: 'test'
+      ...
+    # Subtest: ignores empty strings without throwing
+    ok 7 - ignores empty strings without throwing
+      ---
+      duration_ms: 0.279115
+      type: 'test'
+      ...
+    # Subtest: ignores whitespace-only strings without throwing
+    ok 8 - ignores whitespace-only strings without throwing
+      ---
+      duration_ms: 0.218818
+      type: 'test'
+      ...
+    # Subtest: does not dedupe identical candidates from different inputs
+    ok 9 - does not dedupe identical candidates from different inputs
+      ---
+      duration_ms: 0.294179
+      type: 'test'
+      ...
+    # Subtest: all results satisfy SuggestCandidate schema constraints
+    ok 10 - all results satisfy SuggestCandidate schema constraints
+      ---
+      duration_ms: 0.976921
+      type: 'test'
+      ...
+    1..10
+ok 85 - generateCandidatesFromRecent
+  ---
+  duration_ms: 6.168059
+  type: 'suite'
+  ...
+# Subtest: matchRecentActivity
+    # Subtest: recognizes preference sentence
+    ok 1 - recognizes preference sentence
+      ---
+      duration_ms: 1.071125
+      type: 'test'
+      ...
+    # Subtest: recognizes goal sentence
+    ok 2 - recognizes goal sentence
+      ---
+      duration_ms: 0.157744
+      type: 'test'
+      ...
+    # Subtest: recognizes constraint sentence
+    ok 3 - recognizes constraint sentence
+      ---
+      duration_ms: 0.087872
+      type: 'test'
+      ...
+    # Subtest: returns empty array when no pattern matches
+    ok 4 - returns empty array when no pattern matches
+      ---
+      duration_ms: 0.677653
+      type: 'test'
+      ...
+    # Subtest: returns multiple candidates in input order for multi-sentence input
+    ok 5 - returns multiple candidates in input order for multi-sentence input
+      ---
+      duration_ms: 0.265618
+      type: 'test'
+      ...
+    # Subtest: handles newline-separated sentences
+    ok 6 - handles newline-separated sentences
+      ---
+      duration_ms: 0.200414
+      type: 'test'
+      ...
+    # Subtest: does not match question sentences ending with ？
+    ok 7 - does not match question sentences ending with ？
+      ---
+      duration_ms: 0.156688
+      type: 'test'
+      ...
+    # Subtest: does not match question sentences ending with ASCII ?
+    ok 8 - does not match question sentences ending with ASCII ?
+      ---
+      duration_ms: 0.137766
+      type: 'test'
+      ...
+    # Subtest: does not match quoted speech
+    ok 9 - does not match quoted speech
+      ---
+      duration_ms: 0.122586
+      type: 'test'
+      ...
+    # Subtest: does not match reported speech with reporting verb prefix
+    ok 10 - does not match reported speech with reporting verb prefix
+      ---
+      duration_ms: 0.72431
+      type: 'test'
+      ...
+    # Subtest: does not match hedged sentences
+    ok 11 - does not match hedged sentences
+      ---
+      duration_ms: 0.326143
+      type: 'test'
+      ...
+    # Subtest: does not match hypothetical sentences
+    ok 12 - does not match hypothetical sentences
+      ---
+      duration_ms: 0.125517
+      type: 'test'
+      ...
+    # Subtest: does not match quoted or generic descriptions
+    ok 13 - does not match quoted or generic descriptions
+      ---
+      duration_ms: 0.187073
+      type: 'test'
+      ...
+    # Subtest: all results satisfy SuggestCandidate schema constraints
+    ok 14 - all results satisfy SuggestCandidate schema constraints
+      ---
+      duration_ms: 0.260498
+      type: 'test'
+      ...
+    # Subtest: content preserves the original sentence
+    ok 15 - content preserves the original sentence
+      ---
+      duration_ms: 0.11158
+      type: 'test'
+      ...
+    1..15
+ok 86 - matchRecentActivity
+  ---
+  duration_ms: 5.90016
+  type: 'suite'
+  ...
+# Subtest: runSuggestLoop
+    # Subtest: confirm writes entry to store
+    ok 1 - confirm writes entry to store
+      ---
+      duration_ms: 1.025294
+      type: 'test'
+      ...
+    # Subtest: skip does not write entry to store
+    ok 2 - skip does not write entry to store
+      ---
+      duration_ms: 0.163356
+      type: 'test'
+      ...
+    # Subtest: mixed actions produce correct store
+    ok 3 - mixed actions produce correct store
+      ---
+      duration_ms: 0.173631
+      type: 'test'
+      ...
+    # Subtest: confirm order matches suggestion order
+    ok 4 - confirm order matches suggestion order
+      ---
+      duration_ms: 0.176058
+      type: 'test'
+      ...
+    # Subtest: missing actions default to skip
+    ok 5 - missing actions default to skip
+      ---
+      duration_ms: 0.150841
+      type: 'test'
+      ...
+    # Subtest: extra actions are ignored without error
+    ok 6 - extra actions are ignored without error
+      ---
+      duration_ms: 0.164794
+      type: 'test'
+      ...
+    # Subtest: empty recent returns empty suggestions and empty store
+    ok 7 - empty recent returns empty suggestions and empty store
+      ---
+      duration_ms: 0.115694
+      type: 'test'
+      ...
+    # Subtest: unmatched recent returns empty suggestions and empty store
+    ok 8 - unmatched recent returns empty suggestions and empty store
+      ---
+      duration_ms: 0.127111
+      type: 'test'
+      ...
+    # Subtest: result contains full suggestions list
+    ok 9 - result contains full suggestions list
+      ---
+      duration_ms: 0.172386
+      type: 'test'
+      ...
+    # Subtest: store entries have correct type/content/source
+    ok 10 - store entries have correct type/content/source
+      ---
+      duration_ms: 0.279459
+      type: 'test'
+      ...
+    # Subtest: pipeline does not dedupe identical suggestions
+    ok 11 - pipeline does not dedupe identical suggestions
+      ---
+      duration_ms: 0.107825
+      type: 'test'
+      ...
+    # Subtest: result has exactly suggestions and store keys
+    ok 12 - result has exactly suggestions and store keys
+      ---
+      duration_ms: 0.537824
+      type: 'test'
+      ...
+    1..12
+ok 87 - runSuggestLoop
+  ---
+  duration_ms: 4.120854
+  type: 'suite'
+  ...
+# Subtest: suggest-loop store: persistence
+    # Subtest: 空 store 初始化：loadStore 返回 version 0.1，entries 为空数组
+    ok 1 - 空 store 初始化：loadStore 返回 version 0.1，entries 为空数组
+      ---
+      duration_ms: 1.731506
+      type: 'test'
+      ...
+    # Subtest: append → reload 跨进程一致性：写入后重新 load 可读回条目
+    ok 2 - append → reload 跨进程一致性：写入后重新 load 可读回条目
+      ---
+      duration_ms: 1.255183
+      type: 'test'
+      ...
+    # Subtest: 损坏文件 fail-soft：load 返回空 store，不 throw
+    ok 3 - 损坏文件 fail-soft：load 返回空 store，不 throw
+      ---
+      duration_ms: 2.991593
+      type: 'test'
+      ...
+    # Subtest: 原子写入：tmp 文件不遗留
+    ok 4 - 原子写入：tmp 文件不遗留
+      ---
+      duration_ms: 1.884744
+      type: 'test'
+      ...
+    # Subtest: store 文件不存在时 loadStore 不报错，返回空 store
+    ok 5 - store 文件不存在时 loadStore 不报错，返回空 store
+      ---
+      duration_ms: 0.817793
+      type: 'test'
+      ...
+    # Subtest: 版本不匹配时 fail-soft：返回空 store 并输出 stderr warning
+    ok 6 - 版本不匹配时 fail-soft：返回空 store 并输出 stderr warning
+      ---
+      duration_ms: 1.280433
+      type: 'test'
+      ...
+    1..6
+ok 88 - suggest-loop store: persistence
+  ---
+  duration_ms: 11.058138
+  type: 'suite'
+  ...
+1..88
+# tests 385
+# suites 74
+# pass 383
+# fail 2
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2482.253411

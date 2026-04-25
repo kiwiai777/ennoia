@@ -65,3 +65,15 @@ test('openclaw render - multiple lines', () => {
   const result = renderUserModelToNaturalLanguage(items);
   assert.equal(result, "The user prefers TypeScript over JavaScript for all projects.\nThe user's goal is to learn Rust this year.\n用户要求 代码示例必须包含类型注解。");
 });
+
+test('openclaw render - trim prefix (dash)', () => {
+  const items: UserModelItem[] = [{ kind: 'goal', label: '- 统一 dedupe 逻辑' }];
+  const result = renderUserModelToNaturalLanguage(items);
+  assert.equal(result, '用户的目标是 统一 dedupe 逻辑。');
+});
+
+test('openclaw render - trim prefix (asterisk)', () => {
+  const items: UserModelItem[] = [{ kind: 'goal', label: '* prefer TypeScript' }];
+  const result = renderUserModelToNaturalLanguage(items);
+  assert.equal(result, "The user's goal is to prefer TypeScript.");
+});

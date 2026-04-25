@@ -170,7 +170,7 @@ describe('CT-0014: appendObservation / loadObservationLog', () => {
   });
 
   it('损坏的 observations.json 返回空日志（不抛出）', async () => {
-    withTmpHome((tmpHome) => {
+    await withTmpHome(async (tmpHome) => {
       const cortexDir = path.join(tmpHome, '.cortex');
       fs.mkdirSync(cortexDir, { recursive: true });
       fs.writeFileSync(path.join(cortexDir, 'observations.json'), '{broken json', 'utf-8');

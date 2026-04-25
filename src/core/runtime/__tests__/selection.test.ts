@@ -374,7 +374,7 @@ interface RunResult {
   stderr: string;
 }
 
-async function runInjectCommand(args: string[]): RunResult {
+async function runInjectCommand(args: string[]): Promise<RunResult> {
   const tmpHome = fs.mkdtempSync(path.join(os.tmpdir(), 'cortex-ct0011-'));
   const origHome = process.env.HOME;
 

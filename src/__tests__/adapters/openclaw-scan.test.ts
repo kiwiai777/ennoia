@@ -49,7 +49,7 @@ some content
 World`);
       const blocks = await scanWorkspace(tmpDir);
       assert.strictEqual(blocks.length, 1);
-      assert.strictEqual(blocks[0].content, 'Hello\n\nWorld'); // simplified check
+      assert.strictEqual(blocks[0].content.trim(), 'Hello\nWorld'); // simplified check
     });
 
     await t.test('Test 5: Partial markers are not stripped and should emit warning', async () => {

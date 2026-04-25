@@ -9,7 +9,7 @@ export function renderUserModelToNaturalLanguage(items: UserModelItem[]): string
   }
 
   const lines = items.map(item => {
-    const content = item.label;
+    const content = item.label.replace(/^[-*]\s+/, '').trim();
     const hasChinese = /[\u4e00-\u9fff]/.test(content);
 
     if (hasChinese) {
