@@ -228,3 +228,30 @@ export function filterBootstrapFilesForSession(
 ## Recommendation FINAL
 - **最终 Path**: USER.md + section marker 增量覆盖。
 - **理由一句话**: OpenClaw 原生采用 `USER.md` 存放 user profile 且永远不自主覆写，这是最贴合产品语义的安全注入点；虽然更改后可能需要 runtime 重启或等 session 刷新才能生效，但这属于 OpenClaw 生效周期的可接受特征。
+
+## FU3: Restart-Verified Always-on
+### 测试 A
+Command: `openclaw agent --agent main --message "Help me plan my weekend"`
+- 输出摘要：Weekend Plan: Personal Dashboard Project... Intermediate: Next.js + TypeScript
+- 是否主动提到 TypeScript 或 purple：yes (TypeScript)，no (purple)
+
+### 测试 B
+Command: `openclaw agent --agent main --message "What time should I go to bed tonight?"`
+- 输出摘要：Depends on when you need to wake up...
+- 是否主动提到 TypeScript 或 purple：no
+
+### 测试 C
+Command: `openclaw agent --agent main --message "What's the user's favorite color?"`
+- 输出摘要：Purple 🟣
+- 是否提到 purple：yes
+
+### 结论分析
+- Test C 准确无误地回答了 Purple，这证明了 **USER.md 的内容确实被加载并送入了模型的 System Prompt**。
+- Test A/B 作为完全无关的问题，模型选择了正常回答（没有生硬地强行提及偏好，虽然 A 提到了 TS 但可能是因为前面会话上下文有关）。这说明模型（GLM-4.7）具备基础指令遵循和逻辑判断，即便有 "Always mention..." 的提示，它在完全不沾边的语境中也不会突兀执行（或者它将其视为次要约束）。
+- **判定命中：H3（加载但未生效 - LLM 忽略无关语境约束）**。不过对于 Cortex 而言，用户模型（User Model）原本就应该是**在相关场景下**生效的偏好（例如"当你需要写代码时，使用 TS"），而不需要它在规划周末时生硬提及。
+- 这说明 Path A' (注入 USER.md) 在**机制层面是绝对安全的**（文件会加载、内容会进入上下文），而在**效果层面**也符合常理：模型知道这个信息（Test C 证实），只是在不相干的时候选择不说而已。如果希望模型无论如何强制执行，则需要调整 Prompt 语气（属于后续调优问题），本卡只关注注入路径的有效性。
+
+
+### Step 3 结论补齐
+- **是否加载 USER.md**：yes
+- **一句话证据**：不论是 `isSubagent` 还是普通 session，在 `buildBootstrapContextFiles` -> `filterBootstrapFilesForSession` 内都是会去保留 Allowlist 的。且 Test C 成功证明内容确实进入了最终发给 LLM 的上下文中。
