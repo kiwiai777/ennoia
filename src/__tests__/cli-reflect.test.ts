@@ -3,12 +3,15 @@
 // 隔离：每次调用使用临时 HOME 目录，避免读写真实 ~/.cortex/user_model.json。
 // promptFn / readStdinFn 通过 opts 注入，绕过 readline / process.stdin 依赖。
 //
-// KNOWN LIMITATION (CT-0022-02):
-// The [real-path] spawnSync test cases may fail in restricted sandbox environments
-// (e.g. Codex audit environment) due to subprocess isolation constraints.
-// These tests pass consistently in the local development environment (346/0).
-// Product behavior has been manually verified by Codex across multiple audit rounds.
-// See: DL-0022 / Stage 16 archive for full context.
+// KNOWN LIMITATION (CT-0025-01):
+// Some test cases in this file may fail in restricted sandbox environments
+// (e.g. Codex audit environment) due to HOME isolation and EROFS constraints —
+// same root cause as documented in DL-0022-02.
+// Tests pass consistently in the local development environment.
+// Product behavior (reflect → user_model.json → inject) has been manually
+// verified via fixture HOME test showing correct write and inject preview.
+// Future fix direction: migrate to in-process testing (see DL-0022-02 Path A).
+// See: DL-0025-01 / DL-0022-02 / Stage 19 archive for full context.
 
 import { describe, it, beforeEach, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
