@@ -49,7 +49,13 @@ export async function injectToOpenClaw(
 
   if (!opts.dryRun) {
     console.log(`注入内容：${allItems.length} 条\n`);
-    console.log(renderedContent);
+  } else {
+    console.log(`\n--- 注入内容预览 ---`);
+  }
+  console.log(renderedContent);
+  if (opts.dryRun) {
+    console.log(`--------------------\n`);
+  } else {
     console.log('');
   }
 

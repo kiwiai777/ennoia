@@ -908,7 +908,7 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
   console.log('运行 `cortex context` 查看完整 user model。');
   console.log('运行 `cortex inject --format text` 获取可贴给其他 AI 的 context。');
 
-  if (!dryRun && (writtenCount > 0 || skippedCount > 0)) {
+  if (!dryRun && writtenCount > 0) {
     console.log(`\nℹ️  运行 cortex inject --all-targets 同步到所有 agent`);
   }
 }
