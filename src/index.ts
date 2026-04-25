@@ -69,8 +69,6 @@ import {
 
 import { generateCandidatesFromRecent } from './core/suggest-loop/generateCandidatesFromRecent.js';
 import { buildSuggestions } from './core/suggest-loop/buildSuggestions.js';
-import { loadStore, appendEntry } from './core/suggest-loop/store.js';
-import { confirmSuggestion, emptyStore } from './core/suggest-loop/confirmSuggestion.js';
 
 function usage(): void {
   console.log('Cortex CLI');
@@ -954,20 +952,10 @@ export async function cmdReflect(args: string[], opts: ReflectOptions = {}): Pro
     }
   }
 
-  // --list mode
+  // --list mode is no longer supported with the deprecation of suggest-loop-store.json
   if (listMode) {
-    const store = loadStore();
-    if (store.entries.length === 0) {
-      console.log('暂无已确认的 suggest-loop 记录');
-      return;
-    }
-    const recent = store.entries.slice(-20).reverse();
-    console.log('[最近 suggest-loop 记录]');
-    console.log('');
-    for (const entry of recent) {
-      console.log(`  [${entry.type}] ${entry.content} (来源: ${entry.source})`);
-    }
-    return;
+    console.error('错误：--list 已废弃。reflect 现在直接写入主 user model，请使用 cortex context 查看。');
+    process.exit(1);
   }
 
   // --accept-all is only meaningful with --stdin; combining with positional args is ambiguous.
@@ -1033,19 +1021,44 @@ export async function cmdReflect(args: string[], opts: ReflectOptions = {}): Pro
     return;
   }
 
-  // Route through confirmSuggestion — single canonical mapping point (Fix 3).
-  const selected = new Set(confirmedIndices);
-  for (let i = 0; i < suggestions.length; i++) {
-    if (selected.has(i)) {
-      const entry = confirmSuggestion(emptyStore(), suggestions[i], 'confirm').entries[0];
-      appendEntry(entry);
+  const selectedCandidates = confirmedIndices.map(i => suggestions[i]);
+
+  const writeables: WriteableItem[] = selectedCandidates.map(c => ({
+    target: targetFromCategory(c.type as WriteCategory),
+    label: c.content,
+    source: 'cli:reflect:suggest',
+  }));
+
+  const result = writeItemsToUserModel(writeables);
+
+  const writtenCount = result.writtenItems.length;
+  const skippedCount = result.skippedItems.length;
+
+  console.log(`\n✓ 写入 ${writtenCount} 条事实到你的 user model`);
+
+  if (writtenCount > 0) {
+    const byKind: Record<string, number> = {};
+    for (let i = 0; i < selectedCandidates.length; i++) {
+      if (result.writtenItems.includes(writeables[i])) {
+        const k = selectedCandidates[i].type;
+        byKind[k] = (byKind[k] ?? 0) + 1;
+      }
     }
+    const summary = Object.entries(byKind).map(([k, v]) => `${k}s: ${v}`).join(', ');
+    if (summary) console.log(`  ( ${summary} )`);
   }
 
-  const confirmed = confirmedIndices.length;
-  const skipped = suggestions.length - confirmed;
-  console.log('');
-  console.log(`${confirmed} 条已确认写入 / ${skipped} 条已跳过`);
+  if (skippedCount > 0) {
+    console.log(`  (${skippedCount} 条因重复已跳过)`);
+  }
+
+  console.log(`\nYour user model is now ${writtenCount} facts richer.`);
+  console.log('运行 `cortex context` 查看完整 user model。');
+  console.log('运行 `cortex inject --format text` 获取可贴给其他 AI 的 context。');
+
+  if (writtenCount > 0) {
+    console.log(`\nℹ️  运行 cortex inject --all-targets 同步到所有 agent`);
+  }
 }
 
 // --- main ---
