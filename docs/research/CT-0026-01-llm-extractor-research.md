@@ -322,3 +322,61 @@ Recommend **`~/.cortex/config.json`**:
 - **冷启动体验**：First-time use might hang for 3-10s while Ollama loads the model into VRAM.
 - **Backend 不可用时的 graceful degradation**：If Ollama is down, extraction must fall back to deterministic silently or with a non-blocking warning.
 - **测试策略**：LLM outputs vary. Automated tests will need to use mock responses rather than real model calls.
+
+---
+
+## Status: Research Paused (2026-04-26)
+
+This research is paused, not abandoned. Decision recorded here as project memory.
+
+### Why paused
+
+After CT-0026-01 completed the 4-model × 5-sample comparison, Owner reviewed quality
+scores and discovered the test samples were not appropriate for evaluating LLM
+extractor capability:
+
+- S1 (USER.md): Contains real user preferences. Owner rated qwen2.5:7b output as ⭐⭐⭐⭐⭐
+- S2 (SOUL.md): Is OpenClaw agent's persona definition, NOT user preferences. No "user
+  preference" can be correctly extracted from this source. Owner rated as "unusable"
+  but this reflects sample mismatch, not 7b's capability.
+- S3 (constructed implicit): Synthetic sentence, not Owner's actual statement. Owner
+  rated as "unusable" because it doesn't represent his real preferences regardless
+  of model output.
+- S4 (cortex README): Project documentation, not user preferences. Same issue as S2.
+- S5 (template English): Template string, not Owner's actual statement.
+
+In effect, only S1 was a valid sample. This is insufficient to make a confident
+decision on LLM extractor integration.
+
+### Decision
+
+- **Stage 20 redirected** to ChatGPT export adapter (real conversation data source).
+  Once cortex can ingest real user dialogue data, LLM extractor evaluation will have
+  meaningful samples.
+- **LLM extractor path deferred** until cortex has real conversation data. At that
+  point, this research can be revisited with proper samples.
+
+### Hard data preserved for future reference
+
+These findings remain valid regardless of sample quality:
+
+- **qwen2.5:14b**: OOM on 20GB VRAM (with other CUDA processes). Not viable for
+  local deployment without dedicated GPU.
+- **qwen2.5:1.5b / 3b**: Infinite generation loops on long markdown documents.
+  Not safe to integrate without timeout/length safeguards.
+- **qwen2.5:7b**: Stable JSON output, ~3s cold start, no infinite loops.
+  If LLM extractor is revisited, 7b is the candidate baseline.
+- **JSON-mode (`format: "json"`)** in ollama API significantly improves output
+  reliability for extraction tasks.
+
+### What's NOT decided here
+
+- Whether LLM extractor is the right approach long-term
+- Architecture position (A: replace deterministic / B: fallback / Hybrid)
+- Final model selection
+- Backend abstraction details
+
+These decisions will be revisited when:
+1. Cortex has real conversation data flowing through (post Stage 20 with ChatGPT adapter)
+2. Deterministic extractor's actual quality ceiling becomes visible from real data
+3. We can build a proper evaluation set from Owner's true preferences
