@@ -1,0 +1,12 @@
+{
+  "name": "chatgpt-analysis",
+  "version": "1.0.0",
+  "private": true,
+  "description": "One-off analysis script for ChatGPT export data. Not part of cortex product.",
+  "dependencies": {
+    "stream-json": "^1.9.1"
+  },
+  "devDependencies": {
+    "@types/stream-json": "^1.7.7"
+  }
+}
