@@ -8,11 +8,11 @@ import { loadConfig, saveConfig, DEFAULT_CONFIG, requireApiKey, CortexConfig } f
 describe('Backend Config', () => {
   const testConfigDir = path.join(os.tmpdir(), '.cortex-test-' + Date.now());
   const testConfigPath = path.join(testConfigDir, 'config.json');
-  let originalHomedir: any;
+  let originalHome: string | undefined;
 
   beforeEach(() => {
-    originalHomedir = os.homedir;
-    (os as any).homedir = () => os.tmpdir();
+    originalHome = process.env.HOME;
+    process.env.HOME = os.tmpdir();
 
     if (fs.existsSync(testConfigDir)) {
       fs.rmSync(testConfigDir, { recursive: true });
@@ -20,7 +20,11 @@ describe('Backend Config', () => {
   });
 
   afterEach(() => {
-    (os as any).homedir = originalHomedir;
+    if (originalHome !== undefined) {
+      process.env.HOME = originalHome;
+    } else {
+      delete process.env.HOME;
+    }
 
     if (fs.existsSync(testConfigDir)) {
       fs.rmSync(testConfigDir, { recursive: true });

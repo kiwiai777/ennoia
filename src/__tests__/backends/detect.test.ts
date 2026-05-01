@@ -68,7 +68,7 @@ describe('Backend Detect', () => {
       (global.fetch as any).mock.mockImplementationOnce(({ signal }: any) => {
         return new Promise((resolve, reject) => {
           signal.addEventListener('abort', () => {
-            reject(new Error('The operation was aborted'));
+            reject(new DOMException('The operation was aborted', 'AbortError'));
           });
         });
       });
@@ -76,7 +76,7 @@ describe('Backend Detect', () => {
       const result = await detectOllama();
 
       assert.strictEqual(result.available, false);
-      assert.ok(result.error?.includes('abort'));
+      assert.ok(result.error?.includes('abort') || result.error?.includes('Abort'));
     });
 
     it('should handle missing models array', async () => {
