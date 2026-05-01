@@ -65,7 +65,7 @@ describe('Backend Detect', () => {
     });
 
     it('should timeout after 3 seconds', async () => {
-      (global.fetch as any).mock.mockImplementationOnce(({ signal }: any) => {
+      (global.fetch as any).mock.mockImplementationOnce((_url: any, { signal }: any) => {
         return new Promise((resolve, reject) => {
           signal.addEventListener('abort', () => {
             reject(new DOMException('The operation was aborted', 'AbortError'));
