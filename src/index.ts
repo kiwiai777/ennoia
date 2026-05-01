@@ -50,6 +50,7 @@ import type {
 import { extractFromClaudeCodeWorkspace } from './adapters/claude-code/index.js';
 import { extractFromOpenClawWorkspace, injectToOpenClaw } from './adapters/openclaw/index.js';
 import { resolveWorkspacePath } from './adapters/openclaw/workspace.js';
+import { extractFromChatGPTExport } from './adapters/chatgpt-export/index.js';
 import { ALL_INJECT_TARGETS, injectToTarget, type InjectTarget } from './adapters/inject-targets.js';
 
 import { basicSuggest } from './core/suggestion/basic-suggester.js';
@@ -98,7 +99,7 @@ function usage(): void {
   console.log('                                 --accept-all 跳过交互，全部候选自动确认');
   console.log('                                 （管道 / 非 TTY 场景必须加 --accept-all）');
   console.log('  cortex reflect --list          查看最近 20 条已确认的 suggest-loop 记录');
-  console.log('  cortex sync --from claude-code|openclaw [--accept-all] [--dry-run]');
+  console.log('  cortex sync --from claude-code|openclaw|chatgpt-export [--accept-all] [--dry-run]');
   console.log('                                 从 Claude Code workspace 扫描候选并写入 user model');
   console.log('');
   console.log(`存储位置：${getUserModelPath()}`);
@@ -761,19 +762,19 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
   // --from 必需
   if (fromIdx === -1 || !args[fromIdx + 1]) {
     console.error('用法：cortex sync --from <adapter-id> [--accept-all] [--dry-run]');
-    console.error('当前支持的 adapter：claude-code, openclaw');
+    console.error('当前支持的 adapter：claude-code, openclaw, chatgpt-export');
     process.exit(1);
   }
 
   const adapterId = args[fromIdx + 1];
-  if (adapterId !== 'claude-code' && adapterId !== 'openclaw') {
+  if (adapterId !== 'claude-code' && adapterId !== 'openclaw' && adapterId !== 'chatgpt-export') {
     console.error(`adapter 不支持：${adapterId}`);
-    console.error('当前支持的 adapter：claude-code, openclaw');
+    console.error('当前支持的 adapter：claude-code, openclaw, chatgpt-export');
     process.exit(1);
   }
 
   // 检查未知参数
-  const knownArgs = new Set(['--from', adapterId, '--accept-all', '--dry-run']);
+  const knownArgs = new Set(['--from', adapterId, '--accept-all', '--dry-run', '--workspace', '--since', '--min-length', '--max-conversations']);
   const unknown = args.filter(a => a.startsWith('-') && !knownArgs.has(a));
   if (unknown.length > 0) {
     console.error(`未知参数：${unknown.join(', ')}`);
@@ -803,9 +804,56 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
   console.log('Cortex 正在从你的 workspace 理解你（不是记录你）...');
   console.log(`扫描路径：${displayWorkspace}`);
 
+
+  // Parse chatgpt-export specific arguments
+  let chatgptWorkspace: string | undefined;
+  let chatgptSince: Date | undefined;
+  let chatgptMinLength: number | undefined;
+  let chatgptMaxConversations: number | undefined;
+
+  if (adapterId === 'chatgpt-export') {
+    const workspaceIdx = args.indexOf('--workspace');
+    if (workspaceIdx !== -1 && args[workspaceIdx + 1]) {
+      chatgptWorkspace = args[workspaceIdx + 1];
+    }
+
+    const sinceIdx = args.indexOf('--since');
+    if (sinceIdx !== -1 && args[sinceIdx + 1]) {
+      chatgptSince = new Date(args[sinceIdx + 1]);
+    }
+
+    const minLengthIdx = args.indexOf('--min-length');
+    if (minLengthIdx !== -1 && args[minLengthIdx + 1]) {
+      chatgptMinLength = parseInt(args[minLengthIdx + 1], 10);
+    }
+
+    const maxConvIdx = args.indexOf('--max-conversations');
+    if (maxConvIdx !== -1 && args[maxConvIdx + 1]) {
+      chatgptMaxConversations = parseInt(args[maxConvIdx + 1], 10);
+    }
+
+    if (!chatgptWorkspace) {
+      console.error('错误���chatgpt-export adapter 需要 --workspace 参���');
+      console.error('用��：cortex sync --from chatgpt-export --workspace <path> [--since YYYY-MM] [--min-length N] [--max-conversations N]');
+      process.exit(1);
+    }
+  }
+
+  // Update displayWorkspace for chatgpt-export
+  if (adapterId === 'chatgpt-export') {
+    displayWorkspace = chatgptWorkspace || 'ChatGPT Export';
+  }
+
   let allCandidates;
   if (adapterId === 'openclaw') {
     allCandidates = await extractFromOpenClawWorkspace(targetWorkspace);
+  } else if (adapterId === 'chatgpt-export') {
+    allCandidates = await extractFromChatGPTExport({
+      exportPath: chatgptWorkspace!,
+      since: chatgptSince,
+      minChars: chatgptMinLength,
+      maxConversations: chatgptMaxConversations,
+    });
   } else {
     allCandidates = await _extractFn(targetWorkspace);
   }

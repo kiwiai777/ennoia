@@ -1,0 +1,84 @@
+[
+  {
+    "id": "conv-1",
+    "title": "Test Conversation 1",
+    "create_time": 1704067200,
+    "update_time": 1704067200,
+    "current_node": "node-2",
+    "mapping": {
+      "node-1": {
+        "id": "node-1",
+        "message": {
+          "id": "msg-1",
+          "author": { "role": "user" },
+          "content": { "content_type": "text", "parts": ["I prefer TypeScript over JavaScript"] },
+          "create_time": 1704067200
+        },
+        "parent": null,
+        "children": ["node-2"]
+      },
+      "node-2": {
+        "id": "node-2",
+        "message": {
+          "id": "msg-2",
+          "author": { "role": "assistant" },
+          "content": { "content_type": "text", "parts": ["That's a great choice!"] },
+          "create_time": 1704067210
+        },
+        "parent": "node-1",
+        "children": []
+      }
+    }
+  },
+  {
+    "id": "conv-2",
+    "title": "Short Conversation",
+    "create_time": 1609459200,
+    "update_time": 1609459200,
+    "current_node": "node-1",
+    "mapping": {
+      "node-1": {
+        "id": "node-1",
+        "message": {
+          "id": "msg-1",
+          "author": { "role": "user" },
+          "content": { "content_type": "text", "parts": ["Hi"] },
+          "create_time": 1609459200
+        },
+        "parent": null,
+        "children": []
+      }
+    }
+  },
+  {
+    "id": "conv-3",
+    "title": "Long Conversation",
+    "create_time": 1735689600,
+    "update_time": 1735689600,
+    "current_node": "node-2",
+    "mapping": {
+      "node-1": {
+        "id": "node-1",
+        "message": {
+          "id": "msg-1",
+          "author": { "role": "user" },
+          "content": { "content_type": "text", "parts": ["I want to build a web application using React and TypeScript. I prefer functional components with hooks over class components. I also like to use strict TypeScript settings to catch errors early. My goal is to create maintainable and scalable code. I have a constraint that the app must work on mobile devices as well as desktop. I prefer using CSS-in-JS solutions like styled-components rather than traditional CSS files."] },
+          "create_time": 1735689600
+        },
+        "parent": null,
+        "children": ["node-2"]
+      },
+      "node-2": {
+        "id": "node-2",
+        "message": {
+          "id": "msg-2",
+          "author": { "role": "user" },
+          "content": { "content_type": "text", "parts": ["Also, I prefer to use functional programming patterns where possible."] },
+          "create_time": 1735689700
+        },
+        "parent": "node-1",
+        "children": []
+      }
+    }
+  }
+]

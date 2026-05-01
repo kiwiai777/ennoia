@@ -19,6 +19,7 @@ export function extract(input: ExtractionInput): ExtractionCandidate[] {
       case 'user-profile':
         blockCandidates = extractFromMarkdown(block, input.sourceId);
         break;
+      case 'chat-conversation':
       case 'plain':
       default:
         // By default use plain extraction
