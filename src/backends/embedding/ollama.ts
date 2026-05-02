@@ -136,7 +136,16 @@ export class OllamaEmbeddingBackend implements EmbeddingBackend {
       const data = await response.json();
       const models = data.models?.map((m: any) => m.name) || [];
 
-      if (!models.includes(this.model)) {
+      // Normalize model name: if config model has no tag, append ":latest"
+      const normalizedConfigModel = this.model.includes(':') ? this.model : `${this.model}:latest`;
+
+      // Check if any model in the list matches (exact match or prefix match)
+      const modelExists = models.some((m: string) => {
+        const normalizedM = m.includes(':') ? m : `${m}:latest`;
+        return normalizedM === normalizedConfigModel || m.split(':')[0] === this.model.split(':')[0];
+      });
+
+      if (!modelExists) {
         return {
           ok: false,
           error: `Model "${this.model}" not found in Ollama`,

@@ -24,7 +24,7 @@ export async function cmdSetup(opts: SetupOptions = {}): Promise<void> {
 
   if (!hasConfig || opts.reset) {
     console.log('Cortex Setup');
-    console.log('────��──��──���────��───��──���──��────��──���─────��─');
+    console.log('─'.repeat(50));
     await runFullSetup(config, ollamaStatus);
   } else {
     displayCurrentConfig(config, ollamaStatus);
@@ -55,7 +55,7 @@ function displayCurrentConfig(
   ollamaStatus: { available: boolean; models?: string[]; error?: string }
 ): void {
   console.log('Cortex Setup');
-  console.log('──��──���──��──���───────��──���──────��──���──────��─');
+  console.log('��'.repeat(50));
   console.log('Current configuration:\n');
 
   const llmStatus = config.llm.provider === 'ollama' && ollamaStatus.available ? '✓ available' : '? not checked';
@@ -73,7 +73,7 @@ function displayCurrentConfig(
   console.log(`  Status: ${embStatus}\n`);
 
   console.log(`Deduplication threshold: ${config.embedding.similarityThreshold}`);
-  console.log('─��──���───��──���────��───��──���────��──���────��────');
+  console.log('���'.repeat(50));
 }
 
 async function runFullSetup(
