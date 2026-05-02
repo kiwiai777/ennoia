@@ -1,0 +1,4 @@
+[
+  {"kind": "preference", "content": "使用 React 重写页面"},
+  {"kind": "goal", "content": "将认证模块迁移到 JWT"}
+]

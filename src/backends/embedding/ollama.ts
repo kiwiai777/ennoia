@@ -54,25 +54,53 @@ export class OllamaEmbeddingBackend implements EmbeddingBackend {
   }
 
   async embedBatch(texts: string[]): Promise<number[][]> {
-    try {
-      const response = await fetch(`${this.endpoint}/api/embed`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          model: this.model,
-          input: texts,
-        }),
-      });
+    const CHUNK_SIZE = 32;  // 每��最多 32 个，���免 HTTP 400
+    const results: number[][] = [];
 
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    for (let i = 0; i < texts.length; i += CHUNK_SIZE) {
+      const chunk = texts.slice(i, i + CHUNK_SIZE);
+
+      try {
+        const response = await fetch(`${this.endpoint}/api/embed`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            model: this.model,
+            input: chunk,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorBody = await response.text();
+          throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorBody}`);
+        }
+
+        const data = await response.json();
+
+        // 检��并过���包含 NaN 的 embedding
+        for (let j = 0; j < data.embeddings.length; j++) {
+          const embedding = data.embeddings[j];
+          const hasNaN = embedding.some((v: number) => isNaN(v) || !isFinite(v));
+
+          if (hasNaN) {
+            console.error(`    ⚠️  Skipping text with NaN embedding: "${chunk[j].substring(0, 50)}..."`);
+            // 用零��量替代��这样���似度会很��，不��误匹���）
+            results.push(new Array(embedding.length).fill(0));
+          } else {
+            results.push(embedding);
+          }
+        }
+
+        // 进度��示（���次多时有��）
+        if (texts.length > CHUNK_SIZE) {
+          console.error(`    Embedding: ${Math.min(i + CHUNK_SIZE, texts.length)}/${texts.length}...`);
+        }
+      } catch (error) {
+        throw new Error(`Ollama batch embedding failed: ${error instanceof Error ? error.message : String(error)}`);
       }
-
-      const data = await response.json();
-      return data.embeddings;
-    } catch (error) {
-      throw new Error(`Ollama batch embedding failed: ${error instanceof Error ? error.message : String(error)}`);
     }
+
+    return results;
   }
 
   async similarity(textA: string, textB: string): Promise<number> {

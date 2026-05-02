@@ -1,0 +1,6542 @@
+```json
+[
+  {
+    "kind": "goal",
+    "content": "Build a persistent user model that influences AI behavior across tools."
+  },
+  {
+    "kind": "constraint",
+    "content": "Cortex is not a memory DB or RAG layer. It aims to maintain a structured, versioned representation of the user (projects, goals, preferences, constraints, skills, states, decision rules) and feed it back into AI systems to influence prompt construction, planning, and tool selection."
+  },
+  {
+    "kind": "goal",
+    "content": "The `cortex` CLI is exposed via `bin/cortex`. You can invoke it directly or run `npm link` in this directory to put `cortex` on your PATH."
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+  },
+  {
+    "kind": "goal",
+    "content": "Expected output for `cortex context`:"
+ 

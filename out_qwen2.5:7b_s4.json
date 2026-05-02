@@ -1,0 +1,5 @@
+[
+    {"kind": "goal", "content": "Build a persistent user model that influences AI behavior across tools."},
+    {"kind": "preference", "content": "避免单点依赖"},
+    {"kind": "constraint", "content": "User model data is stored at ~/.cortex/user_model.json."}
+]

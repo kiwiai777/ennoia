@@ -1,0 +1,7 @@
+[
+  {"kind": "goal", "content": "构建一个跨代理用户模型层"},
+  {"kind": "preference", "content": "偏好 TypeScript"},
+  {"kind": "preference", "content": "偏好 Claude Code"},
+  {"kind": "preference", "content": "偏好 Hermes Agent"},
+  {"kind": "constraint", "content": "避免单点故障"}
+]

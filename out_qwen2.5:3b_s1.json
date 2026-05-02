@@ -1,0 +1,7 @@
+[
+  {"kind": "goal", "content": "The user's goal is to build a cross-agent user model layer."},
+  {"kind": "preference", "content": "用户偏好 编程我喜欢用claude code这个agent工具."},
+  {"kind": "preference", "content": "用户偏好 工作上我更喜欢用hermes agent."},
+  {"kind": "constraint", "content": "但要避免过度工程化."},
+  {"kind": "constraint", "content": "用户要求 避免单点故障。"}
+]
