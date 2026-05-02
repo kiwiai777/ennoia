@@ -866,8 +866,8 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
   if (llmBackend) {
     const health = await llmBackend.healthCheck();
     if (!health.ok) {
-      console.error('⚠️  Cortex 需要 LLM backend 才��正常��作。');
-      console.error('   运行 cortex setup ���置 LLM provider��');
+      console.error('⚠️  Cortex requires an LLM backend to work.');
+      console.error('   Run "cortex setup" to configure your LLM provider.');
       console.error(`   错误：${health.error}`);
       process.exit(1);
     }

@@ -190,7 +190,7 @@ async function runHealthCheck(config: CortexConfig): Promise<boolean> {
   const llmBackend = createLLMBackend(config.llm);
   const llmResult = await llmBackend.healthCheck();
   if (llmResult.ok) {
-    console.log(`�� LLM (${config.llm.provider} / ${config.llm.model})`);
+    console.log(`✓ LLM (${config.llm.provider} / ${config.llm.model})`);
   } else {
     console.log(`✗ LLM (${config.llm.provider}): ${llmResult.error}`);
   }
