@@ -1076,7 +1076,10 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
     source: `cli:sync:${adapterId}:${c.provenance.path}`,
   }));
 
-  const result = writeItemsToUserModel(writeables);
+  const result = writeItemsToUserModel(writeables, {
+    embeddingBackend,
+    threshold: config.embedding.similarityThreshold,
+  });
 
   // 成功输出
   const writtenCount = result.writtenItems.length;

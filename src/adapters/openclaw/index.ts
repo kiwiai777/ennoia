@@ -28,11 +28,11 @@ export async function injectToOpenClaw(
   const userMdPath = path.join(workspacePath, 'USER.md');
 
   const model = loadUserModel();
-  
+
   const allItems = [
-    ...model.goals.map(g => ({ kind: 'goal', label: g.label })),
-    ...model.preferences.map(p => ({ kind: 'preference', label: p.label })),
-    ...model.constraints.map(c => ({ kind: 'constraint', label: c.label }))
+    ...model.goals.filter(item => (item.status ?? 'active') === 'active').map(g => ({ kind: 'goal', label: g.label })),
+    ...model.preferences.filter(item => (item.status ?? 'active') === 'active').map(p => ({ kind: 'preference', label: p.label })),
+    ...model.constraints.filter(item => (item.status ?? 'active') === 'active').map(c => ({ kind: 'constraint', label: c.label }))
   ];
 
   const prefix = opts.dryRun ? 'Cortex → OpenClaw [dry-run]' : 'Cortex → OpenClaw';

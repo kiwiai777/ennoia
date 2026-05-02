@@ -132,15 +132,6 @@ function cosineSimilarity(a: number[], b: number[]): number {
  * ��较权威性��reflect > sync(deterministic) > sync(llm)
  * ��回 true 表�� newSource 更权威
  */
-function compareAuthority(newSource: string, existingSource: string): boolean {
-  const rank = (s: string) => {
-    if (s.startsWith('cli:reflect:')) return 3;
-    if (s.startsWith('cli:sync:llm:')) return 1;
-    if (s.startsWith('cli:sync:')) return 2;
-    return 0;
-  };
-  return rank(newSource) > rank(existingSource);
-}
 
 // 统一��入入���。
 //
