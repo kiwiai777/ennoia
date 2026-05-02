@@ -48,6 +48,7 @@ import type {
   CandidateType,
   ExtractionCandidate,
 } from './core/extraction/types.js';
+import { cmdSetup } from './setup/index.js';
 import { extractFromClaudeCodeWorkspace } from './adapters/claude-code/index.js';
 import { extractFromOpenClawWorkspace, injectToOpenClaw } from './adapters/openclaw/index.js';
 import { resolveWorkspacePath } from './adapters/openclaw/workspace.js';
@@ -85,6 +86,9 @@ function usage(): void {
   console.log('');
   console.log('用法：');
   console.log('  cortex save "<一段文本>"       把文本写入 user model（goals）');
+  console.log('  cortex setup [--reset] [--check]');
+  console.log('                                 ���导配置 LLM 和 Embedding backend');
+  console.log('                                 可反���运行：有��置时���示当前状态并��问是��修改');
   console.log('  cortex context [--scope <scope>] [--task-hint "<hint>"]');
   console.log('                                 输出当前 user context');
   console.log('                                 --scope 聚焦到特定项目（名/id）');
@@ -858,6 +862,17 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
   const llmBackend = config.llm.enabled ? createLLMBackend(config.llm) : undefined;
   const embeddingBackend = config.embedding.enabled ? createEmbeddingBackend(config.embedding) : undefined;
 
+  // CT-0027-05: Step 4 - LLM health check
+  if (llmBackend) {
+    const health = await llmBackend.healthCheck();
+    if (!health.ok) {
+      console.error('⚠️  Cortex 需要 LLM backend 才��正常��作。');
+      console.error('   运行 cortex setup ���置 LLM provider��');
+      console.error(`   错误：${health.error}`);
+      process.exit(1);
+    }
+  }
+
   // CT-0027-04: 启动���自动迁移 user_model（如���要）
   if (embeddingBackend) {
     const currentModel = loadUserModel();
@@ -1289,6 +1304,12 @@ async function main(): Promise<void> {
       break;
     case 'sync':
       await cmdSync(rest);
+      break;
+    case 'setup':
+      await cmdSetup({
+        reset: rest.includes('--reset'),
+        check: rest.includes('--check'),
+      });
       break;
     case undefined:
     case '-h':
