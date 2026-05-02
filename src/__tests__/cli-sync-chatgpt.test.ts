@@ -1,3 +1,12 @@
+// KNOWN LIMITATION (CT-0027-03):
+// These spawnSync integration tests may fail in restricted sandbox environments
+// (e.g. Codex audit environment) due to subprocess isolation constraints —
+// same root cause as documented in DL-0022-02.
+// Tests pass consistently in the local development environment.
+// Product behavior (ChatGPT export sync) has been manually verified via dry-run.
+// Future fix direction: migrate to in-process testing (see DL-0022-02 Path A).
+// See: DL-0027-01 / DL-0022-02 / Stage 20 archive for full context.
+
 import { describe, it } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'child_process';
