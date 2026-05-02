@@ -22,8 +22,15 @@ import path from 'node:path';
 import os from 'node:os';
 import { emptyUserModel, type UserModel } from './types.js';
 
-const CORTEX_DIR = path.join(os.homedir(), '.cortex');
-const USER_MODEL_PATH = path.join(CORTEX_DIR, 'user_model.json');
+function getCortexDir(): string {
+  return path.join(os.homedir(), '.cortex');
+}
+
+function getUserModelPath(): string {
+  return path.join(getCortexDir(), 'user_model.json');
+}
+
+export { getCortexDir, getUserModelPath };
 
 // user model 顶层数组字段；parseUserModel 会确保每个都是数组并逐项校验
 const REQUIRED_ARRAY_FIELDS = [
@@ -44,17 +51,9 @@ const REQUIRED_ITEM_STRING_FIELDS = [
   'updated_at',
 ] as const;
 
-export function getCortexDir(): string {
-  return CORTEX_DIR;
-}
-
-export function getUserModelPath(): string {
-  return USER_MODEL_PATH;
-}
-
 function ensureDir(): void {
-  if (!fs.existsSync(CORTEX_DIR)) {
-    fs.mkdirSync(CORTEX_DIR, { recursive: true });
+  if (!fs.existsSync(getCortexDir())) {
+    fs.mkdirSync(getCortexDir(), { recursive: true });
   }
 }
 
@@ -133,19 +132,19 @@ export function parseUserModel(raw: unknown): UserModel {
 
 // 读取 user model；文件不存在时以空模型初始化并写入
 export function loadUserModel(): UserModel {
-  if (!fs.existsSync(USER_MODEL_PATH)) {
+  if (!fs.existsSync(getUserModelPath())) {
     const empty = emptyUserModel();
     saveUserModel(empty);
     return empty;
   }
 
-  const raw = fs.readFileSync(USER_MODEL_PATH, 'utf-8');
+  const raw = fs.readFileSync(getUserModelPath(), 'utf-8');
   let parsed: unknown;
   try {
     parsed = JSON.parse(raw);
   } catch (err) {
     throw new Error(
-      `user_model.json JSON 解析失败（${USER_MODEL_PATH}）：${(err as Error).message}`
+      `user_model.json JSON 解析失败（${getUserModelPath()}）：${(err as Error).message}`
     );
   }
 
@@ -161,10 +160,10 @@ export function saveUserModel(model: UserModel): void {
   ensureDir();
   const json = JSON.stringify(model, null, 2) + '\n';
 
-  const tmpPath = `${USER_MODEL_PATH}.tmp.${process.pid}.${Date.now()}`;
+  const tmpPath = `${getUserModelPath()}.tmp.${process.pid}.${Date.now()}`;
   try {
     fs.writeFileSync(tmpPath, json, 'utf-8');
-    fs.renameSync(tmpPath, USER_MODEL_PATH);
+    fs.renameSync(tmpPath, getUserModelPath());
   } catch (err) {
     // 失败时清理临时文件，避免污染 ~/.cortex 目录
     try {
