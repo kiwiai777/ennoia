@@ -51,7 +51,15 @@ import { extractFromClaudeCodeWorkspace } from './adapters/claude-code/index.js'
 import { extractFromOpenClawWorkspace, injectToOpenClaw } from './adapters/openclaw/index.js';
 import { resolveWorkspacePath } from './adapters/openclaw/workspace.js';
 import { extractFromChatGPTExport } from './adapters/chatgpt-export/index.js';
+import { extractContentBlocksFromChatGPT } from './adapters/chatgpt-export/content-blocks.js';
 import { ALL_INJECT_TARGETS, injectToTarget, type InjectTarget } from './adapters/inject-targets.js';
+
+// CT-0027-04: Pipeline + backends
+import { loadConfig } from './backends/config.js';
+import { createLLMBackend, createEmbeddingBackend } from './backends/factory.js';
+import { runExtractionPipeline } from './core/extraction/pipeline.js';
+import { migrateUserModelV0_2, needsMigration } from './core/user-model/migrate.js';
+import type { ContentBlock } from './core/extraction/types.js';
 
 import { basicSuggest } from './core/suggestion/basic-suggester.js';
 import { llmSuggest } from './core/suggestion/llm-suggester.js';
@@ -844,19 +852,161 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
     displayWorkspace = chatgptWorkspace || 'ChatGPT Export';
   }
 
-  let allCandidates;
-  if (adapterId === 'openclaw') {
-    allCandidates = await extractFromOpenClawWorkspace(targetWorkspace);
-  } else if (adapterId === 'chatgpt-export') {
-    allCandidates = await extractFromChatGPTExport({
+  // CT-0027-04: 加载 config 和��建 backends
+  const config = loadConfig();
+  const llmBackend = config.llm.enabled ? createLLMBackend(config.llm) : undefined;
+  const embeddingBackend = config.embedding.enabled ? createEmbeddingBackend(config.embedding) : undefined;
+
+  // CT-0027-04: 启动���自动迁移 user_model（如���要）
+  if (embeddingBackend) {
+    const currentModel = loadUserModel();
+    if (needsMigration(currentModel)) {
+      const migratedModel = await migrateUserModelV0_2(currentModel, embeddingBackend);
+      // 迁移后��存
+      updateUserModel(() => {
+        Object.assign(currentModel, migratedModel);
+      });
+    }
+  }
+
+  // CT-0027-04: 获取 ContentBlock[] ��不是��接获�� ExtractionCandidate[]
+  let contentBlocks: ContentBlock[];
+  if (adapterId === 'chatgpt-export') {
+    contentBlocks = await extractContentBlocksFromChatGPT({
       exportPath: chatgptWorkspace!,
       since: chatgptSince,
       minChars: chatgptMinLength,
       maxConversations: chatgptMaxConversations,
     });
   } else {
-    allCandidates = await _extractFn(targetWorkspace);
+    // 其他 adapter 暂时使用��逻辑���返回 ExtractionCandidate[]）
+    // 未来��以逐步��移到 ContentBlock[]
+    const oldCandidates = adapterId === 'openclaw'
+      ? await extractFromOpenClawWorkspace(targetWorkspace)
+      : await _extractFn(targetWorkspace);
+
+    if (oldCandidates.length === 0) {
+      console.log('未从 workspace 中提取��候选事��。');
+      console.log('请确认 workspace ��存在 CLAUDE.md / README.md / package.json / .claude/ ��录。');
+      return;
+    }
+
+    console.log(`\n扫��到 ${oldCandidates.length} 个候选��实。`);
+
+    // 旧逻��：直接��用 ExtractionCandidate[]
+    const SUPPORTED_KINDS = new Set<string>(['goal', 'constraint', 'preference']);
+    const supportedCandidates = oldCandidates.filter(c => SUPPORTED_KINDS.has(c.kind));
+    const unsupportedCandidates = oldCandidates.filter(c => !SUPPORTED_KINDS.has(c.kind));
+
+    if (unsupportedCandidates.length > 0) {
+      const unsupportedKinds = [...new Set(unsupportedCandidates.map(c => c.kind))];
+      const kindList = unsupportedKinds.map(k => `'${k}'`).join(' / ');
+      console.warn(`⚠ ${unsupportedCandidates.length} 条��选因 kind ${kindList} ��不受写入��支持���跳过：`);
+      for (const c of unsupportedCandidates) {
+        const snippet = c.content.length > 60 ? c.content.slice(0, 60) + '...' : c.content;
+        console.warn(`  - ${c.kind}: ${snippet}  (from: ${c.provenance.path})`);
+      }
+      console.warn(`（未��卡片��扩展写入��支持���有 kind）`);
+    }
+
+    if (supportedCandidates.length === 0) {
+      console.log('过滤���无可写入��候选。');
+      return;
+    }
+
+    // 展���候选
+    printExtractionCandidates(supportedCandidates);
+    console.log('');
+
+    // dry-run：只展示��写入
+    if (dryRun) {
+      console.log('[dry-run] 以上候选��写入。使�� --accept-all 或交��模式��入。');
+      return;
+    }
+
+    // 确��要写���的候��
+    let selectedIndices: number[];
+
+    if (acceptAll) {
+      selectedIndices = supportedCandidates.map((_, i) => i);
+    } else {
+      // ���互确认
+      if (!process.stdin.isTTY) {
+        console.error('错��：交���模式需�� TTY。使�� --accept-all 跳过交��，或��过 --stdin 管道��入。');
+        process.exit(1);
+      }
+      console.log('选择���写入 user model 的���选（输入��号，���号分��，或 "a" 全选）��');
+      selectedIndices = await _promptFn(supportedCandidates.length);
+    }
+
+    if (selectedIndices.length === 0) {
+      console.log('未选择任��候选���退出。');
+      return;
+    }
+
+    const selectedCandidates = selectedIndices.map(i => supportedCandidates[i]);
+
+    // 构建 WriteableItem[]
+    const writeables: WriteableItem[] = selectedCandidates.map(c => ({
+      target: targetFromCategory(c.kind as WriteCategory),
+      label: c.content,
+      source: `cli:sync:${adapterId}:${c.provenance.path}`,
+    }));
+
+    const result = writeItemsToUserModel(writeables, {
+      embeddingBackend,
+      threshold: config.embedding.similarityThreshold,
+    });
+
+    // 成功输出
+    const writtenCount = result.writtenItems.length;
+    const skippedCount = result.skippedItems.length;
+    const supersededCount = result.superseded;
+
+    console.log(`\n�� 写入 ${writtenCount} 条事���到你�� user model`);
+
+    if (writtenCount > 0) {
+      const byKind: Record<string, number> = {};
+      for (let i = 0; i < selectedCandidates.length; i++) {
+        if (result.writtenItems.includes(writeables[i])) {
+          const k = selectedCandidates[i].kind;
+          byKind[k] = (byKind[k] ?? 0) + 1;
+        }
+      }
+      const summary = Object.entries(byKind).map(([k, v]) => `${k}s: ${v}`).join(', ');
+      if (summary) console.log(`  ( ${summary} )`);
+    }
+
+    if (supersededCount > 0) {
+      console.log(`  (${supersededCount} 条替换旧��好（���标记 superseded���)`);
+    }
+
+    if (skippedCount > 0) {
+      console.log(`  (${skippedCount} 条��重复��跳过)`);
+    }
+
+    console.log(`\nYour user model is now ${writtenCount} facts richer.`);
+    console.log('运�� `cortex context` 查看��整 user model。');
+    console.log('���行 `cortex inject --format text` 获取可贴��其他 AI 的 context。');
+
+    if (!dryRun && writtenCount > 0) {
+      console.log(`\nℹ���  运行 cortex inject --all-targets 同步到��有 agent`);
+    }
+    return;
   }
+
+  // CT-0027-04: ��逻辑 - 使用 pipeline
+  if (contentBlocks.length === 0) {
+    console.log('���从 workspace 中提���到内容块。');
+    return;
+  }
+
+  // 运�� pipeline
+  const allCandidates = await runExtractionPipeline(contentBlocks, {
+    llmBackend,
+    embeddingBackend,
+    config,
+  });
 
   if (allCandidates.length === 0) {
     console.log('未从 workspace 中提取到候选事实。');

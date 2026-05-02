@@ -107,7 +107,7 @@ export function parseUserModel(raw: unknown): UserModel {
     throw new Error('user model 必须是一个 JSON 对象');
   }
 
-  if (raw.schema_version !== '0.1') {
+  if (raw.schema_version !== '0.1' && raw.schema_version !== '0.2') {
     throw new Error(
       `不支持的 schema_version: ${JSON.stringify(raw.schema_version)}（当前仅支持 "0.1"）`
     );

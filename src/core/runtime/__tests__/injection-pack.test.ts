@@ -130,7 +130,7 @@ describe('Structured Injection Pack v0.1', () => {
     assert.equal(pack.source.generator, 'cortex');
     assert.equal(pack.source.agent, 'claude-code');
     assert.equal(pack.source.selection_strategy, 'all');
-    assert.equal(pack.source.user_model_schema_version, '0.1');
+    assert.equal(pack.source.user_model_schema_version, '0.2');
 
     assert.equal(pack.user_summary.total_entries, 7);
     assert.equal(pack.user_summary.counts.project, 1);

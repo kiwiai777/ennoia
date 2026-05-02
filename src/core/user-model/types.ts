@@ -1,10 +1,11 @@
-// User Model v0.1 类型定义
-// 对齐 spec：ai-project-os/2_projects/cortex/docs/spec/user-model/v0.1.md
-// 原则：保持最小、可读、易修改。复杂规则延后到后续版本。
+// User Model v0.2 ���型定��
+// ��齐 spec：ai-project-os/2_projects/cortex/docs/spec/user-model/v0.1.md
+// 原则��保持最��、可���、易修改��复杂���则延��到后续��本。
+// CT-0027-04: ���展 embedding 持久化 + 软删���
 
 export type ISO8601 = string;
 
-// scope 可为 'global' 或某个项目 id
+// scope 可为 'global' 或某��项目 id
 export type Scope = 'global' | string;
 
 export type ProjectStatus = 'active' | 'paused' | 'archived';
@@ -12,7 +13,7 @@ export type GoalHorizon = 'short' | 'mid' | 'long';
 export type Severity = 'hard' | 'soft';
 export type SkillLevel = 'novice' | 'intermediate' | 'advanced' | 'expert';
 
-// 所有条目共享的基础字段
+// 所有条��共享���基础字段
 export interface BaseItem {
   id: string;
   label: string;
@@ -22,6 +23,12 @@ export interface BaseItem {
   confidence?: number;
   created_at: ISO8601;
   updated_at: ISO8601;
+  // CT-0027-04: embedding 持久化 + ��删除
+  embedding?: number[];
+  embedding_model?: string;
+  status?: 'active' | 'superseded';
+  superseded_by?: string;
+  superseded_at?: ISO8601;
 }
 
 export interface Project extends BaseItem {
@@ -48,7 +55,7 @@ export interface State extends BaseItem {
   valid_until?: ISO8601;
 }
 
-// 决策规则：自然语言先行，结构化执行形式延后
+// 决���规则：自然语��先行���结构化执��形式��后
 export interface DecisionRule extends BaseItem {
   when?: string;
   then?: string;
@@ -61,7 +68,7 @@ export interface Meta {
 }
 
 export interface UserModel {
-  schema_version: '0.1';
+  schema_version: '0.1' | '0.2';
   projects: Project[];
   goals: Goal[];
   preferences: Preference[];
@@ -72,10 +79,10 @@ export interface UserModel {
   meta: Meta;
 }
 
-// 返回一个空的 user model（用于初始化）
+// 返回��个空��� user model（用��初始���）
 export function emptyUserModel(): UserModel {
   return {
-    schema_version: '0.1',
+    schema_version: '0.2',
     projects: [],
     goals: [],
     preferences: [],

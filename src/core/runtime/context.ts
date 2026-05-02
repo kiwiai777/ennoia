@@ -81,6 +81,11 @@ function countModelEntries(model: UserModel): number {
   );
 }
 
+// CT-0027-04: 过滤 active 条目
+function filterActive<T extends BaseItem>(items: T[]): T[] {
+  return items.filter(item => (item.status ?? 'active') === 'active');
+}
+
 function countSnapshotEntries(snap: UserSnapshot): number {
   return (
     snap.projects.length +
@@ -114,7 +119,7 @@ function buildScopedSnapshot(
   let selectedProjects: Project[];
   if (scope) {
     const s = scope.toLowerCase();
-    const matched = model.projects.filter(
+    const matched = filterActive(model.projects).filter(
       (p) =>
         p.label.toLowerCase().includes(s) || p.id.toLowerCase().includes(s)
     );
@@ -172,9 +177,9 @@ function buildScopedSnapshot(
     return matchesHint(item);
   }
 
-  const selectedGoals = model.goals.filter(selectItem);
-  const selectedSkills = model.skills.filter(selectItem);
-  const selectedStates = model.states.filter(selectItem);
+  const selectedGoals = filterActive(model.goals).filter(selectItem);
+  const selectedSkills = filterActive(model.skills).filter(selectItem);
+  const selectedStates = filterActive(model.states).filter(selectItem);
 
   // 4. Open questions for task-hint
   if (taskHint && hintKeywords.length > 0) {
