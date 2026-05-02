@@ -95,7 +95,6 @@ async function runDeterministic(blocks: ContentBlock[]): Promise<CandidateWithSo
           provenance: {
             source: `cli:sync:deterministic:${block.path}`,
             path: block.path,
-            adapterId: extractAdapterFromPath(block.path),
           },
           _source: 'deterministic',
         });
@@ -137,7 +136,6 @@ async function runLLMExtraction(
           provenance: {
             source: `cli:sync:llm:${block.path}`,
             path: block.path,
-            adapterId: extractAdapterFromPath(block.path),
           },
           _source: 'llm',
         });

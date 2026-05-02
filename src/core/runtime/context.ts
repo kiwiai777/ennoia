@@ -82,7 +82,7 @@ function countModelEntries(model: UserModel): number {
 }
 
 // CT-0027-04: 过滤 active 条目
-function filterActive<T extends BaseItem>(items: T[]): T[] {
+function filterActive<T extends { status?: string }>(items: T[]): T[] {
   return items.filter(item => (item.status ?? 'active') === 'active');
 }
 
@@ -278,7 +278,7 @@ export function selectRuntimeContext(
 
 // --- 渲染层 ---
 
-export function formatBaseItems(items: BaseItem[]): string {
+export function formatBaseItems(items: Array<{ label: string; description?: string }>): string {
   if (items.length === 0) return '  （暂无）';
   return items
     .map((item) => {

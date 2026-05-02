@@ -31,7 +31,7 @@ export interface BaseItem {
   superseded_at?: ISO8601;
 }
 
-export interface Project extends BaseItem {
+export interface Project extends Omit<BaseItem, 'status'> {
   status?: ProjectStatus;
 }
 

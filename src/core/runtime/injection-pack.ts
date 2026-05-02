@@ -146,7 +146,7 @@ function pickDefined<T extends Record<string, unknown>>(obj: T): Partial<T> {
 }
 
 function makeEntry(
-  item: BaseItem,
+  item: { id: string; source?: string; created_at: string; updated_at: string; label: string; description?: string },
   kind: InjectionEntryKind,
   details: Record<string, unknown> = {}
 ): InjectionEntry {

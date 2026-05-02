@@ -18,6 +18,7 @@ import { fileURLToPath } from 'node:url';
 import {
   loadUserModel,
   updateUserModel,
+  saveUserModel,
   getUserModelPath,
 } from './core/user-model/storage.js';
 import {
@@ -862,10 +863,7 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
     const currentModel = loadUserModel();
     if (needsMigration(currentModel)) {
       const migratedModel = await migrateUserModelV0_2(currentModel, embeddingBackend);
-      // 迁移后��存
-      updateUserModel(() => {
-        Object.assign(currentModel, migratedModel);
-      });
+      saveUserModel(migratedModel);
     }
   }
 
