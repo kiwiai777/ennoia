@@ -24,11 +24,11 @@ export async function cmdSetup(opts: SetupOptions = {}): Promise<void> {
 
   if (!hasConfig || opts.reset) {
     console.log('Cortex Setup');
-    console.log('��────��──���────��───��───��────��──���───��──���──��─');
+    console.log('────��──��──���────��───��──���──��────��──���─────��─');
     await runFullSetup(config, ollamaStatus);
   } else {
     displayCurrentConfig(config, ollamaStatus);
-    const shouldModify = await askYesNo('是否���改配��？', false);
+    const shouldModify = await askYesNo('Modify configuration?', false);
 
     if (shouldModify) {
       await runFullSetup(config, ollamaStatus);
@@ -41,7 +41,7 @@ export async function cmdSetup(opts: SetupOptions = {}): Promise<void> {
   const allOk = await runHealthCheck(config);
   if (allOk) {
     saveConfig(config);
-    console.log('\n配置已��存到 ~/.cortex/config.json');
+    console.log('\nConfiguration saved to ~/.cortex/config.json');
   }
 }
 
@@ -55,51 +55,51 @@ function displayCurrentConfig(
   ollamaStatus: { available: boolean; models?: string[]; error?: string }
 ): void {
   console.log('Cortex Setup');
-  console.log('─���──��────��────��──���──��────��────────��──���───');
-  console.log('当前���置：\n');
+  console.log('──��──���──��──���───────��──���──────��──���──────��─');
+  console.log('Current configuration:\n');
 
-  const llmStatus = config.llm.provider === 'ollama' && ollamaStatus.available ? '✓ 可用' : '? 未检���';
-  console.log(`LLM Backend：${config.llm.provider} (${config.llm.model})`);
+  const llmStatus = config.llm.provider === 'ollama' && ollamaStatus.available ? '✓ available' : '? not checked';
+  console.log(`LLM Backend: ${config.llm.provider} (${config.llm.model})`);
   if (config.llm.endpoint) {
-    console.log(`  端点��${config.llm.endpoint}`);
+    console.log(`  Endpoint: ${config.llm.endpoint}`);
   }
-  console.log(`  状态：${llmStatus}\n`);
+  console.log(`  Status: ${llmStatus}\n`);
 
-  const embStatus = config.embedding.provider === 'ollama' && ollamaStatus.available ? '✓ 可用' : '? 未检��';
-  console.log(`Embedding Backend：${config.embedding.provider} (${config.embedding.model})`);
+  const embStatus = config.embedding.provider === 'ollama' && ollamaStatus.available ? '��� available' : '? not checked';
+  console.log(`Embedding Backend: ${config.embedding.provider} (${config.embedding.model})`);
   if (config.embedding.endpoint) {
-    console.log(`  端��：${config.embedding.endpoint}`);
+    console.log(`  Endpoint: ${config.embedding.endpoint}`);
   }
-  console.log(`  状态：${embStatus}\n`);
+  console.log(`  Status: ${embStatus}\n`);
 
-  console.log(`去重阈值��${config.embedding.similarityThreshold}`);
-  console.log('──��──���──────��──���────��──��──���─────��──���───��─');
+  console.log(`Deduplication threshold: ${config.embedding.similarityThreshold}`);
+  console.log('─��──���───��──���────��───��──���────��──���────��────');
 }
 
 async function runFullSetup(
   config: CortexConfig,
   ollamaStatus: { available: boolean; models?: string[]; error?: string }
 ): Promise<void> {
-  console.log('\n���择 LLM provider：\n');
-  console.log('  [1] Ollama（��地，隐私��好）');
-  console.log('      需���：本地运�� ollama，已 pull ��型（�� qwen2.5:7b��');
+  console.log('\nSelect LLM provider:\n');
+  console.log('  [1] Ollama (local, best privacy)');
+  console.log('      Requires: ollama running locally with models pulled (e.g., qwen2.5:7b)');
   if (ollamaStatus.available) {
-    console.log(`      当前���态：✓ ollama 已检测��（模���：${ollamaStatus.models?.slice(0, 3).join(', ')}...）`);
+    console.log(`      Current status: ✓ ollama detected (models: ${ollamaStatus.models?.slice(0, 3).join(', ')}...)`);
   } else {
-    console.log('      当前状态��✗ ollama 未���测到（请先��装：https://ollama.com）');
+    console.log('      Current status: ✗ ollama not detected (install: https://ollama.com)');
   }
   console.log('\n  [2] OpenAI');
-  console.log('      需要��API key（https://platform.openai.com）\n');
+  console.log('      Requires: API key (https://platform.openai.com)\n');
   console.log('  [3] Anthropic');
-  console.log('      需要：API key（https://console.anthropic.com）\n');
+  console.log('      Requires: API key (https://console.anthropic.com)\n');
   console.log('  [4] DeepSeek');
-  console.log('      需���：API key（https://platform.deepseek.com）\n');
-  console.log('  [5] 智谱 GLM（通��版）');
-  console.log('      需要���API key（https://open.bigmodel.cn���\n');
-  console.log('  [6] 智谱 GLM（Coding Plan CN）');
-  console.log('      需要���API key（https://open.bigmodel.cn/coding）\n');
+  console.log('      Requires: API key (https://platform.deepseek.com)\n');
+  console.log('  [5] Zhipu GLM (General)');
+  console.log('      Requires: API key (https://open.bigmodel.cn)\n');
+  console.log('  [6] Zhipu GLM (Coding Plan CN)');
+  console.log('      Requires: API key (https://open.bigmodel.cn/coding)\n');
 
-  const providerChoice = await askChoice('请选择 [1-6]', ['1', '2', '3', '4', '5', '6']);
+  const providerChoice = await askChoice('Select [1-6]', ['1', '2', '3', '4', '5', '6']);
 
   const providerMap: Record<string, CortexConfig['llm']['provider']> = {
     '1': 'ollama',
@@ -121,39 +121,39 @@ async function runFullSetup(
     'zhipu-coding-cn': 'codegeex-4',
   };
 
-  const modelPrompt = `��入模型名��默认：${defaultModels[config.llm.provider]}）`;
+  const modelPrompt = `Enter model name (default: ${defaultModels[config.llm.provider]})`;
   config.llm.model = await askString(modelPrompt, defaultModels[config.llm.provider]);
 
   if (config.llm.provider === 'ollama') {
-    config.llm.endpoint = await askString('Ollama 端点（默认��http://localhost:11434）', 'http://localhost:11434');
+    config.llm.endpoint = await askString('Ollama endpoint (default: http://localhost:11434)', 'http://localhost:11434');
     delete config.llm.apiKey;
   } else {
-    config.llm.apiKey = await askPassword('请输入 API key（输���时不显示）');
+    config.llm.apiKey = await askPassword('Enter API key (hidden)');
     delete config.llm.endpoint;
   }
 
-  console.log('\n选择 Embedding provider：\n');
-  console.log('  [1] Ollama（���认，隐私��好）');
-  console.log('      ���型：bge-m3（���荐）');
+  console.log('\nSelect Embedding provider:\n');
+  console.log('  [1] Ollama (default, best privacy)');
+  console.log('      Model: bge-m3 (recommended)');
   if (ollamaStatus.available) {
-    console.log('      当前���态：��');
+    console.log('      Current status: ���');
   } else {
-    console.log('      当前状态��✗');
+    console.log('      Current status: ✗');
   }
-  console.log('\n  [2] 与 LLM 同 provider���如 OpenAI / DeepSeek / 智谱）');
-  console.log('      使用 LLM provider �� embedding API���如果支持��\n');
-  console.log('  注意：Anthropic 没有 embedding API，���须单独选 Embedding provider。\n');
+  console.log('\n  [2] Same as LLM provider (e.g., OpenAI / DeepSeek / Zhipu)');
+  console.log('      Uses LLM provider\'s embedding API (if supported)\n');
+  console.log('  Note: Anthropic does not have an embedding API; must select separate provider.\n');
 
-  const embChoice = await askChoice('请选择 [1-2]', ['1', '2']);
+  const embChoice = await askChoice('Select [1-2]', ['1', '2']);
 
   if (embChoice === '1') {
     config.embedding.provider = 'ollama';
-    config.embedding.model = await askString('Ollama embedding 模型���默认：bge-m3��', 'bge-m3');
-    config.embedding.endpoint = await askString('Ollama 端���（默认：http://localhost:11434��', 'http://localhost:11434');
+    config.embedding.model = await askString('Ollama embedding model (default: bge-m3)', 'bge-m3');
+    config.embedding.endpoint = await askString('Ollama endpoint (default: http://localhost:11434)', 'http://localhost:11434');
     delete config.embedding.apiKey;
   } else {
     if (config.llm.provider === 'anthropic') {
-      console.log('\n⚠️  Anthropic 不支持 embedding API，将使用 Ollama');
+      console.log('\n⚠️  Anthropic does not support embedding API, falling back to Ollama');
       config.embedding.provider = 'ollama';
       config.embedding.model = 'bge-m3';
       config.embedding.endpoint = 'http://localhost:11434';
@@ -170,7 +170,7 @@ async function runFullSetup(
       };
 
       config.embedding.model = await askString(
-        `Embedding 模型（��认：${embDefaultModels[config.embedding.provider] || 'text-embedding-3-small'}）`,
+        `Embedding model (default: ${embDefaultModels[config.embedding.provider] || 'text-embedding-3-small'})`,
         embDefaultModels[config.embedding.provider] || 'text-embedding-3-small'
       );
       delete config.embedding.endpoint;
@@ -178,21 +178,21 @@ async function runFullSetup(
   }
 
   const thresholdStr = await askString(
-    '\nEmbedding 相似度��重阈���（0.0-1.0，默�� 0.85）\n���高越严格��减少��合并���，越低越��松（���并更多相似偏好��\n直接���车使用默认值',
+    '\nEmbedding similarity deduplication threshold (0.0-1.0, default 0.85)\nHigher = stricter (fewer merges), lower = looser (more merges)\nPress Enter for default',
     '0.85'
   );
   config.embedding.similarityThreshold = parseFloat(thresholdStr) || 0.85;
 }
 
 async function runHealthCheck(config: CortexConfig): Promise<boolean> {
-  console.log('\n正在检查��置...');
+  console.log('\nChecking configuration...');
 
   const llmBackend = createLLMBackend(config.llm);
   const llmResult = await llmBackend.healthCheck();
   if (llmResult.ok) {
-    console.log(`��� LLM (${config.llm.provider} / ${config.llm.model})`);
+    console.log(`�� LLM (${config.llm.provider} / ${config.llm.model})`);
   } else {
-    console.log(`��� LLM (${config.llm.provider}): ${llmResult.error}`);
+    console.log(`✗ LLM (${config.llm.provider}): ${llmResult.error}`);
   }
 
   const embBackend = createEmbeddingBackend(config.embedding);
@@ -205,9 +205,9 @@ async function runHealthCheck(config: CortexConfig): Promise<boolean> {
 
   const allOk = llmResult.ok && embResult.ok;
   if (allOk) {
-    console.log('\n✓ Cortex 已就绪。运�� cortex sync --from <adapter> 开始使��。');
+    console.log('\n✓ Cortex is ready. Run "cortex sync --from <adapter>" to start.');
   } else {
-    console.log('\n✗ 配置���查失败。请根��上述���误信息修正��重新���行 cortex setup���');
+    console.log('\n✗ Configuration check failed. Fix errors above and re-run "cortex setup".');
   }
 
   return allOk;
@@ -233,7 +233,7 @@ function askChoice(prompt: string, validChoices: string[]): Promise<string> {
           rl.close();
           resolve(choice);
         } else {
-          console.log(`无效选��，请���入 ${validChoices.join(' 或 ')}`);
+          console.log(`Invalid choice, please enter ${validChoices.join(' or ')}`);
           ask();
         }
       });
