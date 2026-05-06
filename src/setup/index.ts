@@ -132,6 +132,8 @@ async function runFullSetup(
     delete config.llm.endpoint;
   }
 
+  config.llm.enabled = true;
+
   console.log('\nSelect Embedding provider:\n');
   console.log('  [1] Ollama (default, best privacy)');
   console.log('      Model: bge-m3 (recommended)');
@@ -176,6 +178,8 @@ async function runFullSetup(
       delete config.embedding.endpoint;
     }
   }
+
+  config.embedding.enabled = true;
 
   const thresholdStr = await askString(
     '\nEmbedding similarity deduplication threshold (0.0-1.0, default 0.85)\nHigher = stricter (fewer merges), lower = looser (more merges)\nPress Enter for default',
