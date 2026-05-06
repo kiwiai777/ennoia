@@ -119,7 +119,7 @@ describe('CLI: cortex reflect', () => {
     // Verify persistence
     const model = loadUserModel();
     assert.equal(model.preferences.length, 1);
-    assert.equal(model.preferences[0].source, 'cli:reflect:suggest');
+    assert.equal(model.preferences[0].source, 'cli:reflect');
   });
 
   it('位置参数：选择 none → 不写入，exit 0', async () => {

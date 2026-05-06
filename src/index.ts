@@ -1210,8 +1210,44 @@ export async function cmdReflect(args: string[], opts: ReflectOptions = {}): Pro
     inputs = [text];
   }
 
-  const candidates = generateCandidatesFromRecent(inputs);
-  const suggestions = buildSuggestions(candidates);
+  // CT-0032-01: Load config and create backends
+  const config = loadConfig();
+  const llmBackend = config.llm.enabled ? createLLMBackend(config.llm) : undefined;
+  const embeddingBackend = config.embedding.enabled ? createEmbeddingBackend(config.embedding) : undefined;
+
+  // CT-0032-01: LLM health check
+  if (!llmBackend) {
+    console.error('⚠���  Cortex requires an LLM backend to work.');
+    console.error('   Run "cortex setup" to configure your LLM provider.');
+    process.exit(1);
+  }
+
+  const health = await llmBackend.healthCheck();
+  if (!health.ok) {
+    console.error('���️  Cortex requires an LLM backend to work.');
+    console.error('   Run "cortex setup" to configure your LLM provider.');
+    console.error(`   错误���${health.error}`);
+    process.exit(1);
+  }
+
+  // CT-0032-01: Convert inputs to ContentBlock[]
+  const contentBlocks: ContentBlock[] = inputs.map((text, idx) => ({
+    path: `cli:reflect:input-${idx}`,
+    content: text,
+    kind: 'plain' as const,
+    hint: 'plain' as const,
+  }));
+
+  // CT-0032-01: Run extraction pipeline
+  const candidates = await runExtractionPipeline(contentBlocks, {
+    llmBackend,
+    embeddingBackend,
+    config,
+  });
+
+  // CT-0032-01: Filter to supported kinds
+  const SUPPORTED_KINDS = new Set<string>(['goal', 'constraint', 'preference']);
+  const suggestions = candidates.filter(c => SUPPORTED_KINDS.has(c.kind));
 
   if (suggestions.length === 0) {
     console.log('未发现任何候选，已退出。');
@@ -1222,7 +1258,7 @@ export async function cmdReflect(args: string[], opts: ReflectOptions = {}): Pro
   console.log('检测到以下候选：');
   console.log('');
   suggestions.forEach((item, i) => {
-    console.log(`${i + 1}. ${item.displayText}`);
+    console.log(`${i + 1}. [${item.kind}] ${item.content}`);
   });
   console.log('');
 
@@ -1238,12 +1274,15 @@ export async function cmdReflect(args: string[], opts: ReflectOptions = {}): Pro
   const selectedCandidates = confirmedIndices.map(i => suggestions[i]);
 
   const writeables: WriteableItem[] = selectedCandidates.map(c => ({
-    target: targetFromCategory(c.type as WriteCategory),
+    target: targetFromCategory(c.kind as WriteCategory),
     label: c.content,
-    source: 'cli:reflect:suggest',
+    source: 'cli:reflect',
   }));
 
-  const result = writeItemsToUserModel(writeables);
+  const result = writeItemsToUserModel(writeables, {
+    embeddingBackend,
+    threshold: config.embedding.similarityThreshold,
+  });
 
   const writtenCount = result.writtenItems.length;
   const skippedCount = result.skippedItems.length;
@@ -1254,7 +1293,7 @@ export async function cmdReflect(args: string[], opts: ReflectOptions = {}): Pro
     const byKind: Record<string, number> = {};
     for (let i = 0; i < selectedCandidates.length; i++) {
       if (result.writtenItems.includes(writeables[i])) {
-        const k = selectedCandidates[i].type;
+        const k = selectedCandidates[i].kind;
         byKind[k] = (byKind[k] ?? 0) + 1;
       }
     }
