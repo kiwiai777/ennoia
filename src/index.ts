@@ -60,7 +60,7 @@ import { ALL_INJECT_TARGETS, injectToTarget, type InjectTarget } from './adapter
 import { loadConfig } from './backends/config.js';
 import { createLLMBackend, createEmbeddingBackend } from './backends/factory.js';
 import { runExtractionPipeline } from './core/extraction/pipeline.js';
-import { migrateUserModelV0_2, needsMigration } from './core/user-model/migrate.js';
+import { migrateUserModelV0_2, migrateUserModelV0_3, needsMigration } from './core/user-model/migrate.js';
 import type { ContentBlock } from './core/extraction/types.js';
 
 import { basicSuggest } from './core/suggestion/basic-suggester.js';
@@ -877,7 +877,10 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
   if (embeddingBackend) {
     const currentModel = loadUserModel();
     if (needsMigration(currentModel)) {
-      const migratedModel = await migrateUserModelV0_2(currentModel, embeddingBackend);
+      let migratedModel = await migrateUserModelV0_2(currentModel, embeddingBackend);
+      if (migratedModel.schema_version === '0.2') {
+        migratedModel = migrateUserModelV0_3(migratedModel);
+      }
       saveUserModel(migratedModel);
     }
   }

@@ -68,7 +68,7 @@ export interface Meta {
 }
 
 export interface UserModel {
-  schema_version: '0.1' | '0.2';
+  schema_version: '0.1' | '0.2' | '0.3';
   projects: Project[];
   goals: Goal[];
   preferences: Preference[];
@@ -82,7 +82,7 @@ export interface UserModel {
 // 返回��个空��� user model（用��初始���）
 export function emptyUserModel(): UserModel {
   return {
-    schema_version: '0.2',
+    schema_version: '0.3',
     projects: [],
     goals: [],
     preferences: [],

@@ -98,5 +98,31 @@ export async function migrateUserModelV0_2(
  * 检查��否需���迁移
  */
 export function needsMigration(userModel: UserModel): boolean {
-  return userModel.schema_version === '0.1';
+  return userModel.schema_version === '0.1' || userModel.schema_version === '0.2';
+}
+
+/**
+ * Migrate user model from v0.2 to v0.3
+ *
+ * Changes:
+ * 1. Add description field support (already defined as optional in BaseItem)
+ * 2. Update schema_version to '0.3'
+ *
+ * Note: description field already exists in BaseItem from v0.2, this migration only updates version number
+ */
+export function migrateUserModelV0_3(userModel: UserModel): UserModel {
+  // If already v0.3, return as-is
+  if (userModel.schema_version === '0.3') {
+    return userModel;
+  }
+
+  console.error('ℹ️  Upgrading user model schema (v0.2 → v0.3)...');
+
+  // description field is defined as optional in BaseItem, no data modification needed
+  // Just update schema_version
+  userModel.schema_version = '0.3';
+
+  console.error('✓ Upgrade complete');
+
+  return userModel;
 }

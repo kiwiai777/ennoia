@@ -4,7 +4,7 @@ import { describe, it } from 'node:test';
 import assert from 'node:assert';
 import type { UserModel } from '../../core/user-model/types.js';
 import type { EmbeddingBackend } from '../../backends/types.js';
-import { migrateUserModelV0_2, needsMigration } from '../../core/user-model/migrate.js';
+import { migrateUserModelV0_2, migrateUserModelV0_3, needsMigration } from '../../core/user-model/migrate.js';
 
 describe('Migration Tests', () => {
   const mockEmbedding: EmbeddingBackend = {
@@ -163,7 +163,87 @@ describe('Migration Tests', () => {
       schema_version: '0.2',
     };
 
+    const v03: UserModel = {
+      ...v01,
+      schema_version: '0.3',
+    };
+
     assert.equal(needsMigration(v01), true);
-    assert.equal(needsMigration(v02), false);
+    assert.equal(needsMigration(v02), true);
+    assert.equal(needsMigration(v03), false);
+  });
+
+  it('v0.2 → v0.3 adds description field support', () => {
+    const v02Model: UserModel = {
+      schema_version: '0.2',
+      projects: [],
+      goals: [
+        {
+          id: 'goal_1',
+          label: 'Test goal without description',
+          scope: 'global',
+          source: 'test',
+          created_at: '2026-01-01T00:00:00Z',
+          updated_at: '2026-01-01T00:00:00Z',
+          embedding: new Array(1024).fill(0.5),
+          embedding_model: 'test-model',
+          status: 'active',
+        },
+      ],
+      preferences: [],
+      constraints: [],
+      skills: [],
+      states: [],
+      decision_rules: [],
+      meta: {
+        last_updated: '2026-01-01T00:00:00Z',
+        sources: ['test'],
+        confidence: null,
+      },
+    };
+
+    const migrated = migrateUserModelV0_3(v02Model);
+
+    assert.equal(migrated.schema_version, '0.3');
+    assert.equal(migrated.goals[0].label, 'Test goal without description');
+    // description field is optional, old entries don't have it
+    assert.equal(migrated.goals[0].description, undefined);
+  });
+
+  it('v0.3 does not re-migrate', () => {
+    const v03Model: UserModel = {
+      schema_version: '0.3',
+      projects: [],
+      goals: [
+        {
+          id: 'goal_1',
+          label: 'Test goal',
+          description: 'Test description',
+          scope: 'global',
+          source: 'test',
+          created_at: '2026-01-01T00:00:00Z',
+          updated_at: '2026-01-01T00:00:00Z',
+          embedding: new Array(1024).fill(0.5),
+          embedding_model: 'test-model',
+          status: 'active',
+        },
+      ],
+      preferences: [],
+      constraints: [],
+      skills: [],
+      states: [],
+      decision_rules: [],
+      meta: {
+        last_updated: '2026-01-01T00:00:00Z',
+        sources: ['test'],
+        confidence: null,
+      },
+    };
+
+    const migrated = migrateUserModelV0_3(v03Model);
+
+    // Should return as-is
+    assert.equal(migrated.schema_version, '0.3');
+    assert.equal(migrated.goals[0].description, 'Test description');
   });
 });
