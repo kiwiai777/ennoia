@@ -1,10 +1,10 @@
-import { LLMBackend, EmbeddingBackend } from './types';
-import { CortexConfig, requireApiKey } from './config';
-import { OllamaLLMBackend } from './llm/ollama';
-import { OpenAICompatLLMBackend } from './llm/openai-compat';
-import { AnthropicLLMBackend } from './llm/anthropic';
-import { OllamaEmbeddingBackend } from './embedding/ollama';
-import { OpenAICompatEmbeddingBackend } from './embedding/openai-compat';
+import { LLMBackend, EmbeddingBackend } from './types.js';
+import { CortexConfig, requireApiKey } from './config.js';
+import { OllamaLLMBackend } from './llm/ollama.js';
+import { OpenAICompatLLMBackend } from './llm/openai-compat.js';
+import { AnthropicLLMBackend } from './llm/anthropic.js';
+import { OllamaEmbeddingBackend } from './embedding/ollama.js';
+import { OpenAICompatEmbeddingBackend } from './embedding/openai-compat.js';
 
 export function createLLMBackend(config: CortexConfig['llm']): LLMBackend {
   switch (config.provider) {
