@@ -115,7 +115,11 @@ function usage(): void {
   console.log('                                 --accept-all 跳过交互，全部候选自动确认');
   console.log('                                 （管道 / 非 TTY 场景必须加 --accept-all）');
   console.log('  cortex reflect --list          查看最近 20 条已确认的 suggest-loop 记录');
-  console.log('  cortex sync --from claude-code|openclaw|chatgpt-export [--accept-all] [--dry-run]');
+  console.log('  cortex sync --from claude-code|openclaw|chatgpt-export|file [--accept-all] [--dry-run]');
+  console.log('                                 从 Claude Code workspace ��描候选��写入 user model');
+  console.log('  cortex sync --from file --path <file-or-directory> [--accept-all] [--dry-run]');
+  console.log('                                 从文��或目��提取���容并写入 user model');
+  console.log('                                 支持���式：.md, .txt, .json, .pdf, .docx');
   console.log('                                 从 Claude Code workspace 扫描候选并写入 user model');
   console.log('');
   console.log(`存储位置：${getUserModelPath()}`);
@@ -778,19 +782,19 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
   // --from 必需
   if (fromIdx === -1 || !args[fromIdx + 1]) {
     console.error('用法：cortex sync --from <adapter-id> [--accept-all] [--dry-run]');
-    console.error('当前支持的 adapter：claude-code, openclaw, chatgpt-export');
+    console.error('当前支持的 adapter：claude-code, openclaw, chatgpt-export, file');
     process.exit(1);
   }
 
   const adapterId = args[fromIdx + 1];
-  if (adapterId !== 'claude-code' && adapterId !== 'openclaw' && adapterId !== 'chatgpt-export') {
+  if (adapterId !== 'claude-code' && adapterId !== 'openclaw' && adapterId !== 'chatgpt-export' && adapterId !== 'file') {
     console.error(`adapter 不支持：${adapterId}`);
-    console.error('当前支持的 adapter：claude-code, openclaw, chatgpt-export');
+    console.error('当前支持的 adapter：claude-code, openclaw, chatgpt-export, file');
     process.exit(1);
   }
 
   // 检查未知参数
-  const knownArgs = new Set(['--from', adapterId, '--accept-all', '--dry-run', '--workspace', '--since', '--min-length', '--max-conversations']);
+  const knownArgs = new Set(['--from', adapterId, '--accept-all', '--dry-run', '--workspace', '--since', '--min-length', '--max-conversations', '--path']);
   const unknown = args.filter(a => a.startsWith('-') && !knownArgs.has(a));
   if (unknown.length > 0) {
     console.error(`未知参数：${unknown.join(', ')}`);
@@ -855,6 +859,28 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
     }
   }
 
+  // Parse file adapter specific arguments
+  let filePath: string | undefined;
+  
+  if (adapterId === 'file') {
+    const pathIdx = args.indexOf('--path');
+    if (pathIdx !== -1 && args[pathIdx + 1]) {
+      filePath = args[pathIdx + 1];
+    }
+
+    if (!filePath) {
+      console.error('��误：file adapter 需要 --path 参数');
+      console.error('用���：cortex sync --from file --path <file-or-directory> [--accept-all] [--dry-run]');
+      process.exit(1);
+    }
+  }
+
+  // Update displayWorkspace for file adapter
+  if (adapterId === 'file') {
+    displayWorkspace = filePath || 'File/Directory';
+  }
+
+
   // Update displayWorkspace for chatgpt-export
   if (adapterId === 'chatgpt-export') {
     displayWorkspace = chatgptWorkspace || 'ChatGPT Export';
@@ -897,6 +923,10 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
       minChars: chatgptMinLength,
       maxConversations: chatgptMaxConversations,
     });
+  } else if (adapterId === 'file') {
+    // CT-0033-01: File adapter
+    const { extractFromFile } = await import('./adapters/file/index.js');
+    contentBlocks = await extractFromFile({ path: filePath! });
   } else {
     // 其他 adapter 暂时使用��逻辑���返回 ExtractionCandidate[]）
     // 未来��以逐步��移到 ContentBlock[]
