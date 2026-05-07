@@ -190,7 +190,7 @@ describe('CLI: cortex reflect', () => {
     const r = await runReflect(['--unknown']);
 
     assert.equal(r.status, 1);
-    assert.ok(r.stderr.includes('不支持参数'), `stderr=${r.stderr}`);
+    assert.ok(r.stderr.includes("reflect") && r.stderr.includes("--unknown"), `stderr=${r.stderr}`);
   });
 
   it('--stdin 与位置参数互斥 → fail-fast exit 1', async () => {

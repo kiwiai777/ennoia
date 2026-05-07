@@ -107,6 +107,9 @@ function usage(): void {
   console.log('  cortex suggest "<text>" [--llm] 从单段文本生成建议并交互写入');
   console.log('  cortex observe                 查看最近 context / inject 使用记录');
   console.log('  cortex reflect "<文本>"        从近期 activity 提取建议并交互写入');
+  console.log('  cortex reflect "<文本>"        从���期 activity 提取建议��交互���入');
+  console.log('  cortex reflect "<���本>" --description "<详��说明>"');
+  console.log('                                 可选��为提���的候选项加��外上���文');
   console.log('  cortex reflect --stdin [--accept-all]');
   console.log('                                 从 stdin 按行读取多条输入；');
   console.log('                                 --accept-all 跳过交互，全部候选自动确认');
@@ -1152,17 +1155,26 @@ export async function cmdReflect(args: string[], opts: ReflectOptions = {}): Pro
   let useStdin = false;
   let acceptAll = false;
   let listMode = false;
+  let description: string | undefined;
   const positional: string[] = [];
 
-  for (const arg of args) {
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
     if (arg === '--stdin') {
       useStdin = true;
     } else if (arg === '--accept-all') {
       acceptAll = true;
     } else if (arg === '--list') {
       listMode = true;
+    } else if (arg === '--description') {
+      if (i + 1 >= args.length || args[i + 1].startsWith('--')) {
+        console.error('错误：--description 缺���参数值');
+        process.exit(1);
+      }
+      description = args[i + 1];
+      i++; // Skip next arg
     } else if (arg.startsWith('--')) {
-      console.error(`错误：reflect 不支持参数 ${arg}`);
+      console.error(`错��：reflect 不支持��数 ${arg}`);
       process.exit(1);
     } else {
       positional.push(arg);
@@ -1279,6 +1291,7 @@ export async function cmdReflect(args: string[], opts: ReflectOptions = {}): Pro
   const writeables: WriteableItem[] = selectedCandidates.map(c => ({
     target: targetFromCategory(c.kind as WriteCategory),
     label: c.content,
+    description: description,
     source: 'cli:reflect',
   }));
 

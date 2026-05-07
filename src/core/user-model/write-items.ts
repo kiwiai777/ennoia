@@ -51,6 +51,7 @@ export function targetFromCategory(c: WriteCategory): WriteTarget {
 export interface WriteableItem {
   target: WriteTarget;
   label: string;
+  description?: string;  // CT-0032-03: optional description field
   source: string;
   embedding?: number[];  // CT-0027-04: 来自 pipeline 的 embedding
 }
@@ -221,6 +222,7 @@ export function writeItemsToUserModel(
           const entry: Goal | Constraint | Preference = {
             id: newItemId,
             label: item.label,
+            description: item.description,
             scope: 'global',
             source: item.source,
             created_at: now,
@@ -246,6 +248,7 @@ export function writeItemsToUserModel(
         const entry: Goal | Constraint | Preference = {
           id: `${ID_PREFIX[item.target]}_${randomUUID()}`,
           label: item.label,
+            description: item.description,
           scope: 'global',
           source: item.source,
           created_at: now,
