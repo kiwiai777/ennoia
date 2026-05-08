@@ -1,24 +1,5 @@
 import { LLMBackend, LLMExtractionRequest, LLMExtractionCandidate } from '../types';
-
-const EXTRACTION_PROMPT_TEMPLATE = `Extract user preferences, goals, and constraints from the following text.
-Output strictly in JSON format with this schema:
-{
-  "items": [
-    {"kind": "preference|goal|constraint", "content": "<extracted text>"}
-  ]
-}
-
-Rules:
-- Only extract clearly stated or strongly implied user preferences
-- "kind" must be exactly one of: preference, goal, constraint
-- Do not invent information not in the text
-- If no preferences found, return {"items": []}
-- Return raw JSON only, no markdown fences
-
-Text:
-"""
-{content}
-"""`;
+import { EXTRACTION_SYSTEM_PROMPT } from '../../core/extraction/prompts.js';
 
 export class OpenAICompatLLMBackend implements LLMBackend {
   readonly provider: string;
@@ -60,12 +41,13 @@ export class OpenAICompatLLMBackend implements LLMBackend {
   }
 
   async extract(req: LLMExtractionRequest): Promise<LLMExtractionCandidate[]> {
-    const prompt = EXTRACTION_PROMPT_TEMPLATE.replace('{content}', req.content);
-
     try {
       const body: any = {
         model: this.model,
-        messages: [{ role: 'user', content: prompt }],
+        messages: [
+          { role: 'system', content: EXTRACTION_SYSTEM_PROMPT },
+          { role: 'user', content: req.content }
+        ],
         temperature: 0.1,
       };
 

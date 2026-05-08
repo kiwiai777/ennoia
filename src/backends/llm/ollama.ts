@@ -1,24 +1,7 @@
 import { LLMBackend, LLMExtractionRequest, LLMExtractionCandidate } from '../types';
+import { EXTRACTION_SYSTEM_PROMPT } from '../../core/extraction/prompts.js';
 
-const EXTRACTION_PROMPT_TEMPLATE = `Extract user preferences, goals, and constraints from the following text.
-Output strictly in JSON format with this schema:
-{
-  "items": [
-    {"kind": "preference|goal|constraint", "content": "<extracted text>"}
-  ]
-}
 
-Rules:
-- Only extract clearly stated or strongly implied user preferences
-- "kind" must be exactly one of: preference, goal, constraint
-- Do not invent information not in the text
-- If no preferences found, return {"items": []}
-- Return raw JSON only, no markdown fences
-
-Text:
-"""
-{content}
-"""`;
 
 export class OllamaLLMBackend implements LLMBackend {
   readonly provider = 'ollama';
@@ -29,7 +12,7 @@ export class OllamaLLMBackend implements LLMBackend {
   ) {}
 
   async extract(req: LLMExtractionRequest): Promise<LLMExtractionCandidate[]> {
-    const prompt = EXTRACTION_PROMPT_TEMPLATE.replace('{content}', req.content);
+    const prompt = `${EXTRACTION_SYSTEM_PROMPT}\n\nUser input:\n${req.content}`;
 
     try {
       const response = await fetch(`${this.endpoint}/api/generate`, {
