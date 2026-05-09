@@ -56,11 +56,11 @@ test('CLI: cortex inject --target openclaw --dry-run', async () => {
   );
 
   assert.match(stdout, /Cortex → OpenClaw \[dry-run\]/);
-  assert.match(stdout, /注入路径/);
-  assert.match(stdout, /--- 注入内容预览 ---/);
+  assert.match(stdout, /Injection path/);
+  assert.match(stdout, /--- Injection Preview ---/);
   assert.match(stdout, /The user prefers TypeScript over JavaScript for all projects./);
   assert.match(stdout, /The user's goal is to learn Rust this year./);
-  assert.match(stdout, /\[dry-run\] 未写入/);
+  assert.match(stdout, /\[dry-run\] Not written/);
   
   // Verify it was really a dry run
   const content = await fs.readFile(file, 'utf8');
@@ -100,7 +100,7 @@ test('CLI: cortex inject --target openclaw', async () => {
     }
   );
 
-  assert.match(stdout, /✓ 写入完成。/);
+  assert.match(stdout, /✓ Write complete/);
   assert.match(stdout, /systemctl --user restart openclaw-gateway/);
   
   const content = await fs.readFile(file, 'utf8');

@@ -37,20 +37,20 @@ export async function injectToOpenClaw(
 
   const prefix = opts.dryRun ? 'Cortex → OpenClaw [dry-run]' : 'Cortex → OpenClaw';
   console.log(prefix);
-  console.log(`注入路径：${userMdPath}`);
+  console.log(`Injection path: ${userMdPath}`);
 
   if (allItems.length === 0) {
-    console.log(`\nℹ️  user model 中暂无可注入的偏好 / 目标 / 约束。`);
-    console.log(`    先运行 cortex sync 或 cortex reflect 添加内容。`);
+    console.log(`\nℹ️  No injectable preferences / goals / constraints in user model.`);
+    console.log(`    Run cortex sync or cortex reflect to add content first.`);
     return;
   }
 
   const renderedContent = renderUserModelToNaturalLanguage(allItems);
 
   if (!opts.dryRun) {
-    console.log(`注入内容：${allItems.length} 条\n`);
+    console.log(`Injection content: ${allItems.length} item(s)\n`);
   } else {
-    console.log(`\n--- 注入内容预览 ---`);
+    console.log(`\n--- Injection Preview ---`);
   }
   console.log(renderedContent);
   if (opts.dryRun) {
@@ -62,19 +62,19 @@ export async function injectToOpenClaw(
   const { inserted, created } = await injectToUserMd(userMdPath, renderedContent, opts);
 
   if (opts.dryRun) {
-    console.log(`[dry-run] 未写入。去掉 --dry-run 参数执行实际注入。`);
+    console.log(`[dry-run] Not written. Remove --dry-run to perform actual injection.`);
   } else {
     if (inserted) {
       if (created) {
-        console.log(`ℹ️  USER.md 不存在，将创建新文件。`);
-        console.log(`✓ 写入完成（新建）。`);
+        console.log(`ℹ️  USER.md does not exist, will create new file.`);
+        console.log(`✓ Write complete (new file created).`);
       } else {
-        console.log(`✓ 写入完成。`);
+        console.log(`✓ Write complete.`);
       }
-      console.log(`ℹ️  请重启 OpenClaw 使更改生效：`);
+      console.log(`ℹ️  Please restart OpenClaw for changes to take effect:`);
       console.log(`    systemctl --user restart openclaw-gateway`);
     } else {
-      console.log(`ℹ️  无内容变更。`);
+      console.log(`ℹ️  No content changes.`);
     }
   }
 }

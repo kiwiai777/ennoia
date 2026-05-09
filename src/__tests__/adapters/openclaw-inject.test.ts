@@ -103,7 +103,7 @@ test('openclaw inject - Dry-run -> do not write, print preview', async () => {
   
   assert.equal(result.inserted, true);
   assert.equal(result.created, true);
-  assert.ok(logs.some(l => l && l.includes('注入内容预览')));
+  assert.ok(logs.some(l => l && l.includes('Injection Preview')));
   
   // File should not be created
   await assert.rejects(fs.readFile(file, 'utf8'));

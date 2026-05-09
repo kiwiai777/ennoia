@@ -63,11 +63,11 @@ export async function injectToUserMd(
 
   if (opts.dryRun) {
     if (willInsert) {
-      console.log(`\n--- 注入内容预览 ---`);
+      console.log(`\n--- Injection Preview ---`);
       if (renderedContent) {
         console.log(renderedContent);
       } else {
-        console.log(`(空)`);
+        console.log(`(empty)`);
       }
       console.log(`--------------------\n`);
     }

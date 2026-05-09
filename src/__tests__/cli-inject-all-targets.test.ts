@@ -67,7 +67,7 @@ test('CLI: cortex inject --all-targets --dry-run', async () => {
 
   assert.match(stdout, /--- openclaw ---/);
   assert.match(stdout, /Cortex → OpenClaw \[dry-run\]/);
-  assert.match(stdout, /--- 注入内容预览 ---/);
+  assert.match(stdout, /--- Injection Preview ---/);
   assert.match(stdout, /=== Summary ===/);
   assert.match(stdout, /✓ 1 target\(s\) succeeded/);
 });
@@ -106,7 +106,7 @@ test('CLI: cortex inject --all-targets', async () => {
   );
 
   assert.match(stdout, /--- openclaw ---/);
-  assert.match(stdout, /✓ 写入完成。/);
+  assert.match(stdout, /✓ Write complete/);
   assert.match(stdout, /systemctl --user restart openclaw-gateway/);
   assert.match(stdout, /=== Summary ===/);
   assert.match(stdout, /✓ 1 target\(s\) succeeded/);
