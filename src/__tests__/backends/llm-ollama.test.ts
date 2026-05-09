@@ -14,7 +14,7 @@ describe('OllamaLLMBackend', () => {
         json: async () => ({
           response: JSON.stringify({
             items: [
-              { kind: 'preference', content: 'I prefer TypeScript' },
+              { type: 'preference', text: 'I prefer TypeScript' },
             ],
           }),
         }),

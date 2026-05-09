@@ -15,8 +15,8 @@ describe('AnthropicLLMBackend', () => {
           content: [{
             text: JSON.stringify({
               items: [
-                { kind: 'preference', content: 'I prefer TypeScript' },
-                { kind: 'goal', content: 'Build a web app' },
+                { type: 'preference', text: 'I prefer TypeScript' },
+                { type: 'goal', text: 'Build a web app' },
               ],
             }),
           }],
@@ -36,7 +36,7 @@ describe('AnthropicLLMBackend', () => {
         ok: true,
         json: async () => ({
           content: [{
-            text: '```json\n{"items": [{"kind": "preference", "content": "test"}]}\n```',
+            text: '```json\n{"items": [{"type": "preference", "text": "test"}]}\n```',
           }],
         }),
       }));

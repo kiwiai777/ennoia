@@ -32,8 +32,8 @@ describe('OpenAICompatLLMBackend', () => {
             message: {
               content: JSON.stringify({
                 items: [
-                  { kind: 'preference', content: 'I prefer TypeScript' },
-                  { kind: 'goal', content: 'Build a web app' },
+                  { type: 'preference', text: 'I prefer TypeScript' },
+                  { type: 'goal', text: 'Build a web app' },
                 ],
               }),
             },
@@ -55,7 +55,7 @@ describe('OpenAICompatLLMBackend', () => {
         json: async () => ({
           choices: [{
             message: {
-              content: '```json\n{"items": [{"kind": "preference", "content": "test"}]}\n```',
+              content: '```json\n{"items": [{"type": "preference", "text": "test"}]}\n```',
             },
           }],
         }),

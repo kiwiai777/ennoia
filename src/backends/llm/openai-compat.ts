@@ -84,7 +84,11 @@ export class OpenAICompatLLMBackend implements LLMBackend {
         return [];
       }
 
-      return parsed.items;
+      // Map prompt response format to LLMExtractionCandidate
+      return parsed.items.map((item: any) => ({
+        kind: item.type || 'preference',
+        content: item.text || '',
+      }));
     } catch (error) {
       console.warn(`${this.provider} LLM extraction failed:`, error);
       return [];
