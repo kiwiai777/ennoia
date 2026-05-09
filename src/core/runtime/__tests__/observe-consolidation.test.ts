@@ -84,7 +84,7 @@ describe('CT-0020: cmdObserve 收敛目标验证', () => {
       const idxHints = out.indexOf('[触发提示]');
       const idxSignals = out.indexOf('[使用健康信号]');
       const idxRecap = out.indexOf('[使用摘要]');
-      const idxRecords = out.indexOf('[最近使用记录]');
+      const idxRecords = out.indexOf('[Recent Usage Records]');
 
       assert.ok(idxHints !== -1, '应输出触发提示');
       assert.ok(idxSignals !== -1, '应输出健康信号');

@@ -285,7 +285,7 @@ describe('CT-0016: cmdObserve — health signals 集成', () => {
       runCmd(() => cmdInject([]));
       const r = runCmd(() => cmdObserve());
       const healthIdx = r.stdout.indexOf('[使用健康信号]');
-      const recordsIdx = r.stdout.indexOf('[最近使用记录]');
+      const recordsIdx = r.stdout.indexOf('[Recent Usage Records]');
       assert.ok(healthIdx !== -1 && recordsIdx !== -1, `stdout=${r.stdout}`);
       assert.ok(healthIdx < recordsIdx, 'health signals 应在 recent records 之前');
     });
@@ -335,7 +335,7 @@ describe('CT-0016: cmdObserve — health signals 集成', () => {
       assert.equal(r.status, 0);
       assert.ok(r.stdout.includes('[使用健康信号]'), `缺 health signals: stdout=${r.stdout}`);
       assert.ok(r.stdout.includes('[使用摘要]'), `缺 recap: stdout=${r.stdout}`);
-      assert.ok(r.stdout.includes('[最近使用记录]'), `缺 records: stdout=${r.stdout}`);
+      assert.ok(r.stdout.includes('[Recent Usage Records]'), `缺 records: stdout=${r.stdout}`);
     });
   });
 });

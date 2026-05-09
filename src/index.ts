@@ -1,14 +1,14 @@
 #!/usr/bin/env node
-// Cortex CLI 入口
-// 命令：
-//   cortex save "<文本>"          写入 user model（goals）
-//   cortex context                输出当前 user context
-//   cortex import <path> [--llm]  从文件/目录导入，交互选择后写入
+// Cortex CLI entry
+// Commands:
+//   cortex save "<text>"          Write to user model (goals)
+//   cortex context                Output current user context
+//   cortex import <path> [--llm]  Import from file/directory, write after interactive selection
 //
-// 设计原则：
-//   - 只用 process.argv，不引入 CLI 框架
-//   - CLI 不自己拼装读改写；所有写入走 updateUserModel
-//   - LLM 默认不启用；--llm 且存在 OPENAI_API_KEY 时才启用
+// Design principles:
+//   - Use only process.argv, no CLI framework
+//   - CLI does not assemble read/modify/write itself; all writes go through updateUserModel
+//   - LLM disabled by default; only enabled when --llm and OPENAI_API_KEY both present
 
 import { randomUUID } from 'node:crypto';
 import path from 'node:path';
@@ -85,67 +85,66 @@ import { buildSuggestions } from './core/suggest-loop/buildSuggestions.js';
 function usage(): void {
   console.log('Cortex CLI');
   console.log('');
-  console.log('用法：');
-  console.log('  cortex save "<一段文本>"       把文本写入 user model（goals）');
+  console.log('Usage：');
+  console.log('  cortex save "<text>"       Write text to user model (goals)');
   console.log('  cortex setup [--reset] [--check]');
-  console.log('                                 ���导配置 LLM 和 Embedding backend');
-  console.log('                                 可反���运行：有��置时���示当前状态并��问是��修改');
+  console.log('                                 Configure LLM and Embedding backend');
+  console.log('                                 Can be run repeatedly: shows current config and asks to modify');
   console.log('  cortex context [--scope <scope>] [--task-hint "<hint>"]');
-  console.log('                                 输出当前 user context');
-  console.log('                                 --scope 聚焦到特定项目（名/id）');
-  console.log('                                 --task-hint 按任务线索过滤');
+  console.log('                                 Output current user context');
+  console.log('                                 Focus on specific project (name/id)');
+  console.log('                                 --task-hint Filter by task hint');
   console.log('  cortex inject --target openclaw [--workspace <path>] [--dry-run]');
   console.log('  cortex inject --all-targets [--workspace <path>] [--dry-run]');
   console.log('  cortex inject [--agent <id>] [--format text|json]');
   console.log('                [--scope <scope>] [--task-hint "<hint>"]');
   console.log('                [--with-observation]');
-  console.log('                                 生成面向 agent 的注入内容');
-  console.log('                                 默认 --agent generic --format text');
-  console.log('                                 --scope 指定关注范围（项目名/id）');
-  console.log('                                 --task-hint 提供当前任务线索（文本匹配）');
-  console.log('                                 --with-observation 附带运行时使用摘要');
-  console.log('  cortex import <path> [--llm]   从文件/目录导入并交互写入');
-  console.log('  cortex suggest "<text>" [--llm] 从单段文本生成建议并交互写入');
-  console.log('  cortex observe                 查看最近 context / inject 使用记录');
-  console.log('  cortex reflect "<文本>"        从近期 activity 提取建议并交互写入');
-  console.log('  cortex reflect "<文本>"        从���期 activity 提取建议��交互���入');
-  console.log('  cortex reflect "<���本>" --description "<详��说明>"');
-  console.log('                                 可选��为提���的候选项加��外上���文');
+  console.log('                                 Generate injection content for agent');
+  console.log('                                 Default: --agent generic --format text');
+  console.log('                                 --scope Specify scope (project name/id)');
+  console.log('                                 --task-hint Provide current task hint (text matching)');
+  console.log('                                 --with-observation Include runtime usage summary');
+  console.log('  cortex import <path> [--llm]   Import from file/directory and write interactively');
+  console.log('  cortex suggest "<text>" [--llm] Generate suggestions from text and write interactively');
+  console.log('  cortex observe                 View recent context/inject usage record');
+  console.log('  cortex reflect "<text>"        Extract suggestions from recent activity and write interactively');
+  console.log('  cortex reflect "<text>" --description "detailed description"');
+  console.log('                                 Optionally add extra context for extracted candidates');
   console.log('  cortex reflect --stdin [--accept-all]');
-  console.log('                                 从 stdin 按行读取多条输入；');
-  console.log('                                 --accept-all 跳过交互，全部候选自动确认');
-  console.log('                                 （管道 / 非 TTY 场景必须加 --accept-all）');
-  console.log('  cortex reflect --list          查看最近 20 条已确认的 suggest-loop 记录');
+  console.log('                                 Read multiple inputs line by line from stdin;');
+  console.log('                                 --accept-all Skip interaction, auto-confirm all candidates');
+  console.log('                                 (Pipe/non-TTY scenarios require --accept-all)');
+  console.log('  cortex reflect --list          View recent 20 confirmed suggest-loop records');
   console.log('  cortex delete                  Delete entry interactively');
   console.log('  cortex delete --id <id>        Delete specific entry');
   console.log('  cortex edit                    Edit entry interactively');
   console.log('  cortex edit --id <id>          Edit specific entry');
   console.log('  cortex sync --from claude-code|openclaw|chatgpt-export|file [--accept-all] [--dry-run]');
-  console.log('                                 从 Claude Code workspace ��描候选��写入 user model');
+  console.log('                                 Scan Claude Code workspace for candidates and write to user model');
   console.log('  cortex sync --from file --path <file-or-directory> [--accept-all] [--dry-run]');
-  console.log('                                 从文��或目��提取���容并写入 user model');
-  console.log('                                 支持���式：.md, .txt, .json, .pdf, .docx');
-  console.log('                                 从 Claude Code workspace 扫描候选并写入 user model');
+  console.log('                                 Extract content from file/directory and write to user model');
+  console.log('                                 Supported formats: .md, .txt, .json, .pdf, .docx');
+  console.log('                                 Scan Claude Code workspace for candidates and write to user model');
   console.log('');
-  console.log(`存储位置：${getUserModelPath()}`);
+  console.log(`Storage location: ${getUserModelPath()}`);
 }
 
-// CT-0014/CT-0020：最小 observation 查看入口。
-// 收敛重构：只保留 trigger hints, health signals, recap, records 四层。
-// 移除 candidates 层以消除重复语义。
+// CT-0014/CT-0020: minimal observation viewer entry.
+// Convergent refactor: keep only trigger hints, health signals, recap, records (4 layers).
+// Removed candidates layer to eliminate duplicate semantics.
 export function cmdObserve(args: string[] = []): void {
   if (args.length > 0) {
-    console.error(`错误：observe 不支持参数 ${args[0]}`);
+    console.error(`Error: observe does not support argument ${args[0]}`);
     process.exit(1);
   }
   const log = loadObservationLog();
   const all = log.observations;
   if (all.length === 0) {
-    console.log('（暂无使用记录）');
+    console.log('(No usage records yet)');
     return;
   }
 
-  // CT-0017/CT-0020: trigger hints (最顶层，已收敛重复的 candidate 逻辑)
+  // CT-0017/CT-0020: trigger hints (top layer, candidate logic already converged)
   const hintsText = renderTriggerHints(buildTriggerHints(all));
   if (hintsText) {
     console.log(hintsText);
@@ -159,28 +158,28 @@ export function cmdObserve(args: string[] = []): void {
     console.log('');
   }
 
-  // CT-0015: 摘要层（recap）
+  // CT-0015: recap layer
   const recap = buildRecap(all);
   console.log(renderRecap(recap));
   console.log('');
 
   const SHOW = 20;
   const recent = all.slice(-SHOW).reverse();
-  console.log('[最近使用记录]');
+  console.log('[Recent Usage Records]');
   console.log('');
   for (const obs of recent) {
     console.log('  ' + renderObservation(obs));
   }
   if (all.length > SHOW) {
     console.log('');
-    console.log(`  （共 ${all.length} 条，显示最近 ${SHOW} 条）`);
+    console.log(`  (Total ${all.length} records, showing recent ${SHOW})`);
   }
 }
 
 function cmdSave(text: string): void {
   const trimmed = text.trim();
   if (trimmed === '') {
-    console.error('错误：save 需要一段文本。示例：cortex save "避免单点依赖"');
+    console.error('Error: save requires text. Example: cortex save "avoid single point of failure"');
     process.exit(1);
   }
 
@@ -202,7 +201,7 @@ function cmdSave(text: string): void {
     }
   });
 
-  console.log('已保存到 user model（goals）：');
+  console.log('Saved to user model (goals):');
   console.log(`  - ${goal.label}`);
 }
 
@@ -596,7 +595,7 @@ function moveEntryBetweenKinds(
   model[toKind].push(entry as any);
 }
 
-// CT-0013：支持 --scope / --task-hint，与 inject 共享同一 selection 结果。
+// CT-0013: support --scope / --task-hint, share same selection result with inject.
 export function cmdContext(args: string[] = []): void {
   const model = loadUserModel();
 
@@ -607,18 +606,18 @@ export function cmdContext(args: string[] = []): void {
     const arg = args[i];
     if (arg === '--scope') {
       if (i + 1 >= args.length || args[i + 1].startsWith('--')) {
-        console.error('错误：--scope 缺少参数值。示例：--scope Cortex');
+        console.error('Error: --scope missing argument value. Example: --scope Cortex');
         process.exit(1);
       }
       scope = args[++i];
     } else if (arg === '--task-hint') {
       if (i + 1 >= args.length || args[i + 1].startsWith('--')) {
-        console.error('错误：--task-hint 缺少参数值。示例：--task-hint "planning injection"');
+        console.error('Error: --task-hint missing argument value. Example: --task-hint "planning injection"');
         process.exit(1);
       }
       taskHint = args[++i];
     } else {
-      console.error(`错误：context 不支持参数 ${arg}`);
+      console.error(`Error: context does not support argument ${arg}`);
       process.exit(1);
     }
   }
@@ -626,7 +625,7 @@ export function cmdContext(args: string[] = []): void {
   const ctx = selectRuntimeContext(model, { scope, taskHint });
   console.log(renderContextForHuman(ctx));
 
-  // CT-0014：记录使用事件（fail-soft：写入失败不影响主功能）
+  // CT-0014: record usage event (fail-soft: write failure does not affect main function)
   appendObservation({
     event_type: 'context',
     scope,
@@ -652,27 +651,27 @@ export async function injectAllTargets(opts: {
       const msg = err instanceof Error ? err.message : String(err);
       console.error(`✗ ${target}: ${msg}`);
       results.push({ target, ok: false, error: msg });
-      // continue-on-error: 不中断，继续下一个 target
+      // continue-on-error: do not interrupt, continue to next target
     }
   }
 
-  // 汇总
-  console.log('\n=== 汇总 ===');
+  // Summary
+  console.log('\n=== Summary ===');
   const okCount = results.filter(r => r.ok).length;
   const failCount = results.length - okCount;
-  console.log(`✓ ${okCount} 个 target 成功`);
+  console.log(`\u2713 ${okCount} target(s) succeeded`);
   if (failCount > 0) {
-    console.log(`✗ ${failCount} 个 target 失败`);
+    console.log(`\u2717 ${failCount} target(s) failed`);
     for (const r of results.filter(r => !r.ok)) {
       console.log(`   - ${r.target}: ${r.error}`);
     }
-    process.exit(1);   // 整体退出码非 0，提示有失败
+    process.exit(1);   // Overall non-zero exit code, signaling failures
   }
 }
 
 type InjectFormat = 'text' | 'json';
 
-// CT-0011：支持 --scope 和 --task-hint，三条输出路径共享同一 selection 结果。
+// CT-0011: support --scope and --task-hint, three output paths share same selection result.
 export async function cmdInject(args: string[]): Promise<void> {
   const model = loadUserModel();
 
@@ -690,7 +689,7 @@ export async function cmdInject(args: string[]): Promise<void> {
     const arg = args[i];
     if (arg === '--target') {
       if (i + 1 >= args.length || args[i + 1].startsWith('--')) {
-        console.error('错误：--target 缺少参数值。示例：--target openclaw');
+        console.error('Error: --target missing argument value. Example: --target openclaw');
         process.exit(1);
       }
       target = args[i + 1];
@@ -699,7 +698,7 @@ export async function cmdInject(args: string[]): Promise<void> {
       allTargets = true;
     } else if (arg === '--workspace') {
       if (i + 1 >= args.length || args[i + 1].startsWith('--')) {
-        console.error('错误：--workspace 缺少参数值。');
+        console.error('Error: --workspace missing argument value.');
         process.exit(1);
       }
       workspace = args[i + 1];
@@ -708,33 +707,33 @@ export async function cmdInject(args: string[]): Promise<void> {
       dryRun = true;
     } else if (arg === '--agent') {
       if (i + 1 >= args.length || args[i + 1].startsWith('--')) {
-        console.error('错误：--agent 缺少参数值。示例：--agent claude-code');
+        console.error('Error: --agent missing argument value. Example: --agent claude-code');
         process.exit(1);
       }
       agentId = args[i + 1];
       i++;
     } else if (arg === '--format') {
       if (i + 1 >= args.length || args[i + 1].startsWith('--')) {
-        console.error('错误：--format 缺少参数值。可选值：text | json');
+        console.error('Error: --format missing argument value. Valid values: text | json');
         process.exit(1);
       }
       const value = args[i + 1];
       if (value !== 'text' && value !== 'json') {
-        console.error(`错误：--format 取值非法（${value}）。可选值：text | json`);
+        console.error(`Error: --format invalid value（${value})。Valid values: text | json`);
         process.exit(1);
       }
       format = value;
       i++;
     } else if (arg === '--scope') {
       if (i + 1 >= args.length || args[i + 1].startsWith('--')) {
-        console.error('错误：--scope 缺少参数值。示例：--scope Cortex');
+        console.error('`Error: --scope missing argument value. Example: --scope Cortex');
         process.exit(1);
       }
       scope = args[i + 1];
       i++;
     } else if (arg === '--task-hint') {
       if (i + 1 >= args.length || args[i + 1].startsWith('--')) {
-        console.error('错误：--task-hint 缺少参数值。示例：--task-hint "planning injection"');
+        console.error('`Error: --task-hint missing argument value. Example: --task-hint "planning injection"');
         process.exit(1);
       }
       taskHint = args[i + 1];
@@ -742,14 +741,14 @@ export async function cmdInject(args: string[]): Promise<void> {
     } else if (arg === '--with-observation') {
       withObservation = true;
     } else {
-      console.error(`错误：未知的参数 ${arg}`);
+      console.error(`Error: unknown argument ${arg}`);
       process.exit(1);
     }
   }
 
   if (allTargets) {
     if (target) {
-      console.error('错误：--all-targets 与 --target 不能同时使用');
+      console.error('Error: --all-targets and --target cannot be used together');
       process.exit(1);
     }
     await injectAllTargets({ workspacePath: workspace, dryRun });
@@ -761,14 +760,14 @@ export async function cmdInject(args: string[]): Promise<void> {
     return;
   }
 
-  // CT-0019: 如果开启，则读取 observation 日志用于构建 recap (对 json format 无效，保留此逻辑避免副作用)
+  // CT-0019: if enabled, read observation log to build recap (no effect on json format, kept to avoid side effects)
   let recap;
   if (withObservation && format === 'text') {
     const log = loadObservationLog();
     recap = buildRecap(log.observations);
   }
 
-  // CT-0014：在成功路径执行前先做一次 selection 以获取 meta（纯内存，无 IO）
+  // CT-0014: run selection once before successful path to obtain meta (in-memory only, no IO)
   const injectCtx = selectRuntimeContext(model, { agent: agentId, scope, taskHint });
 
   if (format === 'json') {
@@ -786,7 +785,7 @@ export async function cmdInject(args: string[]): Promise<void> {
     return;
   }
 
-  // text 路径：claude-code 走 structured pack → projector；其他 agent 保持 CT-0008 行为。
+  // text path: claude-code goes through structured pack -> projector; other agents keep CT-0008 behavior.
   if (agentId === 'claude-code') {
     const pack = buildInjectionPack(model, { agent: agentId, scope, taskHint });
     const projection = projectPackForClaudeCode(pack, { recap });
@@ -821,17 +820,17 @@ export async function cmdInject(args: string[]): Promise<void> {
 
 function printCandidates(items: CandidateItem[]): void {
   console.log('');
-  console.log('检测到以下候选：');
+  console.log('Detected the following candidates:');
   console.log('');
   items.forEach((item, i) => {
-    const tag = item.type ? `[${item.type}]` : '[未分类]';
+    const tag = item.type ? `[${item.type}]` : '[uncategorized]';
     const basename = path.basename(item.source_path);
     console.log(`${i + 1}. ${tag} ${item.text} (${basename})`);
   });
   console.log('');
 }
 
-// 解析用户输入：支持 "all" / "none"（或空）/ "1,2,3"
+// Parse user input: supports "all" / "none" (or empty) / "1,2,3"
 function parseSelection(input: string, total: number): number[] {
   const trimmed = input.trim().toLowerCase();
   if (trimmed === '' || trimmed === 'none') return [];
@@ -842,7 +841,7 @@ function parseSelection(input: string, total: number): number[] {
     if (!part) continue;
     const n = Number.parseInt(part, 10);
     if (Number.isNaN(n) || n < 1 || n > total) {
-      throw new Error(`无效编号：${part}（应为 1 到 ${total} 之间）`);
+      throw new Error(`Invalid number: ${part} (should be between 1 and ${total})`);
     }
     picked.add(n - 1);
   }
@@ -856,7 +855,7 @@ async function promptSelection(total: number): Promise<number[]> {
   });
   try {
     const answer = await rl.question(
-      '选择要加入的项（编号如 "1,2"，或 "all" / "none"）：'
+      'Select items to add (numbers like "1,2", or "all" / "none"): '
     );
     return parseSelection(answer, total);
   } finally {
@@ -864,18 +863,18 @@ async function promptSelection(total: number): Promise<number[]> {
   }
 }
 
-// 写入结果摘要
+// Write result summary
 interface WriteResult {
   written: CandidateItem[];
   skipped: CandidateItem[];
 }
 
-// 把候选按 type 分派进 user model 的对应数组。
-// - 缺 type → 默认 goals
-// - 每条 source 单独根据 source_path 生成（file-level provenance）
-// - 对既有 model + 本次 batch 做精确归一化去重，重复跳过
+// Dispatch candidates by type into the corresponding arrays of user model.
+// - Missing type -> defaults to goals
+// - Each source generated independently from source_path (file-level provenance)
+// - Exact normalized dedupe against existing model + this batch; duplicates skipped
 //
-// CT-0005：改用共享写入层 writeItemsToUserModel
+// CT-0005: switched to shared write layer writeItemsToUserModel
 function writeCandidates(
   items: CandidateItem[],
   mode: 'basic' | 'llm'
@@ -884,7 +883,7 @@ function writeCandidates(
   const skipped: CandidateItem[] = [];
   if (items.length === 0) return { written, skipped };
 
-  // 转换为 WriteableItem[]
+  // Convert to WriteableItem[]
   const writeables: WriteableItem[] = items.map((item) => {
     const rawType = item.type ?? 'goal';
     const validCategories = new Set<string>(['goal', 'constraint', 'preference']);
@@ -898,7 +897,7 @@ function writeCandidates(
 
   const result = writeItemsToUserModel(writeables);
 
-  // 根据共享层返回的索引，重建 written / skipped 列表
+  // Reconstruct written / skipped lists from indices returned by shared layer
   for (const w of result.writtenItems) {
     const idx = writeables.indexOf(w);
     if (idx !== -1) written.push(items[idx]);
@@ -916,20 +915,20 @@ async function cmdImport(args: string[]): Promise<void> {
   let adapterId: string | undefined = undefined;
   const targets: string[] = [];
 
-  // 1. 扫描 args
+  // 1. Scan args
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
     if (arg === '--llm') {
       useLlmFlag = true;
     } else if (arg === '--adapter') {
       if (i + 1 >= args.length || args[i + 1].startsWith('--')) {
-        console.error('错误：--adapter 缺少参数值。示例：--adapter claude-code');
+        console.error('Error: --adapter missing argument value. Example: --adapter claude-code');
         process.exit(1);
       }
       adapterId = args[i + 1];
-      i++; // 跳过下一个参数
+      i++; // Skip next argument
     } else if (arg.startsWith('--')) {
-      console.error(`错误：未知的参数 ${arg}`);
+      console.error(`Error: unknown argument ${arg}`);
       process.exit(1);
     } else {
       targets.push(arg);
@@ -937,18 +936,18 @@ async function cmdImport(args: string[]): Promise<void> {
   }
 
   if (targets.length === 0) {
-    console.error('错误：import 需要一个路径。示例：cortex import ./notes.md');
+    console.error('Error: import requires a path. Example: cortex import ./notes.md');
     process.exit(1);
   }
   
   if (targets.length > 1) {
-    console.error(`错误：import 只允许一个路径，但收到了多个：${targets.join(', ')}`);
+    console.error(`Error: import only allows one path, but received multiple: ${targets.join(', ')}`);
     process.exit(1);
   }
 
   const target = targets[0];
 
-  // CT-0006/CT-0007：构造 SourceDescriptor，通过 registry 选择 adapter
+  // CT-0006/CT-0007: build SourceDescriptor, select adapter via registry
   let descriptor;
   try {
     descriptor = createDescriptorFromPath(target);
@@ -957,9 +956,9 @@ async function cmdImport(args: string[]): Promise<void> {
     }
   } catch (err: unknown) {
     if (err instanceof Error) {
-      console.error(`错误：${err.message}`);
+      console.error(`Error: ${err.message}`);
     } else {
-      console.error('错误：无法识别该路径');
+      console.error('Error: cannot identify the path');
     }
     process.exit(1);
   }
@@ -969,39 +968,39 @@ async function cmdImport(args: string[]): Promise<void> {
     adapter = getAdapterForSource(descriptor);
   } catch (err: unknown) {
     if (err instanceof Error) {
-      console.error(`错误：${err.message}`);
+      console.error(`Error: ${err.message}`);
     } else {
-      console.error('错误：无 adapter 能处理该来源');
+      console.error('Error: no adapter can handle this source');
     }
     process.exit(1);
   }
 
   const blocks = await adapter.load(descriptor);
-  console.log(`已读取 ${blocks.length} 个文本块（来自 ${target}）`);
+  console.log(`Read ${blocks.length} text block(s) (from ${target})`);
 
-  // LLM 模式仅在 flag + key 同时存在时启用，否则退回 basic
+  // LLM mode is enabled only when --llm flag and key are both present, otherwise fall back to basic
   const llmAvailable = useLlmFlag && Boolean(process.env.OPENAI_API_KEY);
   let candidates: CandidateItem[];
   let mode: 'basic' | 'llm';
 
   if (useLlmFlag && !process.env.OPENAI_API_KEY) {
-    console.log('未启用 LLM，使用基础模式（缺少 OPENAI_API_KEY）');
+    console.log('LLM not enabled, using basic mode (missing OPENAI_API_KEY)');
   }
 
   if (llmAvailable) {
-    console.log('使用 LLM 提取候选…');
+    console.log('Extracting candidates with LLM...');
     candidates = await llmExtract(blocks);
     mode = 'llm';
   } else {
     if (!useLlmFlag) {
-      console.log('未启用 LLM，使用基础模式');
+      console.log('LLM not enabled, using basic mode');
     }
     candidates = basicExtract(blocks);
     mode = 'basic';
   }
 
   if (candidates.length === 0) {
-    console.log('未提取到任何候选，已退出。');
+    console.log('No candidates extracted, exiting.');
     return;
   }
 
@@ -1009,7 +1008,7 @@ async function cmdImport(args: string[]): Promise<void> {
   const indices = await promptSelection(candidates.length);
 
   if (indices.length === 0) {
-    console.log('未选择任何候选，已退出。');
+    console.log('No candidates selected, exiting.');
     return;
   }
 
@@ -1018,18 +1017,18 @@ async function cmdImport(args: string[]): Promise<void> {
 
   console.log('');
   if (written.length > 0) {
-    console.log(`已写入 ${written.length} 条到 user model：`);
+    console.log(`Wrote ${written.length} item(s) to user model:`);
     for (const item of written) {
       const tag = item.type ?? 'goal';
       const basename = path.basename(item.source_path);
       console.log(`  - [${tag}] ${item.text} (${basename})`);
     }
-    console.log(`\nℹ️  运行 cortex inject --all-targets 同步到所有 agent`);
+    console.log(`\n\u2139\ufe0f  Run cortex inject --all-targets to sync to all agents`);
   } else {
-    console.log('未写入任何条目。');
+    console.log('No items written.');
   }
   if (skipped.length > 0) {
-    console.log(`已跳过 ${skipped.length} 条重复项`);
+    console.log(`Skipped ${skipped.length} duplicate item(s)`);
   }
 }
 
@@ -1037,7 +1036,7 @@ async function cmdImport(args: string[]): Promise<void> {
 
 function printSuggestions(items: SuggestionItem[]): void {
   console.log('');
-  console.log('检测到以下建议：');
+  console.log('Detected the following suggestions:');
   console.log('');
   items.forEach((item, i) => {
     console.log(`${i + 1}. [${item.type}] ${item.text}`);
@@ -1050,17 +1049,17 @@ interface SuggestWriteResult {
   skipped: SuggestionItem[];
 }
 
-// 把选中的 suggestion 分派进 user model 的对应数组。
-// - 每条 source 直接使用 SuggestionItem.source（cli:suggest:basic / llm）
-// - 对既有 model + 本次 batch 做精确归一化去重（与 CT-0003 写入语义一致）
+// Dispatch selected suggestions into corresponding arrays of user model.
+// - Each source uses SuggestionItem.source directly (cli:suggest:basic / llm)
+// - Exact normalized dedupe against existing model + this batch (consistent with CT-0003 write semantics)
 //
-// CT-0005：改用共享写入层 writeItemsToUserModel
+// CT-0005: switched to shared write layer writeItemsToUserModel
 function writeSuggestions(items: SuggestionItem[]): SuggestWriteResult {
   const written: SuggestionItem[] = [];
   const skipped: SuggestionItem[] = [];
   if (items.length === 0) return { written, skipped };
 
-  // 转换为 WriteableItem[]
+  // Convert to WriteableItem[]
   const writeables: WriteableItem[] = items.map((item) => ({
     target: targetFromCategory(item.type),
     label: item.text,
@@ -1069,7 +1068,7 @@ function writeSuggestions(items: SuggestionItem[]): SuggestWriteResult {
 
   const result = writeItemsToUserModel(writeables);
 
-  // 根据共享层返回的索引，重建 written / skipped 列表
+  // Reconstruct written / skipped lists from indices returned by shared layer
   for (const w of result.writtenItems) {
     const idx = writeables.indexOf(w);
     if (idx !== -1) written.push(items[idx]);
@@ -1091,7 +1090,7 @@ async function cmdSuggest(args: string[]): Promise<void> {
 
   if (!text) {
     console.error(
-      '错误：suggest 需要一段文本。示例：cortex suggest "我想推进 Cortex，但要避免单点依赖"'
+      'Error: suggest requires text. Example: cortex suggest "I want to advance Cortex but avoid single point of failure"'
     );
     process.exit(1);
   }
@@ -1099,22 +1098,22 @@ async function cmdSuggest(args: string[]): Promise<void> {
   const llmAvailable = useLlmFlag && Boolean(process.env.OPENAI_API_KEY);
 
   if (useLlmFlag && !process.env.OPENAI_API_KEY) {
-    console.log('未启用 LLM，使用基础模式（缺少 OPENAI_API_KEY）');
+    console.log('LLM not enabled, using basic mode (missing OPENAI_API_KEY)');
   }
 
   let suggestions: SuggestionItem[];
   if (llmAvailable) {
-    console.log('使用 LLM 提取建议…');
+    console.log('Extracting suggestions with LLM...');
     suggestions = await llmSuggest(text);
   } else {
     if (!useLlmFlag) {
-      console.log('未启用 LLM，使用基础模式');
+      console.log('LLM not enabled, using basic mode');
     }
     suggestions = basicSuggest(text);
   }
 
   if (suggestions.length === 0) {
-    console.log('未提取到任何建议，已退出。');
+    console.log('No suggestions extracted, exiting.');
     return;
   }
 
@@ -1122,7 +1121,7 @@ async function cmdSuggest(args: string[]): Promise<void> {
   const indices = await promptSelection(suggestions.length);
 
   if (indices.length === 0) {
-    console.log('未选择任何建议，已退出。');
+    console.log('No suggestions selected, exiting.');
     return;
   }
 
@@ -1131,16 +1130,16 @@ async function cmdSuggest(args: string[]): Promise<void> {
 
   console.log('');
   if (written.length > 0) {
-    console.log(`已写入 ${written.length} 条到 user model：`);
+    console.log(`Wrote ${written.length} item(s) to user model:`);
     for (const item of written) {
       console.log(`  - [${item.type}] ${item.text}`);
     }
-    console.log(`\nℹ️  运行 cortex inject --all-targets 同步到所有 agent`);
+    console.log(`\n\u2139\ufe0f  Run cortex inject --all-targets to sync to all agents`);
   } else {
-    console.log('未写入任何条目。');
+    console.log('No items written.');
   }
   if (skipped.length > 0) {
-    console.log(`已跳过 ${skipped.length} 条重复项`);
+    console.log(`Skipped ${skipped.length} duplicate item(s)`);
   }
 }
 
@@ -1163,36 +1162,36 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
   const _promptFn = opts.promptFn ?? promptSelection;
   const _extractFn = opts.extractFn ?? extractFromClaudeCodeWorkspace;
 
-  // 参数解析
+  // Argument parsing
   const fromIdx = args.indexOf('--from');
   const acceptAll = args.includes('--accept-all');
   const dryRun = args.includes('--dry-run');
 
-  // --accept-all 与 --dry-run 互斥
+  // --accept-all and --dry-run are mutually exclusive
   if (acceptAll && dryRun) {
-    console.error('错误：--accept-all 与 --dry-run 互斥');
+    console.error('Error: --accept-all and --dry-run are mutually exclusive');
     process.exit(1);
   }
 
-  // --from 必需
+  // --from is required
   if (fromIdx === -1 || !args[fromIdx + 1]) {
-    console.error('用法：cortex sync --from <adapter-id> [--accept-all] [--dry-run]');
-    console.error('当前支持的 adapter：claude-code, openclaw, chatgpt-export, file');
+    console.error('Usage: cortex sync --from <adapter-id> [--accept-all] [--dry-run]');
+    console.error('Currently supported adapters: claude-code, openclaw, chatgpt-export, file');
     process.exit(1);
   }
 
   const adapterId = args[fromIdx + 1];
   if (adapterId !== 'claude-code' && adapterId !== 'openclaw' && adapterId !== 'chatgpt-export' && adapterId !== 'file') {
-    console.error(`adapter 不支持：${adapterId}`);
-    console.error('当前支持的 adapter：claude-code, openclaw, chatgpt-export, file');
+    console.error(`Adapter not supported: ${adapterId}`);
+    console.error('Currently supported adapters: claude-code, openclaw, chatgpt-export, file');
     process.exit(1);
   }
 
-  // 检查未知参数
+  // Check unknown arguments
   const knownArgs = new Set(['--from', adapterId, '--accept-all', '--dry-run', '--workspace', '--since', '--min-length', '--max-conversations', '--path']);
   const unknown = args.filter(a => a.startsWith('-') && !knownArgs.has(a));
   if (unknown.length > 0) {
-    console.error(`未知参数：${unknown.join(', ')}`);
+    console.error(`Unknown argument(s): ${unknown.join(', ')}`);
     process.exit(1);
   }
 
@@ -1215,9 +1214,9 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
     }
   }
 
-  // 扫描
-  console.log('Cortex 正在从你的 workspace 理解你（不是记录你）...');
-  console.log(`扫描路径：${displayWorkspace}`);
+  // Scan
+  console.log('Cortex is understanding you (not recording you) from your workspace...');
+  console.log(`Scan path: ${displayWorkspace}`);
 
 
   // Parse chatgpt-export specific arguments
@@ -1248,8 +1247,8 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
     }
 
     if (!chatgptWorkspace) {
-      console.error('错误���chatgpt-export adapter 需要 --workspace 参���');
-      console.error('用��：cortex sync --from chatgpt-export --workspace <path> [--since YYYY-MM] [--min-length N] [--max-conversations N]');
+      console.error('Error: chatgpt-export adapter requires --workspace argument');
+      console.error('Usage: cortex sync --from chatgpt-export --workspace <path> [--since YYYY-MM] [--min-length N] [--max-conversations N]');
       process.exit(1);
     }
   }
@@ -1264,8 +1263,8 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
     }
 
     if (!filePath) {
-      console.error('��误：file adapter 需要 --path 参数');
-      console.error('用���：cortex sync --from file --path <file-or-directory> [--accept-all] [--dry-run]');
+      console.error('Error: file adapter requires --path argument');
+      console.error('Usage: cortex sync --from file --path <file-or-directory> [--accept-all] [--dry-run]');
       process.exit(1);
     }
   }
@@ -1281,7 +1280,7 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
     displayWorkspace = chatgptWorkspace || 'ChatGPT Export';
   }
 
-  // CT-0027-04: 加载 config 和��建 backends
+  // CT-0027-04: load config and create backends
   const config = loadConfig();
   const llmBackend = config.llm.enabled ? createLLMBackend(config.llm) : undefined;
   const embeddingBackend = config.embedding.enabled ? createEmbeddingBackend(config.embedding) : undefined;
@@ -1292,12 +1291,12 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
     if (!health.ok) {
       console.error('⚠️  Cortex requires an LLM backend to work.');
       console.error('   Run "cortex setup" to configure your LLM provider.');
-      console.error(`   错误：${health.error}`);
+      console.error(`   Error: ${health.error}`);
       process.exit(1);
     }
   }
 
-  // CT-0027-04: 启动���自动迁移 user_model（如���要）
+  // CT-0027-04: auto-migrate user_model on startup (if needed)
   if (embeddingBackend) {
     const currentModel = loadUserModel();
     if (needsMigration(currentModel)) {
@@ -1309,7 +1308,7 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
     }
   }
 
-  // CT-0027-04: 获取 ContentBlock[] ��不是��接获�� ExtractionCandidate[]
+  // CT-0027-04: get ContentBlock[] instead of directly getting ExtractionCandidate[]
   let contentBlocks: ContentBlock[];
   if (adapterId === 'chatgpt-export') {
     contentBlocks = await extractContentBlocksFromChatGPT({
@@ -1323,21 +1322,21 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
     const { extractFromFile } = await import('./adapters/file/index.js');
     contentBlocks = await extractFromFile({ path: filePath! });
   } else {
-    // 其他 adapter 暂时使用��逻辑���返回 ExtractionCandidate[]）
-    // 未来��以逐步��移到 ContentBlock[]
+    // Other adapters temporarily use old logic (returning ExtractionCandidate[])
+    // Future: gradually migrate to ContentBlock[]
     const oldCandidates = adapterId === 'openclaw'
       ? await extractFromOpenClawWorkspace(targetWorkspace)
       : await _extractFn(targetWorkspace);
 
     if (oldCandidates.length === 0) {
-      console.log('未从 workspace 中提取��候选事��。');
-      console.log('请确认 workspace ��存在 CLAUDE.md / README.md / package.json / .claude/ ��录。');
+      console.log('No candidates extracted from workspace.');
+      console.log('Please confirm workspace contains CLAUDE.md / README.md / package.json / .claude/ directories.');
       return;
     }
 
-    console.log(`\n扫��到 ${oldCandidates.length} 个候选��实。`);
+    console.log(`\nScanned ${oldCandidates.length} candidate fact(s).`);
 
-    // 旧逻��：直接��用 ExtractionCandidate[]
+    // Old logic: directly use ExtractionCandidate[]
     const SUPPORTED_KINDS = new Set<string>(['goal', 'constraint', 'preference']);
     const supportedCandidates = oldCandidates.filter(c => SUPPORTED_KINDS.has(c.kind));
     const unsupportedCandidates = oldCandidates.filter(c => !SUPPORTED_KINDS.has(c.kind));
@@ -1345,52 +1344,52 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
     if (unsupportedCandidates.length > 0) {
       const unsupportedKinds = [...new Set(unsupportedCandidates.map(c => c.kind))];
       const kindList = unsupportedKinds.map(k => `'${k}'`).join(' / ');
-      console.warn(`⚠ ${unsupportedCandidates.length} 条��选因 kind ${kindList} ��不受写入��支持���跳过：`);
+      console.warn(`\u26a0 ${unsupportedCandidates.length} candidate(s) skipped due to kind ${kindList} not supported by write layer:`);
       for (const c of unsupportedCandidates) {
         const snippet = c.content.length > 60 ? c.content.slice(0, 60) + '...' : c.content;
         console.warn(`  - ${c.kind}: ${snippet}  (from: ${c.provenance.path})`);
       }
-      console.warn(`（未��卡片��扩展写入��支持���有 kind）`);
+      console.warn(`(Future tasks will extend write layer to support all kinds)`);
     }
 
     if (supportedCandidates.length === 0) {
-      console.log('过滤���无可写入��候选。');
+      console.log('No writeable candidates after filtering.');
       return;
     }
 
-    // 展���候选
+    // Display candidates
     printExtractionCandidates(supportedCandidates);
     console.log('');
 
-    // dry-run：只展示��写入
+    // dry-run: only display, do not write
     if (dryRun) {
-      console.log('[dry-run] 以上候选��写入。使�� --accept-all 或交��模式��入。');
+      console.log('[dry-run] Above candidates not written. Use --accept-all or interactive mode to write.');
       return;
     }
 
-    // 确��要写���的候��
+    // Determine which candidates to write
     let selectedIndices: number[];
 
     if (acceptAll) {
       selectedIndices = supportedCandidates.map((_, i) => i);
     } else {
-      // ���互确认
+      // Interactive confirmation
       if (!process.stdin.isTTY) {
-        console.error('错��：交���模式需�� TTY。使�� --accept-all 跳过交��，或��过 --stdin 管道��入。');
+        console.error('Error: interactive mode requires TTY. Use --accept-all to skip interaction, or pipe input via --stdin.');
         process.exit(1);
       }
-      console.log('选择���写入 user model 的���选（输入��号，���号分��，或 "a" 全选）��');
+      console.log('Select candidates to write to user model (input numbers, comma-separated, or "a" for all):');
       selectedIndices = await _promptFn(supportedCandidates.length);
     }
 
     if (selectedIndices.length === 0) {
-      console.log('未选择任��候选���退出。');
+      console.log('No candidates selected, exiting.');
       return;
     }
 
     const selectedCandidates = selectedIndices.map(i => supportedCandidates[i]);
 
-    // 构建 WriteableItem[]
+    // Build WriteableItem[]
     const writeables: WriteableItem[] = selectedCandidates.map(c => ({
       target: targetFromCategory(c.kind as WriteCategory),
       label: c.content,
@@ -1402,12 +1401,12 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
       threshold: config.embedding.similarityThreshold,
     });
 
-    // 成功输出
+    // Success output
     const writtenCount = result.writtenItems.length;
     const skippedCount = result.skippedItems.length;
     const supersededCount = result.superseded;
 
-    console.log(`\n�� 写入 ${writtenCount} 条事���到你�� user model`);
+    console.log(`\n\u2713 Wrote ${writtenCount} fact(s) to your user model`);
 
     if (writtenCount > 0) {
       const byKind: Record<string, number> = {};
@@ -1422,30 +1421,30 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
     }
 
     if (supersededCount > 0) {
-      console.log(`  (${supersededCount} 条替换旧��好（���标记 superseded���)`);
+      console.log(`  (${supersededCount} replaced older preference(s) (marked superseded))`);
     }
 
     if (skippedCount > 0) {
-      console.log(`  (${skippedCount} 条��重复��跳过)`);
+      console.log(`  (${skippedCount} skipped due to duplicates)`);
     }
 
     console.log(`\nYour user model is now ${writtenCount} facts richer.`);
-    console.log('运�� `cortex context` 查看��整 user model。');
-    console.log('���行 `cortex inject --format text` 获取可贴��其他 AI 的 context。');
+    console.log('Run `cortex context` to view full user model.');
+    console.log('Run `cortex inject --format text` to get context paste-ready for other AIs.');
 
     if (!dryRun && writtenCount > 0) {
-      console.log(`\nℹ���  运行 cortex inject --all-targets 同步到��有 agent`);
+      console.log(`\n\u2139\ufe0f  Run cortex inject --all-targets to sync to all agents`);
     }
     return;
   }
 
-  // CT-0027-04: ��逻辑 - 使用 pipeline
+  // CT-0027-04: new logic - using pipeline
   if (contentBlocks.length === 0) {
-    console.log('���从 workspace 中提���到内容块。');
+    console.log('No content blocks extracted from workspace.');
     return;
   }
 
-  // 运�� pipeline
+  // Run pipeline
   const allCandidates = await runExtractionPipeline(contentBlocks, {
     llmBackend,
     embeddingBackend,
@@ -1453,14 +1452,14 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
   });
 
   if (allCandidates.length === 0) {
-    console.log('未从 workspace 中提取到候选事实。');
-    console.log('请确认 workspace 中存在 CLAUDE.md / README.md / package.json / .claude/ 目录。');
+    console.log('No candidates extracted from workspace.');
+    console.log('Please confirm workspace contains CLAUDE.md / README.md / package.json / .claude/ directories.');
     return;
   }
 
-  console.log(`\n扫描到 ${allCandidates.length} 个候选事实。`);
+  console.log(`\nScanned ${allCandidates.length} candidate fact(s).`);
 
-  // kind 过滤：写入层只支持 goal | constraint | preference
+  // kind filter: write layer only supports goal | constraint | preference
   const SUPPORTED_KINDS = new Set<string>(['goal', 'constraint', 'preference']);
   const supportedCandidates = allCandidates.filter(c => SUPPORTED_KINDS.has(c.kind));
   const unsupportedCandidates = allCandidates.filter(c => !SUPPORTED_KINDS.has(c.kind));
@@ -1468,52 +1467,52 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
   if (unsupportedCandidates.length > 0) {
     const unsupportedKinds = [...new Set(unsupportedCandidates.map(c => c.kind))];
     const kindList = unsupportedKinds.map(k => `'${k}'`).join(' / ');
-    console.warn(`⚠ ${unsupportedCandidates.length} 条候选因 kind ${kindList} 暂不受写入层支持已跳过：`);
+    console.warn(`\u26a0 ${unsupportedCandidates.length} candidate(s) skipped due to kind ${kindList} not supported by write layer:`);
     for (const c of unsupportedCandidates) {
       const snippet = c.content.length > 60 ? c.content.slice(0, 60) + '...' : c.content;
       console.warn(`  - ${c.kind}: ${snippet}  (from: ${c.provenance.path})`);
     }
-    console.warn(`（未来卡片将扩展写入层支持所有 kind）`);
+    console.warn(`(Future tasks will extend write layer to support all kinds)`);
   }
 
   if (supportedCandidates.length === 0) {
-    console.log('过滤后无可写入的候选。');
+    console.log('No writeable candidates after filtering.');
     return;
   }
 
-  // 展示候选
+  // Display candidates
   printExtractionCandidates(supportedCandidates);
   console.log('');
 
-  // dry-run：只展示不写入
+  // dry-run: only display, do not write
   if (dryRun) {
-    console.log('[dry-run] 以上候选未写入。使用 --accept-all 或交互模式写入。');
+    console.log('[dry-run] Above candidates not written. Use --accept-all or interactive mode to write.');
     return;
   }
 
-  // 确定要写入的候选
+  // Determine which candidates to write
   let selectedIndices: number[];
 
   if (acceptAll) {
     selectedIndices = supportedCandidates.map((_, i) => i);
   } else {
-    // 交互确认
+    // Interactive confirmation
     if (!process.stdin.isTTY) {
-      console.error('错误：交互模式需要 TTY。使用 --accept-all 跳过交互，或通过 --stdin 管道输入。');
+      console.error('Error: interactive mode requires TTY. Use --accept-all to skip interaction, or pipe input via --stdin.');
       process.exit(1);
     }
-    console.log('选择要写入 user model 的候选（输入编号，逗号分隔，或 "a" 全选）：');
+    console.log('Select candidates to write to user model (input numbers, comma-separated, or "a" for all):');
     selectedIndices = await _promptFn(supportedCandidates.length);
   }
 
   if (selectedIndices.length === 0) {
-    console.log('未选择任何候选，退出。');
+    console.log('No candidates selected, exiting.');
     return;
   }
 
   const selectedCandidates = selectedIndices.map(i => supportedCandidates[i]);
 
-  // 构建 WriteableItem[]
+  // Build WriteableItem[]
   const writeables: WriteableItem[] = selectedCandidates.map(c => ({
     target: targetFromCategory(c.kind as WriteCategory),
     label: c.content,
@@ -1525,11 +1524,11 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
     threshold: config.embedding.similarityThreshold,
   });
 
-  // 成功输出
+  // Success output
   const writtenCount = result.writtenItems.length;
   const skippedCount = result.skippedItems.length;
 
-  console.log(`\n✓ 写入 ${writtenCount} 条事实到你的 user model`);
+  console.log(`\n\u2713 Wrote ${writtenCount} fact(s) to your user model`);
 
   if (writtenCount > 0) {
     const byKind: Record<string, number> = {};
@@ -1544,15 +1543,15 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
   }
 
   if (skippedCount > 0) {
-    console.log(`  (${skippedCount} 条因重复已跳过)`);
+    console.log(`  (${skippedCount} skipped due to duplicates)`);
   }
 
   console.log(`\nYour user model is now ${writtenCount} facts richer.`);
-  console.log('运行 `cortex context` 查看完整 user model。');
-  console.log('运行 `cortex inject --format text` 获取可贴给其他 AI 的 context。');
+  console.log('Run `cortex context` to view full user model.');
+  console.log('Run `cortex inject --format text` to get context paste-ready for other AIs.');
 
   if (!dryRun && writtenCount > 0) {
-    console.log(`\nℹ️  运行 cortex inject --all-targets 同步到所有 agent`);
+    console.log(`\n\u2139\ufe0f  Run cortex inject --all-targets to sync to all agents`);
   }
 }
 
@@ -1593,13 +1592,13 @@ export async function cmdReflect(args: string[], opts: ReflectOptions = {}): Pro
       listMode = true;
     } else if (arg === '--description') {
       if (i + 1 >= args.length || args[i + 1].startsWith('--')) {
-        console.error('错误：--description 缺���参数值');
+        console.error('Error: --description missing argument value');
         process.exit(1);
       }
       description = args[i + 1];
       i++; // Skip next arg
     } else if (arg.startsWith('--')) {
-      console.error(`错��：reflect 不支持��数 ${arg}`);
+      console.error(`Error: reflect does not support argument ${arg}`);
       process.exit(1);
     } else {
       positional.push(arg);
@@ -1608,27 +1607,27 @@ export async function cmdReflect(args: string[], opts: ReflectOptions = {}): Pro
 
   // --list mode is no longer supported with the deprecation of suggest-loop-store.json
   if (listMode) {
-    console.error('错误：--list 已废弃。reflect 现在直接写入主 user model，请使用 cortex context 查看。');
+    console.error('Error: --list is deprecated. reflect now writes directly to main user model; please use cortex context to view.');
     process.exit(1);
   }
 
   // --accept-all is only meaningful with --stdin; combining with positional args is ambiguous.
   if (acceptAll && positional.length > 0) {
-    console.error('错误：--accept-all 不可与位置参数组合使用，请改用 --stdin --accept-all');
+    console.error('Error: --accept-all cannot be combined with positional arguments; use --stdin --accept-all instead');
     process.exit(1);
   }
 
   // Mutual exclusion: --stdin and positional args.
   if (useStdin && positional.length > 0) {
-    console.error('错误：--stdin 与位置参数互斥');
+    console.error('Error: --stdin and positional arguments are mutually exclusive');
     process.exit(1);
   }
 
   // Preflight: non-TTY stdin without --accept-all would silently fail at interactive selection.
   if (useStdin && !acceptAll && process.stdin.isTTY !== true) {
     console.error(
-      '错误：检测到非交互输入（stdin 非 TTY），无法进入交互选择。\n' +
-      '请添加 --accept-all 自动确认全部候选，或改用位置参数：cortex reflect "文本"',
+      'Error: detected non-interactive input (stdin is not TTY), cannot enter interactive selection.\n' +
+      'Please add --accept-all to auto-confirm all candidates, or use positional arguments: cortex reflect "text"',
     );
     process.exit(1);
   }
@@ -1638,13 +1637,13 @@ export async function cmdReflect(args: string[], opts: ReflectOptions = {}): Pro
     const lines = await _readStdinFn();
     inputs = lines.map((l) => l.trim()).filter((l) => l !== '');
     if (inputs.length === 0) {
-      console.error('错误：stdin 为空，无候选输入');
+      console.error('Error: stdin is empty, no candidate input');
       process.exit(1);
     }
   } else {
     const text = positional.join(' ').trim();
     if (!text) {
-      console.error('错误：reflect 需要一段文本。示例：cortex reflect "..."');
+      console.error('Error: reflect requires text. Example: cortex reflect "..."');
       process.exit(1);
     }
     inputs = [text];
@@ -1657,16 +1656,16 @@ export async function cmdReflect(args: string[], opts: ReflectOptions = {}): Pro
 
   // CT-0032-01: LLM health check
   if (!llmBackend) {
-    console.error('⚠���  Cortex requires an LLM backend to work.');
+    console.error('\u26a0\ufe0f  Cortex requires an LLM backend to work.');
     console.error('   Run "cortex setup" to configure your LLM provider.');
     process.exit(1);
   }
 
   const health = await llmBackend.healthCheck();
   if (!health.ok) {
-    console.error('���️  Cortex requires an LLM backend to work.');
+    console.error('\u26a0\ufe0f  Cortex requires an LLM backend to work.');
     console.error('   Run "cortex setup" to configure your LLM provider.');
-    console.error(`   错误���${health.error}`);
+    console.error(`   Error: ${health.error}`);
     process.exit(1);
   }
 
@@ -1690,12 +1689,12 @@ export async function cmdReflect(args: string[], opts: ReflectOptions = {}): Pro
   const suggestions = candidates.filter(c => SUPPORTED_KINDS.has(c.kind));
 
   if (suggestions.length === 0) {
-    console.log('未发现任何候选，已退出。');
+    console.log('No candidates found, exiting.');
     return;
   }
 
   console.log('');
-  console.log('检测到以下候选：');
+  console.log('Detected the following candidates:');
   console.log('');
   suggestions.forEach((item, i) => {
     console.log(`${i + 1}. [${item.kind}] ${item.content}`);
@@ -1707,7 +1706,7 @@ export async function cmdReflect(args: string[], opts: ReflectOptions = {}): Pro
     : await _promptFn(suggestions.length);
 
   if (confirmedIndices.length === 0) {
-    console.log('未选择任何候选，已退出。');
+    console.log('No candidates selected, exiting.');
     return;
   }
 
@@ -1728,7 +1727,7 @@ export async function cmdReflect(args: string[], opts: ReflectOptions = {}): Pro
   const writtenCount = result.writtenItems.length;
   const skippedCount = result.skippedItems.length;
 
-  console.log(`\n✓ 写入 ${writtenCount} 条事实到你的 user model`);
+  console.log(`\n\u2713 Wrote ${writtenCount} fact(s) to your user model`);
 
   if (writtenCount > 0) {
     const byKind: Record<string, number> = {};
@@ -1743,15 +1742,15 @@ export async function cmdReflect(args: string[], opts: ReflectOptions = {}): Pro
   }
 
   if (skippedCount > 0) {
-    console.log(`  (${skippedCount} 条因重复已跳过)`);
+    console.log(`  (${skippedCount} skipped due to duplicates)`);
   }
 
   console.log(`\nYour user model is now ${writtenCount} facts richer.`);
-  console.log('运行 `cortex context` 查看完整 user model。');
-  console.log('运行 `cortex inject --format text` 获取可贴给其他 AI 的 context。');
+  console.log('Run `cortex context` to view full user model.');
+  console.log('Run `cortex inject --format text` to get context paste-ready for other AIs.');
 
   if (writtenCount > 0) {
-    console.log(`\nℹ️  运行 cortex inject --all-targets 同步到所有 agent`);
+    console.log(`\n\u2139\ufe0f  Run cortex inject --all-targets to sync to all agents`);
   }
 }
 
@@ -1803,21 +1802,21 @@ async function main(): Promise<void> {
       usage();
       break;
     default:
-      console.error(`未知命令：${cmd}`);
+      console.error(`Unknown command: ${cmd}`);
       usage();
       process.exit(1);
   }
 }
 
-// 只在直接作为入口运行时启动 main()；作为模块被 import 时跳过，
-// 避免测试加载时意外执行 CLI 逻辑。
+// Only start main() when run directly as entry; skip when imported as module
+// to avoid CLI logic being triggered accidentally during test loading.
 if (process.argv[1] != null &&
     path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))) {
   main().catch((err: unknown) => {
     if (err instanceof Error) {
-      console.error(`错误：${err.message}`);
+      console.error(`Error: ${err.message}`);
     } else {
-      console.error('错误：未知异常', err);
+      console.error('Error: unknown exception', err);
     }
     process.exit(1);
   });

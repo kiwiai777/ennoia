@@ -29,7 +29,7 @@ test('CLI: cortex inject --all-targets --target mutex', async () => {
   );
 
   assert.equal(status, 1);
-  assert.match(stderr, /错误：--all-targets 与 --target 不能同时使用/);
+  assert.match(stderr, /Error: --all-targets and --target cannot be used together/);
 });
 
 test('CLI: cortex inject --all-targets --dry-run', async () => {
@@ -68,8 +68,8 @@ test('CLI: cortex inject --all-targets --dry-run', async () => {
   assert.match(stdout, /--- openclaw ---/);
   assert.match(stdout, /Cortex → OpenClaw \[dry-run\]/);
   assert.match(stdout, /--- 注入内容预览 ---/);
-  assert.match(stdout, /=== 汇总 ===/);
-  assert.match(stdout, /✓ 1 个 target 成功/);
+  assert.match(stdout, /=== Summary ===/);
+  assert.match(stdout, /✓ 1 target\(s\) succeeded/);
 });
 
 test('CLI: cortex inject --all-targets', async () => {
@@ -108,8 +108,8 @@ test('CLI: cortex inject --all-targets', async () => {
   assert.match(stdout, /--- openclaw ---/);
   assert.match(stdout, /✓ 写入完成。/);
   assert.match(stdout, /systemctl --user restart openclaw-gateway/);
-  assert.match(stdout, /=== 汇总 ===/);
-  assert.match(stdout, /✓ 1 个 target 成功/);
+  assert.match(stdout, /=== Summary ===/);
+  assert.match(stdout, /✓ 1 target\(s\) succeeded/);
   
   const content = await fs.readFile(file, 'utf8');
   assert.ok(content.includes('Existing user content.'));

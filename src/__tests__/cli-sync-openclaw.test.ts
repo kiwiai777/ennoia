@@ -33,7 +33,7 @@ test('CLI Sync - OpenClaw Adapter', async (t) => {
       });
 
       assert.strictEqual(result.status, 0, `Process exited with ${result.status}. Stderr: ${result.stderr}`);
-      assert.ok(result.stdout.includes('扫描到 2 个候选事实'));
+      assert.ok(result.stdout.includes('Scanned 2 candidate'));
       assert.ok(result.stdout.includes('Rust'));
       assert.ok(result.stdout.includes('JavaScript'));
     });

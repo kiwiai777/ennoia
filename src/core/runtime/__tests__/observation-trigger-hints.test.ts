@@ -349,7 +349,7 @@ describe('CT-0017: cmdObserve — trigger hints 集成', () => {
       assert.equal(r.status, 0);
       assert.ok(r.stdout.includes('[触发提示]'), `缺 trigger hints: stdout=${r.stdout}`);
       assert.ok(r.stdout.includes('[使用摘要]'), `缺 recap: stdout=${r.stdout}`);
-      assert.ok(r.stdout.includes('[最近使用记录]'), `缺 records: stdout=${r.stdout}`);
+      assert.ok(r.stdout.includes('[Recent Usage Records]'), `缺 records: stdout=${r.stdout}`);
     });
   });
 

@@ -86,7 +86,7 @@ describe('CT-0019: Observation Recap Injection', () => {
     await withTmpHome(async () => {
       const r = await runCmd(async () => cmdInject(['--with-observation', '--unknown']));
       assert.equal(r.status, 1);
-      assert.ok(r.stderr.includes('未知的参数 --unknown'));
+      assert.ok(r.stderr.includes('unknown argument --unknown'));
     });
   });
 

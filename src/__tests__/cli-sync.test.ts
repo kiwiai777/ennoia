@@ -213,14 +213,14 @@ describe('CLI: cortex sync', () => {
     it('--from unsupported-adapter → exit 1，提示不支持', async () => {
       const r = await runSync(['--from', 'openai-copilot']);
       assert.equal(r.status, 1, `stderr=${r.stderr}`);
-      assert.ok(r.stderr.includes('不支持'), `stderr=${r.stderr}`);
+      assert.ok(r.stderr.includes('not supported'), `stderr=${r.stderr}`);
       assert.ok(r.stderr.includes('openai-copilot'), `stderr=${r.stderr}`);
     });
 
     it('--accept-all + --dry-run 互斥 → exit 1', async () => {
       const r = await runSync(['--from', 'claude-code', '--accept-all', '--dry-run']);
       assert.equal(r.status, 1, `stderr=${r.stderr}`);
-      assert.ok(r.stderr.includes('互斥'), `stderr=${r.stderr}`);
+      assert.ok(r.stderr.includes('mutually exclusive'), `stderr=${r.stderr}`);
     });
 
     it('未知参数 → exit 1', async () => {
@@ -240,14 +240,14 @@ describe('CLI: cortex sync', () => {
     it('候选为空时友好提示，exit 0，不 crash', async () => {
       const r = await runSync(['--from', 'claude-code', '--accept-all'], []);
       assert.equal(r.status, 0, `stderr=${r.stderr}`);
-      assert.ok(r.stdout.includes("workspace") && (r.stdout.includes("候选") || r.stdout.includes("提取")), `stdout=${r.stdout}`);
+      assert.ok(r.stdout.includes("workspace") && (r.stdout.includes("candidate") || r.stdout.includes("No candidates")), `stdout=${r.stdout}`);
     });
 
     it('--dry-run：展示候选，输出 [dry-run]', async () => {
       const r = await runSync(['--from', 'claude-code', '--dry-run'], SUPPORTED_CANDIDATES);
       assert.equal(r.status, 0, `stderr=${r.stderr}`);
       assert.ok(r.stdout.includes('[dry-run]'), `stdout=${r.stdout}`);
-      assert.ok(!r.stdout.includes('ℹ️  运行 cortex inject --all-targets 同步到所有 agent'), 'dry-run should not remind to inject');
+      assert.ok(!r.stdout.includes('Run cortex inject --all-targets to sync to all agents'), 'dry-run should not remind to inject');
     });
 
     it('--dry-run：all unsupported → 过滤后无可写入，不 crash', async () => {
@@ -315,18 +315,18 @@ describe('CLI: cortex sync', () => {
         createMixedWorkspace(workspace);
         const r = spawnSyncInWorkspace(['--from', 'claude-code', '--accept-all'], workspace, tmpHome);
         assert.equal(r.status, 0, `stderr=${r.stderr}\nstdout=${r.stdout}`);
-        assert.ok(r.stdout.includes("写入"), `stdout=${r.stdout}`);
+        assert.ok(r.stdout.includes("Wrote"), `stdout=${r.stdout}`);
       } finally {
         fs.rmSync(tmpHome, { recursive: true, force: true });
         fs.rmSync(workspace, { recursive: true, force: true });
       }
     });
 
-    it('交互选择：选择 none → stdout 包含 未选择任何候选', async () => {
+    it('交互选择：选择 none → stdout 包含 No candidates selected', async () => {
       const r = await runSync(['--from', 'claude-code'], SUPPORTED_CANDIDATES, []);
       assert.equal(r.status, 0, `stderr=${r.stderr}`);
-      assert.ok(r.stdout.includes('选择') && r.stdout.includes('候选'), `stdout=${r.stdout}`);
-      assert.ok(!r.stdout.includes('ℹ️  运行 cortex inject --all-targets 同步到所有 agent'), '0 writes should not remind to inject');
+      assert.ok(r.stdout.includes('No candidates selected'), `stdout=${r.stdout}`);
+      assert.ok(!r.stdout.includes('Run cortex inject --all-targets to sync to all agents'), '0 writes should not remind to inject');
     });
 
     it('--accept-all：stdout 包含 ✓ 写入 和 inject 提示', () => {
@@ -376,7 +376,7 @@ describe('CLI: cortex sync', () => {
         const r = spawnSyncInWorkspace(['--from', 'claude-code', '--accept-all'], workspace, tmpHome);
         assert.equal(r.status, 0, `stderr=${r.stderr}\nstdout=${r.stdout}`);
         // Warning must appear
-        assert.ok(r.stderr.includes("kind") && r.stderr.includes("跳过"), `expected kind warning, stderr=${r.stderr}`);
+        assert.ok(r.stderr.includes("kind") && r.stderr.includes("skipped"), `expected kind warning, stderr=${r.stderr}`);
         // Only supported kinds written (no skill/project in model)
         const counts = readModelCounts(r.modelPath);
         assert.ok(counts.total > 0, `expected supported candidates written, total=${counts.total}`);
@@ -394,7 +394,7 @@ describe('CLI: cortex sync', () => {
         spawnSyncInWorkspace(['--from', 'claude-code', '--accept-all'], workspace, tmpHome);
         const r2 = spawnSyncInWorkspace(['--from', 'claude-code', '--accept-all'], workspace, tmpHome);
         assert.equal(r2.status, 0, `stderr=${r2.stderr}`);
-        assert.ok(r2.stdout.includes('重复') && r2.stdout.includes('跳过'), `expected dedupe message, stdout=${r2.stdout}`);
+        assert.ok(r2.stdout.includes('duplicate') && r2.stdout.includes('skipped'), `expected dedupe message, stdout=${r2.stdout}`);
         // Total entries must not have grown
         const countsAfter = readModelCounts(r2.modelPath);
         // re-run first to get the baseline

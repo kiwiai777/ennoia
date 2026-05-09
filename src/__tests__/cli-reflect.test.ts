@@ -112,9 +112,9 @@ describe('CLI: cortex reflect', () => {
     const r = await runReflect(['我喜欢简洁代码'], [0]);
 
     assert.equal(r.status, 0, `stderr=${r.stderr}`);
-    assert.ok(r.stdout.includes('检测到以下候选'), `stdout=${r.stdout}`);
-    assert.ok(r.stdout.includes('✓ 写入 1 条事实'), `stdout=${r.stdout}`);
-    assert.ok(r.stdout.includes('ℹ️  运行 cortex inject --all-targets 同步到所有 agent'), `stdout=${r.stdout}`);
+    assert.ok(r.stdout.includes('Detected the following candidates'), `stdout=${r.stdout}`);
+    assert.ok(r.stdout.includes('Wrote 1 fact(s)'), `stdout=${r.stdout}`);
+    assert.ok(r.stdout.includes('Run cortex inject --all-targets to sync to all agents'), `stdout=${r.stdout}`);
 
     // Verify persistence
     const model = loadUserModel();
@@ -126,7 +126,7 @@ describe('CLI: cortex reflect', () => {
     const r = await runReflect(['我喜欢简洁代码'], []);
 
     assert.equal(r.status, 0);
-    assert.ok(r.stdout.includes('未选择'), `stdout=${r.stdout}`);
+    assert.ok(r.stdout.includes('No candidates selected'), `stdout=${r.stdout}`);
 
     const model = loadUserModel();
     assert.equal(model.preferences.length, 0);
@@ -147,7 +147,7 @@ describe('CLI: cortex reflect', () => {
     const r = await runReflect(['这是一段普通文本，没有关键词'], []);
 
     assert.equal(r.status, 0);
-    assert.ok(r.stdout.includes('未发现任何候选'), `stdout=${r.stdout}`);
+    assert.ok(r.stdout.includes('No candidates found'), `stdout=${r.stdout}`);
   });
 
   // ── --stdin 路径 ────────────────────────────────────────────────────────────
@@ -157,7 +157,7 @@ describe('CLI: cortex reflect', () => {
     const r = await runReflect(['--stdin'], [0, 1], lines);
 
     assert.equal(r.status, 0, `stderr=${r.stderr}`);
-    assert.ok(r.stdout.includes('检测到以下候选'), `stdout=${r.stdout}`);
+    assert.ok(r.stdout.includes('Detected the following candidates'), `stdout=${r.stdout}`);
 
     const model = loadUserModel();
     assert.ok(model.preferences.length + model.goals.length >= 1);
@@ -167,14 +167,14 @@ describe('CLI: cortex reflect', () => {
     const r = await runReflect(['--stdin'], [], []);
 
     assert.equal(r.status, 1);
-    assert.ok(r.stderr.includes('stdin 为空'), `stderr=${r.stderr}`);
+    assert.ok(r.stderr.includes('stdin is empty'), `stderr=${r.stderr}`);
   });
 
   it('--stdin 空行过滤：只有空行 → fail-fast exit 1', async () => {
     const r = await runReflect(['--stdin'], [], ['', '  ', '']);
 
     assert.equal(r.status, 1);
-    assert.ok(r.stderr.includes('stdin 为空'), `stderr=${r.stderr}`);
+    assert.ok(r.stderr.includes('stdin is empty'), `stderr=${r.stderr}`);
   });
 
   // ── fail-fast 路径 ──────────────────────────────────────────────────────────
@@ -183,7 +183,7 @@ describe('CLI: cortex reflect', () => {
     const r = await runReflect([]);
 
     assert.equal(r.status, 1);
-    assert.ok(r.stderr.includes('reflect 需要一段文本'), `stderr=${r.stderr}`);
+    assert.ok(r.stderr.includes('reflect requires text'), `stderr=${r.stderr}`);
   });
 
   it('未知参数 → fail-fast exit 1', async () => {
@@ -197,7 +197,7 @@ describe('CLI: cortex reflect', () => {
     const r = await runReflect(['--stdin', '我喜欢简洁代码'], [], ['我喜欢深色模式']);
 
     assert.equal(r.status, 1);
-    assert.ok(r.stderr.includes('互斥'), `stderr=${r.stderr}`);
+    assert.ok(r.stderr.includes('mutually exclusive'), `stderr=${r.stderr}`);
   });
 
   // ── --list 路径 ─────────────────────────────────────────────────────────────
@@ -206,7 +206,7 @@ describe('CLI: cortex reflect', () => {
     const r = await runReflect(['--list']);
 
     assert.equal(r.status, 1);
-    assert.ok(r.stderr.includes('--list 已废弃'), `stderr=${r.stderr}`);
+    assert.ok(r.stderr.includes('--list is deprecated'), `stderr=${r.stderr}`);
   });
 
   // ── --accept-all 路径 ───────────────────────────────────────────────────────
@@ -216,7 +216,7 @@ describe('CLI: cortex reflect', () => {
     const r = await runReflect(['--stdin', '--accept-all'], [], lines);
 
     assert.equal(r.status, 0, `stderr=${r.stderr}`);
-    assert.ok(r.stdout.includes('✓ 写入 2 条事实'), `stdout=${r.stdout}`);
+    assert.ok(r.stdout.includes('Wrote 2 fact(s)'), `stdout=${r.stdout}`);
 
     const model = loadUserModel();
     assert.ok(model.preferences.length + model.goals.length >= 1);
@@ -256,7 +256,7 @@ describe('CLI: cortex reflect', () => {
 
     assert.equal(status, 1, 'expected exit 1');
     assert.ok(stderr.includes('--accept-all'), `expected --accept-all guidance in stderr, got: ${stderr}`);
-    assert.ok(stderr.includes('非交互'), `expected non-interactive mention in stderr, got: ${stderr}`);
+    assert.ok(stderr.includes('non-interactive'), `expected non-interactive mention in stderr, got: ${stderr}`);
 
     const model = loadUserModel();
     assert.equal(model.preferences.length + model.goals.length, 0, 'user model must remain empty after preflight fail');
@@ -279,7 +279,7 @@ describe('CLI: cortex reflect', () => {
     const stderr = proc.stderr;
 
     assert.equal(status, 0, `expected exit 0, stderr=${stderr}`);
-    assert.ok(stdout.includes('✓ 写入 2 条事实'), `stdout=${stdout}`);
+    assert.ok(stdout.includes('Wrote 2 fact(s)'), `stdout=${stdout}`);
 
     const modelPath = path.join(tmpHome, '.cortex', 'user_model.json');
     const raw = fs.readFileSync(modelPath, 'utf8');
@@ -317,7 +317,7 @@ describe('CLI: cortex reflect', () => {
     const r = await runReflect([input], [0]);
 
     assert.equal(r.status, 0, `stderr=${r.stderr}`);
-    assert.ok(r.stdout.includes('✓ 写入 1 条事实'), `stdout=${r.stdout}`);
+    assert.ok(r.stdout.includes('Wrote 1 fact(s)'), `stdout=${r.stdout}`);
 
     const model = loadUserModel();
     assert.equal(model.preferences.length + model.goals.length, 1);

@@ -295,7 +295,7 @@ describe('CT-0014: cmdObserve', () => {
     await withTmpHome(async () => {
       const r = await runCmd(async () => cmdObserve());
       assert.equal(r.status, 0, `stderr=${r.stderr}`);
-      assert.ok(r.stdout.includes('暂无使用记录'), `stdout=${r.stdout}`);
+      assert.ok(r.stdout.includes('(No usage records yet)'), `stdout=${r.stdout}`);
     });
   });
 
@@ -305,7 +305,7 @@ describe('CT-0014: cmdObserve', () => {
       await runCmd(async () => cmdContext([]));
       const r = await runCmd(async () => cmdObserve());
       assert.equal(r.status, 0, `stderr=${r.stderr}`);
-      assert.ok(r.stdout.includes('[最近使用记录]'), `stdout=${r.stdout}`);
+      assert.ok(r.stdout.includes('[Recent Usage Records]'), `stdout=${r.stdout}`);
       assert.ok(r.stdout.includes('inject') || r.stdout.includes('context'), `stdout=${r.stdout}`);
     });
   });

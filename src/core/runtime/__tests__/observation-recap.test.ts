@@ -214,7 +214,7 @@ describe('CT-0015: cmdObserve 输出 recap + 记录列表', () => {
     withTmpHome(() => {
       const r = runCmd(() => cmdObserve());
       assert.equal(r.status, 0);
-      assert.ok(r.stdout.includes('暂无使用记录'));
+      assert.ok(r.stdout.includes('(No usage records yet)'));
       assert.ok(!r.stdout.includes('[使用摘要]'), '空日志不应有摘要');
     });
   });
@@ -226,7 +226,7 @@ describe('CT-0015: cmdObserve 输出 recap + 记录列表', () => {
       const r = runCmd(() => cmdObserve());
       assert.equal(r.status, 0, `stderr=${r.stderr}`);
       assert.ok(r.stdout.includes('[使用摘要]'), `缺少 recap: stdout=${r.stdout}`);
-      assert.ok(r.stdout.includes('[最近使用记录]'), `缺少记录列表: stdout=${r.stdout}`);
+      assert.ok(r.stdout.includes('[Recent Usage Records]'), `缺少记录列表: stdout=${r.stdout}`);
     });
   });
 
@@ -235,7 +235,7 @@ describe('CT-0015: cmdObserve 输出 recap + 记录列表', () => {
       runCmd(() => cmdInject([]));
       const r = runCmd(() => cmdObserve());
       const recapIdx = r.stdout.indexOf('[使用摘要]');
-      const listIdx = r.stdout.indexOf('[最近使用记录]');
+      const listIdx = r.stdout.indexOf('[Recent Usage Records]');
       assert.ok(recapIdx < listIdx, 'recap 应在记录列表之前');
     });
   });
