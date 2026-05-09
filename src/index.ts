@@ -37,6 +37,7 @@ import {
   targetFromCategory,
   type WriteableItem,
   type WriteCategory,
+  type WriteTarget,
 } from './core/user-model/write-items.js';
 
 import { getAdapterForSource } from './adapters/registry.js';
@@ -117,6 +118,8 @@ function usage(): void {
   console.log('  cortex reflect --list          查看最近 20 条已确认的 suggest-loop 记录');
   console.log('  cortex delete                  Delete entry interactively');
   console.log('  cortex delete --id <id>        Delete specific entry');
+  console.log('  cortex edit                    Edit entry interactively');
+  console.log('  cortex edit --id <id>          Edit specific entry');
   console.log('  cortex sync --from claude-code|openclaw|chatgpt-export|file [--accept-all] [--dry-run]');
   console.log('                                 从 Claude Code workspace ��描候选��写入 user model');
   console.log('  cortex sync --from file --path <file-or-directory> [--accept-all] [--dry-run]');
@@ -314,7 +317,7 @@ async function deleteById(model: UserModel, id: string): Promise<void> {
   console.log('✓ Entry deleted');
 }
 
-function findEntryById(model: UserModel, id: string): { kind: string; entry: BaseItem } | null {
+function findEntryById(model: UserModel, id: string): { kind: WriteTarget; entry: BaseItem } | null {
   for (const kind of ['goals', 'preferences', 'constraints'] as const) {
     const entry = model[kind].find(e => e.id === id);
     if (entry) {
@@ -333,6 +336,264 @@ function deleteEntry(model: UserModel, id: string): void {
       return;
     }
   }
+}
+
+// CT-0034-03: Edit command
+interface EditChanges {
+  kind?: WriteTarget;
+  label?: string;
+  description?: string;
+}
+
+async function cmdEdit(args: string[]): Promise<void> {
+  const config = loadConfig();
+  const model = loadUserModel();
+
+  const idIdx = args.indexOf('--id');
+  const targetId = idIdx !== -1 && args[idIdx + 1] ? args[idIdx + 1] : null;
+
+  if (targetId) {
+    await editById(model, targetId, config);
+  } else {
+    await editInteractive(model, config);
+  }
+}
+
+async function editInteractive(model: UserModel, config: any): Promise<void> {
+  const allEntries: Array<{ kind: WriteTarget; entry: BaseItem }> = [];
+
+  for (const kind of ['goals', 'preferences', 'constraints'] as const) {
+    for (const entry of model[kind]) {
+      if (entry.status !== 'deleted') {
+        allEntries.push({ kind, entry });
+      }
+    }
+  }
+
+  if (allEntries.length === 0) {
+    console.log('No entries found in user model.');
+    return;
+  }
+
+  allEntries.sort((a, b) =>
+    new Date(b.entry.created_at).getTime() - new Date(a.entry.created_at).getTime()
+  );
+
+  const recent = allEntries.slice(0, 20);
+
+  console.log('Recent entries:');
+  console.log('');
+  recent.forEach((item, idx) => {
+    const date = new Date(item.entry.created_at).toLocaleDateString();
+    console.log(`[${idx + 1}] ${item.kind}: ${item.entry.label}`);
+    console.log(`    (source: ${item.entry.source || 'unknown'}, created: ${date})`);
+  });
+  console.log('');
+
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  const answer = await rl.question('Enter number to edit (or q to quit): ');
+
+  if (answer.trim() === 'q') {
+    rl.close();
+    return;
+  }
+
+  const num = parseInt(answer, 10);
+  if (isNaN(num) || num < 1 || num > recent.length) {
+    console.error('Invalid selection');
+    rl.close();
+    return;
+  }
+
+  const selected = recent[num - 1];
+  await promptEditChanges(rl, model, selected.entry.id, config);
+  rl.close();
+}
+
+async function editById(model: UserModel, id: string, config: any): Promise<void> {
+  const found = findEntryById(model, id);
+
+  if (!found) {
+    console.error(`Entry not found: ${id}`);
+    process.exit(1);
+  }
+
+  if (found.entry.status === 'deleted') {
+    console.log('Cannot edit deleted entry');
+    return;
+  }
+
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  await promptEditChanges(rl, model, id, config);
+  rl.close();
+}
+
+async function promptEditChanges(
+  rl: readline.Interface,
+  model: UserModel,
+  id: string,
+  config: any
+): Promise<void> {
+  const found = findEntryById(model, id);
+  if (!found) return;
+
+  const { kind, entry } = found;
+
+  console.log('');
+  console.log('Current entry:');
+  console.log(`  Kind: ${kind}`);
+  console.log(`  Label: ${entry.label}`);
+  console.log(`  Description: ${entry.description || '(none)'}`);
+  console.log('');
+  console.log('What would you like to edit?');
+  console.log('  [1] Change kind');
+  console.log('  [2] Edit label');
+  console.log('  [3] Edit description');
+  console.log('  [4] Cancel');
+  console.log('');
+
+  const choice = await rl.question('Enter choice: ');
+
+  if (choice.trim() === '4' || choice.trim() === '') {
+    console.log('Cancelled');
+    return;
+  }
+
+  const changes: EditChanges = {};
+
+  if (choice.trim() === '1') {
+    console.log('');
+    console.log(`Current kind: ${kind}`);
+    console.log('Available kinds: goal, preference, constraint');
+    console.log('');
+    const newKindInput = await rl.question('Enter new kind (or q to cancel): ');
+    if (newKindInput.trim() === 'q') {
+      console.log('Cancelled');
+      return;
+    }
+    const newKind = newKindInput.trim();
+    if (newKind !== 'goal' && newKind !== 'preference' && newKind !== 'constraint') {
+      console.error('Invalid kind. Must be: goal, preference, or constraint');
+      return;
+    }
+    const targetKind = (newKind + 's') as WriteTarget;
+    if (targetKind !== kind) {
+      changes.kind = targetKind;
+    }
+  } else if (choice.trim() === '2') {
+    console.log('');
+    console.log(`Current label: ${entry.label}`);
+    console.log('');
+    const newLabel = await rl.question('Enter new label (or q to cancel): ');
+    if (newLabel.trim() === 'q') {
+      console.log('Cancelled');
+      return;
+    }
+    if (newLabel.trim() && newLabel.trim() !== entry.label) {
+      changes.label = newLabel.trim();
+    }
+  } else if (choice.trim() === '3') {
+    console.log('');
+    console.log(`Current description: ${entry.description || '(none)'}`);
+    console.log('');
+    const newDesc = await rl.question('Enter new description (or q to cancel): ');
+    if (newDesc.trim() === 'q') {
+      console.log('Cancelled');
+      return;
+    }
+    changes.description = newDesc.trim() || undefined;
+  } else {
+    console.error('Invalid choice');
+    return;
+  }
+
+  if (Object.keys(changes).length === 0) {
+    console.log('No changes made');
+    return;
+  }
+
+  console.log('');
+  console.log('Confirm changes?');
+  if (changes.kind) {
+    const oldKindSingular = kind.slice(0, -1);
+    const newKindSingular = changes.kind.slice(0, -1);
+    console.log(`  Kind: ${oldKindSingular} → ${newKindSingular}`);
+  }
+  if (changes.label) {
+    console.log(`  Label: ${entry.label} → ${changes.label}`);
+  }
+  if (changes.description !== undefined) {
+    const oldDesc = entry.description || '(none)';
+    const newDesc = changes.description || '(none)';
+    console.log(`  Description: ${oldDesc} → ${newDesc}`);
+  }
+  console.log('');
+
+  const confirm = await rl.question('[y/n]: ');
+  if (confirm.trim() !== 'y') {
+    console.log('Cancelled');
+    return;
+  }
+
+  await editEntry(model, id, changes, config);
+  saveUserModel(model);
+  console.log('✓ Entry updated');
+}
+
+async function editEntry(
+  model: UserModel,
+  id: string,
+  changes: EditChanges,
+  config: any
+): Promise<void> {
+  const found = findEntryById(model, id);
+  if (!found) throw new Error(`Entry not found: ${id}`);
+
+  const { kind: oldKind, entry } = found;
+
+  const needsEmbedding = changes.kind || changes.label;
+
+  let newEmbedding: number[] | undefined;
+  if (needsEmbedding && config.embedding?.enabled) {
+    const embeddingBackend = createEmbeddingBackend(config.embedding);
+    const textToEmbed = changes.label || entry.label;
+    newEmbedding = await embeddingBackend.embed(textToEmbed);
+  }
+
+  if (changes.kind && changes.kind !== oldKind) {
+    moveEntryBetweenKinds(model, id, oldKind, changes.kind);
+  }
+
+  if (changes.label) entry.label = changes.label;
+  if (changes.description !== undefined) entry.description = changes.description;
+  if (newEmbedding) {
+    entry.embedding = newEmbedding;
+    entry.embedding_model = config.embedding?.model || 'unknown';
+  }
+
+  entry.updated_at = new Date().toISOString();
+}
+
+function moveEntryBetweenKinds(
+  model: UserModel,
+  id: string,
+  fromKind: WriteTarget,
+  toKind: WriteTarget
+): void {
+  const fromArray = model[fromKind];
+  const idx = fromArray.findIndex(e => e.id === id);
+  if (idx === -1) throw new Error(`Entry not found in ${fromKind}: ${id}`);
+
+  const [entry] = fromArray.splice(idx, 1);
+  model[toKind].push(entry as any);
 }
 
 // CT-0013：支持 --scope / --task-hint，与 inject 共享同一 selection 结果。
@@ -1532,6 +1793,9 @@ async function main(): Promise<void> {
       break;
     case 'delete':
       await cmdDelete(rest);
+      break;
+    case 'edit':
+      await cmdEdit(rest);
       break;
     case undefined:
     case '-h':
