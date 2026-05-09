@@ -31,7 +31,7 @@ import {
   serializeInjectionPack,
 } from './core/runtime/injection-pack.js';
 import { projectPackForClaudeCode } from './adapters/claude-code/projector.js';
-import type { Goal } from './core/user-model/types.js';
+import type { Goal, BaseItem, UserModel } from './core/user-model/types.js';
 import {
   writeItemsToUserModel,
   targetFromCategory,
@@ -115,6 +115,8 @@ function usage(): void {
   console.log('                                 --accept-all 跳过交互，全部候选自动确认');
   console.log('                                 （管道 / 非 TTY 场景必须加 --accept-all）');
   console.log('  cortex reflect --list          查看最近 20 条已确认的 suggest-loop 记录');
+  console.log('  cortex delete                  Delete entry interactively');
+  console.log('  cortex delete --id <id>        Delete specific entry');
   console.log('  cortex sync --from claude-code|openclaw|chatgpt-export|file [--accept-all] [--dry-run]');
   console.log('                                 从 Claude Code workspace ��描候选��写入 user model');
   console.log('  cortex sync --from file --path <file-or-directory> [--accept-all] [--dry-run]');
@@ -199,6 +201,138 @@ function cmdSave(text: string): void {
 
   console.log('已保存到 user model（goals）：');
   console.log(`  - ${goal.label}`);
+}
+
+// CT-0034-02: Delete command
+async function cmdDelete(args: string[]): Promise<void> {
+  const model = loadUserModel();
+
+  const idIdx = args.indexOf('--id');
+  const targetId = idIdx !== -1 && args[idIdx + 1] ? args[idIdx + 1] : null;
+
+  if (targetId) {
+    await deleteById(model, targetId);
+  } else {
+    await deleteInteractive(model);
+  }
+}
+
+async function deleteInteractive(model: UserModel): Promise<void> {
+  const allEntries: Array<{ kind: string; entry: BaseItem }> = [];
+
+  for (const kind of ['goals', 'preferences', 'constraints'] as const) {
+    for (const entry of model[kind]) {
+      if (entry.status !== 'deleted') {
+        allEntries.push({ kind, entry });
+      }
+    }
+  }
+
+  if (allEntries.length === 0) {
+    console.log('No entries found in user model.');
+    return;
+  }
+
+  allEntries.sort((a, b) =>
+    new Date(b.entry.created_at).getTime() - new Date(a.entry.created_at).getTime()
+  );
+
+  const recent = allEntries.slice(0, 20);
+
+  console.log('Recent entries:');
+  console.log('');
+  recent.forEach((item, idx) => {
+    const date = new Date(item.entry.created_at).toLocaleDateString();
+    console.log(`[${idx + 1}] ${item.kind}: ${item.entry.label}`);
+    console.log(`    (source: ${item.entry.source || 'unknown'}, created: ${date})`);
+  });
+  console.log('');
+
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  const answer = await rl.question('Enter number to delete (or q to quit): ');
+
+  if (answer.trim() === 'q') {
+    rl.close();
+    return;
+  }
+
+  const num = parseInt(answer, 10);
+  if (isNaN(num) || num < 1 || num > recent.length) {
+    console.error('Invalid selection');
+    rl.close();
+    return;
+  }
+
+  const selected = recent[num - 1];
+  const confirm = await rl.question(`Delete "${selected.entry.label}"? (y/n): `);
+  rl.close();
+
+  if (confirm.trim() !== 'y') {
+    console.log('Cancelled');
+    return;
+  }
+
+  deleteEntry(model, selected.entry.id);
+  saveUserModel(model);
+  console.log('✓ Entry deleted');
+}
+
+async function deleteById(model: UserModel, id: string): Promise<void> {
+  const found = findEntryById(model, id);
+
+  if (!found) {
+    console.error(`Entry not found: ${id}`);
+    process.exit(1);
+  }
+
+  if (found.entry.status === 'deleted') {
+    console.log('Entry already deleted');
+    return;
+  }
+
+  console.log(`${found.kind}: ${found.entry.label}`);
+
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
+
+  const confirm = await rl.question('Delete this entry? (y/n): ');
+  rl.close();
+
+  if (confirm.trim() !== 'y') {
+    console.log('Cancelled');
+    return;
+  }
+
+  deleteEntry(model, id);
+  saveUserModel(model);
+  console.log('✓ Entry deleted');
+}
+
+function findEntryById(model: UserModel, id: string): { kind: string; entry: BaseItem } | null {
+  for (const kind of ['goals', 'preferences', 'constraints'] as const) {
+    const entry = model[kind].find(e => e.id === id);
+    if (entry) {
+      return { kind, entry };
+    }
+  }
+  return null;
+}
+
+function deleteEntry(model: UserModel, id: string): void {
+  for (const kind of ['goals', 'preferences', 'constraints'] as const) {
+    const entry = model[kind].find(e => e.id === id);
+    if (entry) {
+      entry.status = 'deleted';
+      entry.updated_at = new Date().toISOString();
+      return;
+    }
+  }
 }
 
 // CT-0013：支持 --scope / --task-hint，与 inject 共享同一 selection 结果。
@@ -1395,6 +1529,9 @@ async function main(): Promise<void> {
         reset: rest.includes('--reset'),
         check: rest.includes('--check'),
       });
+      break;
+    case 'delete':
+      await cmdDelete(rest);
       break;
     case undefined:
     case '-h':

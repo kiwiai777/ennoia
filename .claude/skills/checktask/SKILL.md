@@ -1,19 +1,19 @@
 ---
 name: checktask
-description: Read and execute the latest task card from docs/task/active/
+description: Read and execute the latest task card from task_cards/
 allowed-tools: Bash, Read
 ---
 
 # Check Task
 
-Read the latest task card from `docs/task/active/` directory and execute it.
+Read the latest task card from `task_cards/` directory and execute it.
 
 ```bash
-# Find the latest .md file in docs/task/active/
-latest_file=$(ls -t docs/task/active/*.md 2>/dev/null | head -1)
+# Find the latest .md file in task_cards/
+latest_file=$(ls -t task_cards/*.md 2>/dev/null | head -1)
 
 if [ -z "$latest_file" ]; then
-  echo "No task files found in docs/task/active/"
+  echo "No task files found in task_cards/"
   exit 1
 fi
 

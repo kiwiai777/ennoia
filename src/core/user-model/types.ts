@@ -26,7 +26,7 @@ export interface BaseItem {
   // CT-0027-04: embedding 持久化 + ��删除
   embedding?: number[];
   embedding_model?: string;
-  status?: 'active' | 'superseded';
+  status?: 'active' | 'superseded' | 'deleted';
   superseded_by?: string;
   superseded_at?: ISO8601;
 }
