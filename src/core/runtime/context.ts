@@ -199,8 +199,8 @@ function buildScopedSnapshot(
   const snapshot: UserSnapshot = {
     projects: selectedProjects,
     goals: selectedGoals,
-    preferences: [...model.preferences],
-    constraints: [...model.constraints],
+    preferences: filterActive(model.preferences),
+    constraints: filterActive(model.constraints),
     skills: selectedSkills,
     states: selectedStates,
     decision_rules: [...model.decision_rules],
@@ -226,9 +226,9 @@ export function selectRuntimeContext(
   if (!hasInput) {
     const snapshot: UserSnapshot = {
       projects: [...model.projects],
-      goals: [...model.goals],
-      preferences: [...model.preferences],
-      constraints: [...model.constraints],
+      goals: filterActive(model.goals),
+      preferences: filterActive(model.preferences),
+      constraints: filterActive(model.constraints),
       skills: [...model.skills],
       states: [...model.states],
       decision_rules: [...model.decision_rules],
