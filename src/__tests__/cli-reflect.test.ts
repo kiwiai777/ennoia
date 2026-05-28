@@ -114,7 +114,7 @@ describe('CLI: cortex reflect', () => {
     assert.equal(r.status, 0, `stderr=${r.stderr}`);
     assert.ok(r.stdout.includes('Detected the following candidates'), `stdout=${r.stdout}`);
     assert.ok(r.stdout.includes('Wrote 1 fact(s)'), `stdout=${r.stdout}`);
-    assert.ok(r.stdout.includes('Run cortex inject --all-targets to sync to all agents'), `stdout=${r.stdout}`);
+    assert.ok(r.stdout.includes('Run ennoia inject --all-targets to sync to all agents'), `stdout=${r.stdout}`);
 
     // Verify persistence
     const model = loadUserModel();

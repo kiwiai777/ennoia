@@ -1,16 +1,18 @@
-# Cortex
+# Ennoia
 
 User model layer across AI systems.
 
+> **Internal codename**: This project is developed under the codename "cortex". All source code internals, project management documents, and the local directory (`~/cortex`) retain the "cortex" name. The external brand and CLI command are "ennoia".
+
 ## Status
 
-Stage 0 — Initialization
+Stage 25 — Cloud Relay Architecture Research Complete
 
 ## Goal
 
 Build a persistent user model that influences AI behavior across tools.
 
-Cortex is not a memory DB or RAG layer. It aims to maintain a structured,
+Ennoia is not a memory DB or RAG layer. It aims to maintain a structured,
 versioned representation of the user (projects, goals, preferences,
 constraints, skills, states, decision rules) and feed it back into AI
 systems to influence prompt construction, planning, and tool selection.
@@ -45,10 +47,10 @@ npm run build      # compile to dist/
 
 ## 30-second Demo
 
-Install cortex, then run in any Claude Code project:
+Install ennoia, then run in any Claude Code project:
 
 ```bash
-cortex sync --from claude-code
+ennoia sync --from claude-code
 ```
 
 You'll see candidates extracted from your workspace — README, CLAUDE.md,
@@ -57,48 +59,48 @@ You'll see candidates extracted from your workspace — README, CLAUDE.md,
 Then:
 
 ```bash
-cortex inject --format text
+ennoia inject --format text
 ```
 
 Copy the output. Paste it into ChatGPT or Claude web. Ask them anything.
 
 You'll notice: they'll act like they know you — your projects, your
 preferences, your constraints. Not because they remember you, but because
-Cortex gave them a model of who you are.
+Ennoia gave them a model of who you are.
 
 This is not memory. This is you, becoming a first-class entity across AI systems.
 
 ### CLI
 
-The `cortex` CLI is exposed via `bin/cortex`. You can invoke it directly or
-run `npm link` in this directory to put `cortex` on your PATH.
+The `ennoia` CLI is exposed via `bin/cortex`. You can invoke it directly or
+run `npm link` in this directory to put `ennoia` on your PATH.
 
 ```bash
-./bin/cortex save "我在做 Cortex 项目"
-./bin/cortex save "避免单点依赖"
-./bin/cortex context
+ennoia save "I'm working on the Ennoia project"
+ennoia save "avoid single point of failure"
+ennoia context
 ```
 
-Expected output for `cortex context`:
+Expected output for `ennoia context`:
 
 ```text
 [User Context]
 
-项目：
-  （暂无）
+Projects:
+  (none)
 
-目标：
-  - 我在做 Cortex 项目
-  - 避免单点依赖
+Goals:
+  - I'm working on the Ennoia project
+  - avoid single point of failure
 
-偏好：
-  （暂无）
+Preferences:
+  (none)
 
-约束：
-  （暂无）
+Constraints:
+  (none)
 
-决策规则：
-  （暂无）
+Decision rules:
+  (none)
 ```
 
 User model data is stored at `~/.cortex/user_model.json`. The file is
@@ -107,25 +109,24 @@ outside of `save`.
 
 ### Inject (text vs structured)
 
-`cortex inject` produces an agent-facing payload from the user model.
+`ennoia inject` produces an agent-facing payload from the user model.
 It supports two output formats:
 
 ```bash
-./bin/cortex inject                                     # default: text
-./bin/cortex inject --agent claude-code                 # text, agent-tuned
-./bin/cortex inject --format text                       # explicit text
-./bin/cortex inject --format json                       # structured pack (JSON)
-./bin/cortex inject --agent claude-code --format json   # both flags
+ennoia inject                                     # default: text
+ennoia inject --agent claude-code                 # text, agent-tuned
+ennoia inject --format text                       # explicit text
+ennoia inject --format json                       # structured pack (JSON)
+ennoia inject --agent claude-code --format json   # both flags
 ```
 
-- `--format text` (default) returns the rendered instruction string from
-  CT-0008. Stable for prompt concatenation and human inspection. Behavior
-  is unchanged from prior versions.
+- `--format text` (default) returns the rendered instruction string.
+  Stable for prompt concatenation and human inspection.
 - `--format json` returns a Structured Injection Pack v0.1 — a stable
   JSON object that adapters / scripts can consume directly without
   re-parsing the rendered text.
 
-This is **not** a runtime auto-injection mechanism. Cortex does not
+This is **not** a runtime auto-injection mechanism. Ennoia does not
 attach itself to any agent process; it only produces a payload you (or
 an adapter) decide what to do with.
 
@@ -166,7 +167,7 @@ Formal project management documents (spec, decision log, stage archives,
 reviews) live in the companion repository:
 
 ```
-~/projects/ai-project-os/2_projects/cortex/
+~/ai-project-os/2_projects/cortex/
 ```
 
 `CLAUDE.md` in this repo is local runtime context only and is not checked in.

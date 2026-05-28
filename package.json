@@ -1,11 +1,10 @@
 {
-  "name": "cortex",
-  "version": "0.0.1",
-  "private": true,
+  "name": "ennoia",
+  "version": "0.1.0",
   "description": "User model layer across AI systems.",
   "type": "module",
   "bin": {
-    "cortex": "./bin/cortex"
+    "ennoia": "./bin/cortex"
   },
   "scripts": {
     "dev": "tsx src/index.ts",

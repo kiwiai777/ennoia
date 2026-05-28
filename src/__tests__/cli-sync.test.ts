@@ -247,7 +247,7 @@ describe('CLI: cortex sync', () => {
       const r = await runSync(['--from', 'claude-code', '--dry-run'], SUPPORTED_CANDIDATES);
       assert.equal(r.status, 0, `stderr=${r.stderr}`);
       assert.ok(r.stdout.includes('[dry-run]'), `stdout=${r.stdout}`);
-      assert.ok(!r.stdout.includes('Run cortex inject --all-targets to sync to all agents'), 'dry-run should not remind to inject');
+      assert.ok(!r.stdout.includes('Run ennoia inject --all-targets to sync to all agents'), 'dry-run should not remind to inject');
     });
 
     it('--dry-run：all unsupported → 过滤后无可写入，不 crash', async () => {
@@ -326,7 +326,7 @@ describe('CLI: cortex sync', () => {
       const r = await runSync(['--from', 'claude-code'], SUPPORTED_CANDIDATES, []);
       assert.equal(r.status, 0, `stderr=${r.stderr}`);
       assert.ok(r.stdout.includes('No candidates selected'), `stdout=${r.stdout}`);
-      assert.ok(!r.stdout.includes('Run cortex inject --all-targets to sync to all agents'), '0 writes should not remind to inject');
+      assert.ok(!r.stdout.includes('Run ennoia inject --all-targets to sync to all agents'), '0 writes should not remind to inject');
     });
 
     it('--accept-all：stdout 包含 ✓ 写入 和 inject 提示', () => {

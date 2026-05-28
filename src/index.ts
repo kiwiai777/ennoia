@@ -83,20 +83,20 @@ import { generateCandidatesFromRecent } from './core/suggest-loop/generateCandid
 import { buildSuggestions } from './core/suggest-loop/buildSuggestions.js';
 
 function usage(): void {
-  console.log('Cortex CLI');
+  console.log('Ennoia CLI');
   console.log('');
   console.log('Usage：');
-  console.log('  cortex save "<text>"       Write text to user model (goals)');
-  console.log('  cortex setup [--reset] [--check]');
+  console.log('  ennoia save "<text>"       Write text to user model (goals)');
+  console.log('  ennoia setup [--reset] [--check]');
   console.log('                                 Configure LLM and Embedding backend');
   console.log('                                 Can be run repeatedly: shows current config and asks to modify');
-  console.log('  cortex context [--scope <scope>] [--task-hint "<hint>"]');
+  console.log('  ennoia context [--scope <scope>] [--task-hint "<hint>"]');
   console.log('                                 Output current user context');
   console.log('                                 Focus on specific project (name/id)');
   console.log('                                 --task-hint Filter by task hint');
-  console.log('  cortex inject --target openclaw [--workspace <path>] [--dry-run]');
-  console.log('  cortex inject --all-targets [--workspace <path>] [--dry-run]');
-  console.log('  cortex inject [--agent <id>] [--format text|json]');
+  console.log('  ennoia inject --target openclaw [--workspace <path>] [--dry-run]');
+  console.log('  ennoia inject --all-targets [--workspace <path>] [--dry-run]');
+  console.log('  ennoia inject [--agent <id>] [--format text|json]');
   console.log('                [--scope <scope>] [--task-hint "<hint>"]');
   console.log('                [--with-observation]');
   console.log('                                 Generate injection content for agent');
@@ -104,24 +104,24 @@ function usage(): void {
   console.log('                                 --scope Specify scope (project name/id)');
   console.log('                                 --task-hint Provide current task hint (text matching)');
   console.log('                                 --with-observation Include runtime usage summary');
-  console.log('  cortex import <path> [--llm]   Import from file/directory and write interactively');
-  console.log('  cortex suggest "<text>" [--llm] Generate suggestions from text and write interactively');
-  console.log('  cortex observe                 View recent context/inject usage record');
-  console.log('  cortex reflect "<text>"        Extract suggestions from recent activity and write interactively');
-  console.log('  cortex reflect "<text>" --description "detailed description"');
+  console.log('  ennoia import <path> [--llm]   Import from file/directory and write interactively');
+  console.log('  ennoia suggest "<text>" [--llm] Generate suggestions from text and write interactively');
+  console.log('  ennoia observe                 View recent context/inject usage record');
+  console.log('  ennoia reflect "<text>"        Extract suggestions from recent activity and write interactively');
+  console.log('  ennoia reflect "<text>" --description "detailed description"');
   console.log('                                 Optionally add extra context for extracted candidates');
-  console.log('  cortex reflect --stdin [--accept-all]');
+  console.log('  ennoia reflect --stdin [--accept-all]');
   console.log('                                 Read multiple inputs line by line from stdin;');
   console.log('                                 --accept-all Skip interaction, auto-confirm all candidates');
   console.log('                                 (Pipe/non-TTY scenarios require --accept-all)');
-  console.log('  cortex reflect --list          View recent 20 confirmed suggest-loop records');
-  console.log('  cortex delete                  Delete entry interactively');
-  console.log('  cortex delete --id <id>        Delete specific entry');
-  console.log('  cortex edit                    Edit entry interactively');
-  console.log('  cortex edit --id <id>          Edit specific entry');
-  console.log('  cortex sync --from claude-code|openclaw|chatgpt-export|file [--accept-all] [--dry-run]');
+  console.log('  ennoia reflect --list          View recent 20 confirmed suggest-loop records');
+  console.log('  ennoia delete                  Delete entry interactively');
+  console.log('  ennoia delete --id <id>        Delete specific entry');
+  console.log('  ennoia edit                    Edit entry interactively');
+  console.log('  ennoia edit --id <id>          Edit specific entry');
+  console.log('  ennoia sync --from claude-code|openclaw|chatgpt-export|file [--accept-all] [--dry-run]');
   console.log('                                 Scan Claude Code workspace for candidates and write to user model');
-  console.log('  cortex sync --from file --path <file-or-directory> [--accept-all] [--dry-run]');
+  console.log('  ennoia sync --from file --path <file-or-directory> [--accept-all] [--dry-run]');
   console.log('                                 Extract content from file/directory and write to user model');
   console.log('                                 Supported formats: .md, .txt, .json, .pdf, .docx');
   console.log('                                 Scan Claude Code workspace for candidates and write to user model');
@@ -179,7 +179,7 @@ export function cmdObserve(args: string[] = []): void {
 function cmdSave(text: string): void {
   const trimmed = text.trim();
   if (trimmed === '') {
-    console.error('Error: save requires text. Example: cortex save "avoid single point of failure"');
+    console.error('Error: save requires text. Example: ennoia save "avoid single point of failure"');
     process.exit(1);
   }
 
@@ -936,7 +936,7 @@ async function cmdImport(args: string[]): Promise<void> {
   }
 
   if (targets.length === 0) {
-    console.error('Error: import requires a path. Example: cortex import ./notes.md');
+    console.error('Error: import requires a path. Example: ennoia import ./notes.md');
     process.exit(1);
   }
   
@@ -1023,7 +1023,7 @@ async function cmdImport(args: string[]): Promise<void> {
       const basename = path.basename(item.source_path);
       console.log(`  - [${tag}] ${item.text} (${basename})`);
     }
-    console.log(`\n\u2139\ufe0f  Run cortex inject --all-targets to sync to all agents`);
+    console.log(`\n\u2139\ufe0f  Run ennoia inject --all-targets to sync to all agents`);
   } else {
     console.log('No items written.');
   }
@@ -1090,7 +1090,7 @@ async function cmdSuggest(args: string[]): Promise<void> {
 
   if (!text) {
     console.error(
-      'Error: suggest requires text. Example: cortex suggest "I want to advance Cortex but avoid single point of failure"'
+      'Error: suggest requires text. Example: ennoia suggest "I want to advance Cortex but avoid single point of failure"'
     );
     process.exit(1);
   }
@@ -1134,7 +1134,7 @@ async function cmdSuggest(args: string[]): Promise<void> {
     for (const item of written) {
       console.log(`  - [${item.type}] ${item.text}`);
     }
-    console.log(`\n\u2139\ufe0f  Run cortex inject --all-targets to sync to all agents`);
+    console.log(`\n\u2139\ufe0f  Run ennoia inject --all-targets to sync to all agents`);
   } else {
     console.log('No items written.');
   }
@@ -1175,7 +1175,7 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
 
   // --from is required
   if (fromIdx === -1 || !args[fromIdx + 1]) {
-    console.error('Usage: cortex sync --from <adapter-id> [--accept-all] [--dry-run]');
+    console.error('Usage: ennoia sync --from <adapter-id> [--accept-all] [--dry-run]');
     console.error('Currently supported adapters: claude-code, openclaw, chatgpt-export, file');
     process.exit(1);
   }
@@ -1198,7 +1198,7 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
   const workspaceRoot = process.cwd();
 
   let targetWorkspace = workspaceRoot;
-  const posArg = args.find(a => !a.startsWith('-') && a !== 'sync' && a !== 'cortex' && a !== adapterId && args[args.indexOf(a) - 1] !== '--from');
+  const posArg = args.find(a => !a.startsWith('-') && a !== 'sync' && a !== 'ennoia' && a !== adapterId && args[args.indexOf(a) - 1] !== '--from');
   if (posArg) {
     targetWorkspace = posArg;
   } else if (adapterId === 'openclaw') {
@@ -1248,7 +1248,7 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
 
     if (!chatgptWorkspace) {
       console.error('Error: chatgpt-export adapter requires --workspace argument');
-      console.error('Usage: cortex sync --from chatgpt-export --workspace <path> [--since YYYY-MM] [--min-length N] [--max-conversations N]');
+      console.error('Usage: ennoia sync --from chatgpt-export --workspace <path> [--since YYYY-MM] [--min-length N] [--max-conversations N]');
       process.exit(1);
     }
   }
@@ -1264,7 +1264,7 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
 
     if (!filePath) {
       console.error('Error: file adapter requires --path argument');
-      console.error('Usage: cortex sync --from file --path <file-or-directory> [--accept-all] [--dry-run]');
+      console.error('Usage: ennoia sync --from file --path <file-or-directory> [--accept-all] [--dry-run]');
       process.exit(1);
     }
   }
@@ -1290,7 +1290,7 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
     const health = await llmBackend.healthCheck();
     if (!health.ok) {
       console.error('⚠️  Cortex requires an LLM backend to work.');
-      console.error('   Run "cortex setup" to configure your LLM provider.');
+      console.error('   Run "ennoia setup" to configure your LLM provider.');
       console.error(`   Error: ${health.error}`);
       process.exit(1);
     }
@@ -1429,11 +1429,11 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
     }
 
     console.log(`\nYour user model is now ${writtenCount} facts richer.`);
-    console.log('Run `cortex context` to view full user model.');
-    console.log('Run `cortex inject --format text` to get context paste-ready for other AIs.');
+    console.log('Run `ennoia context` to view full user model.');
+    console.log('Run `ennoia inject --format text` to get context paste-ready for other AIs.');
 
     if (!dryRun && writtenCount > 0) {
-      console.log(`\n\u2139\ufe0f  Run cortex inject --all-targets to sync to all agents`);
+      console.log(`\n\u2139\ufe0f  Run ennoia inject --all-targets to sync to all agents`);
     }
     return;
   }
@@ -1547,11 +1547,11 @@ export async function cmdSync(args: string[], opts: SyncOptions = {}): Promise<v
   }
 
   console.log(`\nYour user model is now ${writtenCount} facts richer.`);
-  console.log('Run `cortex context` to view full user model.');
-  console.log('Run `cortex inject --format text` to get context paste-ready for other AIs.');
+  console.log('Run `ennoia context` to view full user model.');
+  console.log('Run `ennoia inject --format text` to get context paste-ready for other AIs.');
 
   if (!dryRun && writtenCount > 0) {
-    console.log(`\n\u2139\ufe0f  Run cortex inject --all-targets to sync to all agents`);
+    console.log(`\n\u2139\ufe0f  Run ennoia inject --all-targets to sync to all agents`);
   }
 }
 
@@ -1607,7 +1607,7 @@ export async function cmdReflect(args: string[], opts: ReflectOptions = {}): Pro
 
   // --list mode is no longer supported with the deprecation of suggest-loop-store.json
   if (listMode) {
-    console.error('Error: --list is deprecated. reflect now writes directly to main user model; please use cortex context to view.');
+    console.error('Error: --list is deprecated. reflect now writes directly to main user model; please use ennoia context to view.');
     process.exit(1);
   }
 
@@ -1627,7 +1627,7 @@ export async function cmdReflect(args: string[], opts: ReflectOptions = {}): Pro
   if (useStdin && !acceptAll && process.stdin.isTTY !== true) {
     console.error(
       'Error: detected non-interactive input (stdin is not TTY), cannot enter interactive selection.\n' +
-      'Please add --accept-all to auto-confirm all candidates, or use positional arguments: cortex reflect "text"',
+      'Please add --accept-all to auto-confirm all candidates, or use positional arguments: ennoia reflect "text"',
     );
     process.exit(1);
   }
@@ -1643,7 +1643,7 @@ export async function cmdReflect(args: string[], opts: ReflectOptions = {}): Pro
   } else {
     const text = positional.join(' ').trim();
     if (!text) {
-      console.error('Error: reflect requires text. Example: cortex reflect "..."');
+      console.error('Error: reflect requires text. Example: ennoia reflect "..."');
       process.exit(1);
     }
     inputs = [text];
@@ -1657,14 +1657,14 @@ export async function cmdReflect(args: string[], opts: ReflectOptions = {}): Pro
   // CT-0032-01: LLM health check
   if (!llmBackend) {
     console.error('\u26a0\ufe0f  Cortex requires an LLM backend to work.');
-    console.error('   Run "cortex setup" to configure your LLM provider.');
+    console.error('   Run "ennoia setup" to configure your LLM provider.');
     process.exit(1);
   }
 
   const health = await llmBackend.healthCheck();
   if (!health.ok) {
     console.error('\u26a0\ufe0f  Cortex requires an LLM backend to work.');
-    console.error('   Run "cortex setup" to configure your LLM provider.');
+    console.error('   Run "ennoia setup" to configure your LLM provider.');
     console.error(`   Error: ${health.error}`);
     process.exit(1);
   }
@@ -1746,11 +1746,11 @@ export async function cmdReflect(args: string[], opts: ReflectOptions = {}): Pro
   }
 
   console.log(`\nYour user model is now ${writtenCount} facts richer.`);
-  console.log('Run `cortex context` to view full user model.');
-  console.log('Run `cortex inject --format text` to get context paste-ready for other AIs.');
+  console.log('Run `ennoia context` to view full user model.');
+  console.log('Run `ennoia inject --format text` to get context paste-ready for other AIs.');
 
   if (writtenCount > 0) {
-    console.log(`\n\u2139\ufe0f  Run cortex inject --all-targets to sync to all agents`);
+    console.log(`\n\u2139\ufe0f  Run ennoia inject --all-targets to sync to all agents`);
   }
 }
 
