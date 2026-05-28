@@ -1810,8 +1810,11 @@ async function main(): Promise<void> {
 
 // Only start main() when run directly as entry; skip when imported as module
 // to avoid CLI logic being triggered accidentally during test loading.
-if (process.argv[1] != null &&
-    path.resolve(process.argv[1]) === path.resolve(fileURLToPath(import.meta.url))) {
+// Use realpathSync to resolve symlinks (npm global install creates a symlink in bin/).
+import { realpathSync } from 'node:fs';
+const _argv1Real = process.argv[1] != null ? (() => { try { return realpathSync(process.argv[1]); } catch { return process.argv[1]; } })() : null;
+const _selfReal = (() => { try { return realpathSync(fileURLToPath(import.meta.url)); } catch { return fileURLToPath(import.meta.url); } })();
+if (_argv1Real != null && _argv1Real === _selfReal) {
   main().catch((err: unknown) => {
     if (err instanceof Error) {
       console.error(`Error: ${err.message}`);
