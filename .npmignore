@@ -1,0 +1,36 @@
+# Development artifacts
+fix_*.cjs
+fix_*.js
+fix-test.patch
+patch_*.cjs
+patch_*.patch
+manual_patch.cjs
+run_all_tests.cjs
+run_cli.js
+dl_patch.js
+test_fixture.sh
+test_one.cjs
+test_output.txt
+test-qwen*.sh
+test-sample*.md
+out_*.json
+prompt_*.txt
+scripts/
+
+# Backup files
+src/index.ts.backup
+src/index.ts.bak
+*.bak
+*.backup
+
+# Task cards and internal docs
+task_cards/
+docs/task/
+docs/research/
+
+# Claude Code internal
+.claude/
+
+# Misc
+.codex
+scri
