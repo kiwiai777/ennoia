@@ -56,6 +56,7 @@ import { resolveWorkspacePath } from './adapters/openclaw/workspace.js';
 import { extractFromChatGPTExport } from './adapters/chatgpt-export/index.js';
 import { extractContentBlocksFromChatGPT } from './adapters/chatgpt-export/content-blocks.js';
 import { ALL_INJECT_TARGETS, injectToTarget, type InjectTarget } from './adapters/inject-targets.js';
+import { cmdObserveMcp } from './observe-mcp.js';
 
 // CT-0027-04: Pipeline + backends
 import { loadConfig } from './backends/config.js';
@@ -107,6 +108,9 @@ function usage(): void {
   console.log('  ennoia import <path> [--llm]   Import from file/directory and write interactively');
   console.log('  ennoia suggest "<text>" [--llm] Generate suggestions from text and write interactively');
   console.log('  ennoia observe                 View recent context/inject usage record');
+  console.log('  ennoia observe --mcp           View MCP access log summary');
+  console.log('  ennoia observe --mcp --since <duration>  Filter by time (e.g. 24h, 7d)');
+  console.log('  ennoia observe --mcp --raw     Dump raw MCP access log entries');
   console.log('  ennoia reflect "<text>"        Extract suggestions from recent activity and write interactively');
   console.log('  ennoia reflect "<text>" --description "detailed description"');
   console.log('                                 Optionally add extra context for extracted candidates');
@@ -133,6 +137,10 @@ function usage(): void {
 // Convergent refactor: keep only trigger hints, health signals, recap, records (4 layers).
 // Removed candidates layer to eliminate duplicate semantics.
 export function cmdObserve(args: string[] = []): void {
+  if (args.includes('--mcp')) {
+    cmdObserveMcp(args.filter(a => a !== '--mcp'));
+    return;
+  }
   if (args.length > 0) {
     console.error(`Error: observe does not support argument ${args[0]}`);
     process.exit(1);

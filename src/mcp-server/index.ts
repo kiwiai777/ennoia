@@ -13,6 +13,7 @@ import http from 'http';
 import { loadConfig } from '../backends/config.js';
 import { createEmbeddingBackend } from '../backends/factory.js';
 import type { EmbeddingBackend } from '../backends/types.js';
+import { appendAccessLog, buildEntry } from './access-log.js';
 
 const VERSION = '0.2.0';
 
@@ -208,7 +209,7 @@ function formatResults(entries: UserModelEntry[]): string {
   return result.trim();
 }
 
-function createMcpServer(): Server {
+function createMcpServer(transport: 'stdio' | 'http'): Server {
   const server = new Server(
     {
       name: 'cortex-mcp-server',
@@ -221,44 +222,53 @@ function createMcpServer(): Server {
     }
   );
 
-  server.setRequestHandler(ListToolsRequestSchema, async () => ({
-    tools: [
-      {
-        name: 'get_preferences',
-        description: 'Query user preferences, goals, and constraints from cortex user model. Returns items matching the natural language query, ranked by semantic similarity.',
-        inputSchema: {
-          type: 'object',
-          properties: {
-            query: {
-              type: 'string',
-              description: 'Natural language query to search preferences (e.g., "coding style", "TypeScript", "meeting preferences")',
-            },
-            type: {
-              type: 'string',
-              enum: ['preference', 'goal', 'constraint'],
-              description: 'Optional filter by item type',
-            },
-            limit: {
-              type: 'number',
-              description: 'Maximum number of results to return',
-              default: 10,
-              minimum: 1,
-              maximum: 50,
+  server.setRequestHandler(ListToolsRequestSchema, async (request) => {
+    const startTime = Date.now();
+    const params = (request.params ?? {}) as Record<string, unknown>;
+    const result = {
+      tools: [
+        {
+          name: 'get_preferences',
+          description: 'Query user preferences, goals, and constraints from cortex user model. Returns items matching the natural language query, ranked by semantic similarity.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              query: {
+                type: 'string',
+                description: 'Natural language query to search preferences (e.g., "coding style", "TypeScript", "meeting preferences")',
+              },
+              type: {
+                type: 'string',
+                enum: ['preference', 'goal', 'constraint'],
+                description: 'Optional filter by item type',
+              },
+              limit: {
+                type: 'number',
+                description: 'Maximum number of results to return',
+                default: 10,
+                minimum: 1,
+                maximum: 50,
+              },
             },
           },
         },
-      },
-    ],
-  }));
+      ],
+    };
+    const responseSize = JSON.stringify(result).length;
+    appendAccessLog(buildEntry(transport, 'tools/list', null, params, startTime, responseSize, 'ok', null));
+    return result;
+  });
 
   server.setRequestHandler(CallToolRequestSchema, async (request) => {
-    if (request.params.name === 'get_preferences') {
-      try {
-        const args = request.params.arguments as GetPreferencesArgs;
-        const userModel = loadUserModel();
-        const results = await filterEntries(userModel, args);
+    const startTime = Date.now();
+    const toolName = request.params.name;
+    const args = (request.params.arguments ?? {}) as Record<string, unknown>;
 
-        return {
+    if (toolName === 'get_preferences') {
+      try {
+        const userModel = loadUserModel();
+        const results = await filterEntries(userModel, args as GetPreferencesArgs);
+        const result = {
           content: [
             {
               type: 'text',
@@ -266,24 +276,25 @@ function createMcpServer(): Server {
             },
           ],
         };
+        const responseSize = JSON.stringify(result).length;
+        appendAccessLog(buildEntry(transport, 'tools/call', toolName, args, startTime, responseSize, 'ok', null));
+        return result;
       } catch (error) {
-        log('error', {
-          message: 'Query execution failed',
-          error: error instanceof Error ? error.message : String(error)
-        });
-        return {
-          content: [
-            {
-              type: 'text',
-              text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
-            },
-          ],
+        const errMsg = error instanceof Error ? error.message : String(error);
+        log('error', { message: 'Query execution failed', error: errMsg });
+        const result = {
+          content: [{ type: 'text', text: `Error: ${errMsg}` }],
           isError: true,
         };
+        const responseSize = JSON.stringify(result).length;
+        appendAccessLog(buildEntry(transport, 'tools/call', toolName, args, startTime, responseSize, 'error', errMsg));
+        return result;
       }
     }
 
-    throw new Error(`Unknown tool: ${request.params.name}`);
+    const errMsg = `Unknown tool: ${toolName}`;
+    appendAccessLog(buildEntry(transport, 'tools/call', toolName, args, startTime, 0, 'error', errMsg));
+    throw new Error(errMsg);
   });
 
   return server;
@@ -298,7 +309,7 @@ async function startHttpServer(port: number) {
     }
 
     if (req.method === 'POST' && req.url === '/mcp') {
-      const server = createMcpServer();
+      const server = createMcpServer('http');
       const transport = new StreamableHTTPServerTransport({
         sessionIdGenerator: undefined,
       });
@@ -325,7 +336,7 @@ async function main() {
   if (httpMode) {
     await startHttpServer(port);
   } else {
-    const server = createMcpServer();
+    const server = createMcpServer('stdio');
     const transport = new StdioServerTransport();
     await server.connect(transport);
     log('startup', { version: VERSION, mode: 'stdio' });
